@@ -1962,6 +1962,13 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 //
 //
 //
@@ -2009,6 +2016,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2019,25 +2027,45 @@ __webpack_require__.r(__webpack_exports__);
         items: [{
           icon: 'home',
           text: 'Main Page',
-          path: '/dashBoard'
+          path: '/dashBoard',
+          name: 'main'
         }, {
           icon: 'account-cog',
           text: 'Account Settings',
-          path: "/dashBoard/profile/settings"
+          path: "/dashBoard/profile/settings",
+          name: 'settings'
         }, {
           icon: 'history',
           text: 'History',
-          path: ''
+          path: '',
+          name: 'history'
         }, {
           icon: 'logout',
           text: 'Log Out',
-          path: ''
+          path: '',
+          name: 'logOut'
         }]
       }
     };
   },
   created: function created() {// this.$vuetify.theme.dark = true;
-  }
+  },
+  methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])(['logOut']), {
+    itemEvent: function itemEvent(name) {
+      var _this = this;
+
+      switch (name) {
+        case "logOut":
+          this.logOut().then(function () {
+            _this.$router.push("/signIn");
+          });
+          break;
+
+        default:
+          break;
+      }
+    }
+  })
 });
 
 /***/ }),
@@ -2427,9 +2455,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   data: function data() {
     return {
       alert: {
-        status: true,
-        message: 'Error',
-        color: 'red'
+        status: false,
+        message: '',
+        color: ''
       },
       loading: false,
       form: {
@@ -2449,16 +2477,19 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         }, function (value) {
           return (value || '').length >= 3 || 'Min 3 characters';
         }],
-        email: [// value => !!value || 'Required.',
-        // value => (value || '').length <= 20 || 'Max 20 characters.',
-        function (value) {
-          if (value == '') {
-            return true;
-          } else {
-            var pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-            return pattern.test(value) || 'Invalid e-mail.';
-          }
-        }],
+        // email: [
+        //     // value => !!value || 'Required.',
+        //     // value => (value || '').length <= 20 || 'Max 20 characters.',
+        //     value => {
+        //         if(value == ''){
+        //             return true
+        //         }
+        //         else{
+        //             const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        //             return pattern.test(value) || 'Invalid e-mail.'
+        //         }
+        //     },
+        // ],
         password: [function (value) {
           return !!value || 'Required.';
         }, function (value) {
@@ -2485,7 +2516,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       var data = {
         name: this.form.name,
-        email: this.form.email,
+        // email: this.form.email,
         password: this.form.password
       };
 
@@ -2496,10 +2527,41 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }
 
       this.loading = true;
-      this.updateUser(data).then(function () {
-        _this.loading = false;
+      this.updateUser(data).then(function (response) {
+        switch (response) {
+          case "password":
+            _this.loading = false;
 
-        _this.$refs.update.reset();
+            _this.$refs.update.reset();
+
+            _this.alert.status = true;
+            _this.alert.message = "Wrong password. PLease try again.";
+            _this.alert.color = "red";
+            break;
+
+          case "name":
+            _this.loading = false;
+
+            _this.$refs.update.reset();
+
+            _this.alert.status = true;
+            _this.alert.message = "PLease try another name";
+            _this.alert.color = "red";
+            break;
+
+          case "success":
+            _this.loading = false;
+
+            _this.$refs.update.reset();
+
+            _this.alert.status = false;
+            break;
+
+          default:
+            break;
+        }
+      }, function (error) {
+        console.error("Got nothing from server. Prompt user to check internet connection and try again");
       });
     }
   }),
@@ -46433,7 +46495,14 @@ var render = function() {
                       [
                         _c(
                           "v-list-item",
-                          { attrs: { to: item.path, exact: "" } },
+                          {
+                            attrs: { to: item.path, exact: "" },
+                            on: {
+                              click: function($event) {
+                                return _vm.itemEvent(item.name)
+                              }
+                            }
+                          },
                           [
                             _c(
                               "v-list-item-icon",
@@ -106658,7 +106727,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
 
-var state = function state() {
+var getDefaultState = function getDefaultState() {
   return {
     user: {},
     token: '',
@@ -106666,6 +106735,7 @@ var state = function state() {
   };
 };
 
+var state = getDefaultState();
 var getters = {
   userData: function userData(state) {
     return state.user;
@@ -106686,6 +106756,11 @@ var mutations = {
   },
   loggedIn: function loggedIn(state, _loggedIn) {
     state.loggedIn = _loggedIn;
+  },
+  resetState: function resetState(state) {
+    // Merge rather than replace so we don't lose observers
+    // https://github.com/vuejs/vuex/issues/1118
+    Object.assign(state, getDefaultState());
   }
 };
 var actions = {
@@ -106812,7 +106887,7 @@ var actions = {
                 avatar_id: avatar,
                 Authorization: state.token.original.token_type + " " + state.token.original.access_token
               }, config).then(function (response) {
-                if (response.data == "refresh") {
+                if (response.data.message == "refresh") {
                   dispatch('refreshToken');
                 } else {
                   commit('updateUser', response.data);
@@ -106829,26 +106904,46 @@ var actions = {
   },
   updateUser: function updateUser(_ref6, data) {
     return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee6() {
-      var commit, state, dispatch, config;
+      var commit, state, dispatch;
       return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee6$(_context6) {
         while (1) {
           switch (_context6.prev = _context6.next) {
             case 0:
               commit = _ref6.commit, state = _ref6.state, dispatch = _ref6.dispatch;
-              config = {
-                headers: {
+              return _context6.abrupt("return", new Promise(function (resolve, reject) {
+                var config = {
+                  headers: {
+                    Authorization: state.token.original.token_type + " " + state.token.original.access_token
+                  }
+                };
+                axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/profile/updateUser", {
+                  data: data,
                   Authorization: state.token.original.token_type + " " + state.token.original.access_token
-                }
-              };
-              _context6.next = 4;
-              return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/profile/updateUser", {
-                data: data,
-                Authorization: state.token.original.token_type + " " + state.token.original.access_token
-              }, config).then(function (response) {
-                commit('updateUser', response.data);
-              });
+                }, config).then(function (response) {
+                  switch (response.data.message) {
+                    case "password":
+                      resolve("password");
+                      break;
 
-            case 4:
+                    case "name":
+                      resolve("name");
+                      break;
+
+                    case "success":
+                      commit('updateUser', response.data.user);
+                      resolve("success");
+                      break;
+
+                    default:
+                      break;
+                  }
+                }, function (error) {
+                  // http failed, let the calling function know that action did not work out
+                  reject(error);
+                });
+              }));
+
+            case 2:
             case "end":
               return _context6.stop();
           }
@@ -106870,7 +106965,9 @@ var actions = {
                 }
               };
               _context7.next = 4;
-              return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/auth/logout", {}, config).then(function (response) {});
+              return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/auth/logout", {}, config).then(function (response) {
+                commit('resetState');
+              });
 
             case 4:
             case "end":

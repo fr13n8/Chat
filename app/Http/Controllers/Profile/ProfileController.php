@@ -62,15 +62,21 @@ class ProfileController extends Controller
     //     }
     // }
 
-    public function changeAvatar(Request $req)
+    public function getUser()
     {
         try {
             $user = auth()->userOrFail();
             $user = $user->makeHidden($this->makeHidden);
         } catch (\Tymon\JWTAuth\Exceptions\UserNotDefinedException $e) {
             $user = $e;
-            return "refresh";
+            return response()->json(['message' => 'refresh']);
         }
+        return $user;
+    }
+    
+    public function changeAvatar(Request $req)
+    {
+        $user = $this->getUser();
         // dd($data);  // TODO if wrong token   
         // return response()->json($data);
         $user->update([
@@ -81,14 +87,26 @@ class ProfileController extends Controller
 
     public function updateUser(Request $req)
     {
+        $user = $this->getUser();
         if($this->passwordCheck($user->password, $req->data["password"])){
-            $user->update([
-                "name" => $req->data["name"]
+            $validator = Validator::make($req->all(), [
+                'name' => ['required', 'string', 'min:3', 'max:15', "unique:users,name"],
             ]);
-            return $user;
+            if($validator->fails() && $req->name == $user->name){
+                return response()->json(['message' => 'name']);
+            }
+            else{
+                $user->update([
+                    "name" => $req->data["name"]
+                ]);
+                return response()->json([
+                    'message' => "success",
+                    'user' => $user
+                ]);
+            }
         }
         else{
-            return false;
+            return response()->json(['message' => "password"]);
         }
     }
 }

@@ -23,7 +23,7 @@
               active-class="deep-purple text--accent-4"
             >
                   <!-- <router-link :to=item.path> -->
-              <v-list-item :to=item.path exact>
+              <v-list-item :to=item.path exact @click="itemEvent(item.name)">
                 <v-list-item-icon>
                   <v-icon>mdi-{{item.icon}}</v-icon>
                 </v-list-item-icon>
@@ -46,6 +46,7 @@
 </template>
 
 <script>
+import {mapMutations, mapActions} from "vuex";
 export default {
       data: () => ({
         drawer: {
@@ -53,16 +54,34 @@ export default {
           miniVariant: true,
           expandOnHover: true,
           items: [
-              { icon: 'home', text: 'Main Page', path: '/dashBoard' },
-              { icon: 'account-cog', text: 'Account Settings', path:"/dashBoard/profile/settings" },
-              { icon: 'history', text: 'History', path: '' },
-              { icon: 'logout', text: 'Log Out', path: '' },
+              { icon: 'home', text: 'Main Page', path: '/dashBoard', name: 'main' },
+              { icon: 'account-cog', text: 'Account Settings', path:"/dashBoard/profile/settings", name: 'settings' },
+              { icon: 'history', text: 'History', path: '', name: 'history' },
+              { icon: 'logout', text: 'Log Out', path: '', name: 'logOut'},
           ],
         }
       }),
       created() {
         // this.$vuetify.theme.dark = true;
-      }
+      },
+      methods: {
+        ...mapActions([
+                'logOut',
+                ]),
+
+        itemEvent: function(name){
+          switch (name) {
+            case "logOut":
+              this.logOut().then(() => {
+                this.$router.push("/signIn");
+              });
+              break;
+
+            default:
+              break;
+          }
+        }
+      },
 
 }
 </script>

@@ -1,10 +1,14 @@
 import Axios from "axios";
 
-const state = () => ({
-    user: {},
-    token: '',
-    loggedIn: false,
-})
+const getDefaultState = () => {
+    return {
+        user: {},
+        token: '',
+        loggedIn: false,
+    }
+  }
+
+const state = getDefaultState();
 
 const getters = {
     userData(state){
@@ -33,6 +37,12 @@ const mutations = {
     loggedIn(state, loggedIn){
         state.loggedIn = loggedIn;
     },
+
+    resetState (state) {
+        // Merge rather than replace so we don't lose observers
+        // https://github.com/vuejs/vuex/issues/1118
+        Object.assign(state, getDefaultState())
+      }
 }
 
 const actions = {
@@ -96,7 +106,7 @@ const actions = {
                 avatar_id: avatar,
                 Authorization: state.token.original.token_type + " " + state.token.original.access_token
             }, config).then(response => {
-                if(response.data == "refresh"){
+                if(response.data.message == "refresh"){
                     dispatch('refreshToken');
                 }
                 else{
@@ -110,17 +120,35 @@ const actions = {
     },
     
     async updateUser({commit, state, dispatch}, data){
-        let config = {
-            headers: {
-                Authorization: state.token.original.token_type + " " + state.token.original.access_token,
-            }
-          }
-        await Axios.post("/api/profile/updateUser", {
-            data: data,
-            Authorization: state.token.original.token_type + " " + state.token.original.access_token
-        }, config).then(response => {
-            commit('updateUser', response.data);
-        });
+        return new Promise((resolve, reject) => {
+            let config = {
+                headers: {
+                    Authorization: state.token.original.token_type + " " + state.token.original.access_token,
+                }
+              }
+            Axios.post("/api/profile/updateUser", {
+                data: data,
+                Authorization: state.token.original.token_type + " " + state.token.original.access_token
+            }, config).then(response => {
+                switch (response.data.message) {
+                    case "password":
+                        resolve("password");
+                        break;
+                    case "name":
+                        resolve("name");
+                        break;
+                    case "success":
+                        commit('updateUser', response.data.user);
+                        resolve("success");
+                        break;
+                    default:
+                        break;
+                }                
+            }, error => {
+                // http failed, let the calling function know that action did not work out
+                reject(error);
+            });
+        })
     },
 
     async logOut({commit, state, dispatch}){
@@ -130,7 +158,7 @@ const actions = {
             }
           }
         await Axios.post("/api/auth/logout", {}, config).then(response => {
-            
+            commit('resetState');
         });
     }
 }

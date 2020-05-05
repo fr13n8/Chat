@@ -70,9 +70,9 @@
         data () {
             return {
                 alert: {
-                    status: true,
-                    message: 'Error',
-                    color: 'red'
+                    status: false,
+                    message: '',
+                    color: ''
                 },
                 loading: false,
                 form: {
@@ -88,22 +88,22 @@
                         const pattern = /^[0-9a-zA-Z]+$/
                         return pattern.test(value) || 'Allowed only latin characters and numbers.'
                       },
-                      value => (value || '').length <= 15 || 'Max 15 characters.',
-                      value => (value || '').length >= 3 || 'Min 3 characters'
+                    value => (value || '').length <= 15 || 'Max 15 characters.',
+                    value => (value || '').length >= 3 || 'Min 3 characters',
                 ],
-                email: [
-                    // value => !!value || 'Required.',
-                    // value => (value || '').length <= 20 || 'Max 20 characters.',
-                    value => {
-                        if(value == ''){
-                            return true
-                        }
-                        else{
-                            const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-                            return pattern.test(value) || 'Invalid e-mail.'
-                        }
-                    },
-                ],
+                // email: [
+                //     // value => !!value || 'Required.',
+                //     // value => (value || '').length <= 20 || 'Max 20 characters.',
+                //     value => {
+                //         if(value == ''){
+                //             return true
+                //         }
+                //         else{
+                //             const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                //             return pattern.test(value) || 'Invalid e-mail.'
+                //         }
+                //     },
+                // ],
                 password: [
                     value => !!value || 'Required.',
                     value => {
@@ -132,7 +132,7 @@
             update(){
                 let data = {
                     name: this.form.name,
-                    email: this.form.email,
+                    // email: this.form.email,
                     password: this.form.password
                 }
                 for (const value in data) {
@@ -141,9 +141,32 @@
                     }
                 }
                 this.loading = true;
-                this.updateUser(data).then(() => {
-                    this.loading = false;
-                    this.$refs.update.reset();
+                this.updateUser(data).then(response => {
+                    switch (response) {
+                        case "password":
+                            this.loading = false;
+                            this.$refs.update.reset();
+                            this.alert.status = true;
+                            this.alert.message = "Wrong password. PLease try again."
+                            this.alert.color = "red";
+                            break;
+                        case "name":
+                            this.loading = false;
+                            this.$refs.update.reset();
+                            this.alert.status = true;
+                            this.alert.message = "PLease try another name"
+                            this.alert.color = "red";
+                            break;
+                        case "success":
+                            this.loading = false;
+                            this.$refs.update.reset();
+                            this.alert.status = false;
+                            break;
+                        default:
+                            break;
+                    }
+                }, error => {
+                    console.error("Got nothing from server. Prompt user to check internet connection and try again")
                 });
             }
         },
