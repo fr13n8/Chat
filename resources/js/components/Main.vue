@@ -1,7 +1,7 @@
 <template>
   <v-container>
       <v-card>
-        <v-app-bar app d-flex justify-space-between :clipped-left="$vuetify.breakpoint.lgAndUp">
+        <v-app-bar elevation=12 app d-flex justify-space-between :clipped-left="$vuetify.breakpoint.lgAndUp">
           <v-app-bar-nav-icon @click.stop="drawer.status = !drawer.status"></v-app-bar-nav-icon>
           <v-toolbar-title>nChat</v-toolbar-title>
           <v-spacer></v-spacer>
@@ -12,6 +12,7 @@
           v-model="drawer.status"
           :mini-variant="drawer.miniVariant"
           :expand-on-hover="drawer.expandOnHover"
+		  :disable-route-watcher="drawer.expandOnHover"
         >
           <v-list
             nav
@@ -36,6 +37,7 @@
               v-model="$vuetify.theme.dark"
               primary
             />
+			<v-divider></v-divider>
           </v-list>
         </v-navigation-drawer>
       </v-card>
@@ -52,12 +54,14 @@ export default {
         drawer: {
           status: false,
           miniVariant: true,
-          expandOnHover: true,
+          expandOnHover: false,
           items: [
               { icon: 'home', text: 'Main Page', path: '/dashBoard', name: 'main' },
               { icon: 'account-cog', text: 'Account Settings', path:"/dashBoard/profile/settings", name: 'settings' },
               { icon: 'history', text: 'History', path: '', name: 'history' },
-              { icon: 'logout', text: 'Log Out', path: '', name: 'logOut'},
+              { icon: 'card-plus', text: 'Create Room', path: '/dashboard/newRoom', name: 'newRoom'},
+			  { icon: 'group', text: 'Rooms', path: '/dashboard/chatRooms', name: 'rooms'},
+			  { icon: 'logout', text: 'Log Out', path: '', name: 'logOut'},
           ],
         }
       }),
@@ -86,7 +90,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
   .v-item-group a {
     text-decoration: none;
   }

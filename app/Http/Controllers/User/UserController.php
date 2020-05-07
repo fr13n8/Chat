@@ -26,7 +26,7 @@ class UserController extends Controller
     public function __construct()
     {
         $this->middleware('auth:api', ['except' => ['login', 'registration']]);
-        $this->makeHidden = ['password', 'email_verified_at', 'remember_token', 'created_at', 'updated_at', 'verified'];
+        // $this->makeHidden = ['password', 'email_verified_at', 'remember_token', 'created_at', 'updated_at', 'verified'];
     }
 
     /**
@@ -36,7 +36,7 @@ class UserController extends Controller
      */
     public function login(Request $req)
     {
-            $validator =  Validator::make($req->all(), [
+        $validator =  Validator::make($req->all(), [
             'email' => ['required', 'string', 'email', 'max:255', 'exists:users'],
             'password' => ['required', 'string', 'min:5'],
         ]);
@@ -146,11 +146,13 @@ class UserController extends Controller
     {
         try {
             $data = auth()->userOrFail();
-            $data = $data->makeHidden($this->makeHidden);
+            // $data = $data->makeHidden($this->makeHidden);
         } catch (\Tymon\JWTAuth\Exceptions\UserNotDefinedException $e) {
             $data = $e;
         }
-        // dd($data);  // TODO if wrong token   
+        // dd($data);  // TODO if wrong token
+		$data->members;
+		$data->rooms;
         return response()->json($data);
     }
 

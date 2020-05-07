@@ -45,3 +45,15 @@ Route::post('/user/changePassword', 'User\UserController@changePassword');
 Route::post('/profile/changeAvatar', 'Profile\ProfileController@changeAvatar');
 
 Route::post('/profile/updateUser', 'Profile\ProfileController@updateUser');
+
+Route::post('/messages', 'Profile\MessagesController@fetchMessages');
+
+Route::post('/sendMessage', 'Profile\MessagesController@sendMessage');
+
+Route::post('/addRoom', 'RoomsController@addRoom');
+
+Route::post('/joinRoom', 'RoomsController@joinRoom');
+
+Route::post('/leaveRoom', 'RoomsController@leaveRoom');
+
+Route::post('/fetchRooms', 'RoomsController@fetchRooms');

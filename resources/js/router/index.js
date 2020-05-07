@@ -9,6 +9,8 @@ import DashBoard from "../components/Main.vue";
 import ForgotPassword from "../components/User/ForgotPassword.vue";
 import ResetPassword from "../components/User/ResetPassword.vue";
 import Profile from "../components/User/Profile.vue";
+import ChatsList from "../components/Dashboard/ChatList.vue";
+import ChatRooms from "../components/Dashboard/ChatRooms.vue";
 
 import guest from './middleware/guest.js';
 import auth from './middleware/auth.js';
@@ -60,6 +62,16 @@ export default new Router({
                     component : Profile,
                     name: 'Profile'
                 },
+                {
+                    path: 'room/id:id',
+                    component : ChatsList,
+                    name: 'Chats' 
+                },
+				{
+					path: 'chatRooms',
+					component: ChatRooms,
+					name: 'ChatRooms'
+				}
             ],
             meta: {
                 middleware: [

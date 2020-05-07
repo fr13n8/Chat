@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import Axios from 'axios';
 import User from './modules/User';
 import AvatarPicker from './modules/AvatarPicker';
+import Rooms from './modules/Rooms';
 import createPersistedState from "vuex-persistedstate";
 import * as Cookies from "js-cookie";
 
@@ -15,7 +16,8 @@ export const store = new Vuex.Store({
   // actions: {},
   modules: {
     User,
-    AvatarPicker
+    AvatarPicker,
+	Rooms
   },
   plugins: [
     createPersistedState()

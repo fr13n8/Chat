@@ -1,11 +1,11 @@
 <template>
     <v-container fluid>
         <v-layout column>
-            <v-card>
+            <v-card elevation=12>
                 <v-card-text>
                     <v-flex class="mb-4">
                         <v-avatar size="96" class="mr-4">
-                            <img v-if="userData.avatar_id" :src="'/images/static/avatars/avatar_' + (userData.avatar_id.toLowerCase()) + '.jpg'" alt="Avatar">
+                            <img v-if="userData.avatar_id" :src="'/images/static/avatars/avatar_' + (userData.avatar_id) + '.jpg'" alt="Avatar">
                         </v-avatar>
                         <v-btn @click="openAvatarPicker">Change Avatar</v-btn>
                     </v-flex>

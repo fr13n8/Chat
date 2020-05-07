@@ -19,7 +19,7 @@ class ProfileController extends Controller
 
     public function __construct()
     {
-        $this->makeHidden = ['password', 'email_verified_at', 'remember_token', 'created_at', 'updated_at', 'verified'];
+        // $this->makeHidden = ['password', 'email_verified_at', 'remember_token', 'created_at', 'updated_at', 'verified'];
     }
 
     public function passwordCheck($hashedPassword, $password)
@@ -66,7 +66,7 @@ class ProfileController extends Controller
     {
         try {
             $user = auth()->userOrFail();
-            $user = $user->makeHidden($this->makeHidden);
+            // $user = $user->makeHidden($this->makeHidden);
         } catch (\Tymon\JWTAuth\Exceptions\UserNotDefinedException $e) {
             $user = $e;
             return response()->json(['message' => 'refresh']);
