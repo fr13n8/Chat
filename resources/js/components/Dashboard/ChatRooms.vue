@@ -17,12 +17,11 @@
 				  :loading="loading"
 				  transition="fade-transition"
 				  class="mx-auto"
-				  height="200px"
 				  type="card"
 				></v-skeleton-loader>
 			
 			  <v-card  v-show="loaded" elevation=12>
-				<v-img 
+				<v-img
 				  :src="src"
 				  class="white--text align-start pt-1 pl-1"
 				  gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
@@ -37,7 +36,7 @@
 					<v-btn elevation=6 :disabled="!room.joined" color="primary" :to="'/dashBoard/room/id' + room.id">
 							Join a chat
 					</v-btn>
-				  
+					
 				<v-spacer></v-spacer>
 	
 				<v-btn icon v-if="room.admin">
@@ -131,17 +130,16 @@ export default{
 }
 </script>
 
-<styles scoped>
-.v-card__actions a, .v-btn
+<style scoped>
+.v-btn
 {
 	color: #0060B6;
     text-decoration: none;
 }
 
-.v-card__actions a:hover 
+.v-btn:hover 
 {
-     color:#00A0C6; 
      text-decoration:none; 
      cursor:pointer;  
 }
-</styles>
+</style>

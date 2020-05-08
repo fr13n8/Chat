@@ -1,6 +1,5 @@
 <template>
-  <v-container>
-      <v-card>
+      <v-app>
         <v-app-bar elevation=12 app d-flex justify-space-between :clipped-left="$vuetify.breakpoint.lgAndUp">
           <v-app-bar-nav-icon @click.stop="drawer.status = !drawer.status"></v-app-bar-nav-icon>
           <v-toolbar-title>nChat</v-toolbar-title>
@@ -12,12 +11,12 @@
           v-model="drawer.status"
           :mini-variant="drawer.miniVariant"
           :expand-on-hover="drawer.expandOnHover"
-		  :disable-route-watcher="drawer.expandOnHover"
+		  :disable-route-watcher="drawer.disableRouteWatcher"
         >
           <v-list
             nav
             dense
-            height="100%"
+            height="100%" 
           >
             <v-list-item-group
               v-for="item in drawer.items" :key="item.text"
@@ -40,21 +39,36 @@
 			<v-divider></v-divider>
           </v-list>
         </v-navigation-drawer>
-      </v-card>
-      <v-container>
-        <router-view></router-view>
-      </v-container>
-  </v-container>
+        <v-content>
+        <v-container fluid>
+          <router-view></router-view>
+        </v-container>
+        </v-content>
+        <v-footer
+          :inset="footer.inset"
+          app
+          flat
+          tile
+        >
+        <v-card-text class="py-2 text-center">
+          &copy; {{ new Date().getFullYear() }} — <strong>nChat</strong>
+        </v-card-text>
+        </v-footer>
+      </v-app>
 </template>
 
 <script>
 import {mapMutations, mapActions} from "vuex";
 export default {
       data: () => ({
-        drawer: {
+          footer: {
+              inset: true
+          },
+          drawer: {
           status: false,
           miniVariant: true,
-          expandOnHover: false,
+          expandOnHover: true,
+          disableRouteWatcher: false,
           items: [
               { icon: 'home', text: 'Main Page', path: '/dashBoard', name: 'main' },
               { icon: 'account-cog', text: 'Account Settings', path:"/dashBoard/profile/settings", name: 'settings' },
@@ -80,7 +94,7 @@ export default {
                 this.$router.push("/signIn");
               });
               break;
-
+              
             default:
               break;
           }

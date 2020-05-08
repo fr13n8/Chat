@@ -127,7 +127,8 @@
             ...mapActions([
                 'fetchUser',
                 'avatarChange',
-                'updateUser'
+                'updateUser',
+                'fetchUser'
                 ]),
             update(){
                 let data = {
@@ -169,6 +170,9 @@
                     console.error("Got nothing from server. Prompt user to check internet connection and try again")
                 });
             }
+        },
+        created() {
+            this.fetchUser();
         },
         watch: {
         },

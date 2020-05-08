@@ -54,12 +54,14 @@ class User extends Authenticatable implements JWTSubject
 
     public function messages()
     {
-        return $this->hasManyThrough(Messages::class ,Members::class, 
+        /* return $this->hasManyThrough(Messages::class ,Members::class, 
             'user_id', // Foreign key on cars table...
             'member_id', // Foreign key on owners table...
             'id', // Local key on mechanics table...
             'id' // Local key on cars table...
-        );
+        ); */
+        
+        return $this->hasMany(Messages::class);
     }
 
     public function rooms()

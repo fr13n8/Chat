@@ -1,18 +1,12 @@
 <template>
-  <v-app>
-      <v-content>
+  <v-app class="px-0 mx-0">
+        
+      <v-content class="pa-0 ma-0">
+      <v-container fluid class="py-0 my-0" >
         <router-view></router-view>
+      </v-container>
       </v-content>
-      <v-footer
-        :inset="footer.inset"
-        app
-        flat
-        tile
-      >
-      <v-card-text class="py-2 text-center">
-        &copy; {{ new Date().getFullYear() }} — <strong>nChat</strong>
-      </v-card-text>
-      </v-footer>
+      
   </v-app>
 </template>
 
@@ -31,6 +25,8 @@ export default {
 }
 </script>
 
-<style>
-
+<style sxoped >
+.container {
+  max-width: 1400px;
+}
 </style>

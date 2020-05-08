@@ -1,44 +1,97 @@
 <template>
-   <div class="row">
+<v-content class="pa-0 ma-0">
+<v-container fluid>
+        <v-row dense style="height:620px">
+            <v-col cols=3 >
+                <v-card class="boards"  elevation=12 style="height:100%">
+                <v-list
+                    subheader>
+                    
+                    
+                 <v-list-item>
+                 <v-list-item-content>
+                 <v-text-field
+                    placeholder="Search"
+                    outlined
+                    dense
+                  ></v-text-field>
+                  </v-list-item-content>
+                 </v-list-item>
+                    
+                <v-list-item
+                dense
+                    v-for="(user, index) in users" 
+                    :key="index"
+                    @click=""
+                    
+                  >
+                    <v-list-item-avatar size=64>
+                      <v-img :src="'/images/static/avatars/avatar_' + (user.avatar_id) + '.jpg'"></v-img>
+                    </v-list-item-avatar>
 
-       <div class="col-8">
-           <div class="card card-default">
-               <div class="card-header">Messages</div>
-               <div class="card-body p-0">
-                   <ul class="list-unstyled" style="height:300px; overflow-y:scroll" >  
-                       <li class="p-2" v-for="(message, index) in messages" :key="index">
-                           <strong>{{ message.user.name }}</strong>
-                           {{ message.message }}
-                       </li>
-                   </ul>
-               </div>
+                    <v-list-item-content>
+                      <v-list-item-title v-text="user.name"></v-list-item-title>
+                      <v-list-item-subtitle v-text="user.email"></v-list-item-subtitle>
+                    </v-list-item-content>
 
-                    <!-- @keydown="sendTypingEvent" -->
-               <input
-                    @keyup.enter="sendMessage"
-                    v-model="newMessage"
-                    type="text"
-                    name="message"
-                    placeholder="Enter your message..."
-                    class="form-control">
-           </div>
-            <span class="text-muted" v-if="activeUser" >{{ activeUser.name }} is typing...</span>
-       </div>
-
-        <div class="col-4">
-            <div class="card card-default">
-                <div class="card-header">Active Users</div>
-                <div class="card-body">
-                    <ul>
-                        <li class="py-2" v-for="(user, index) in users" :key="index">
-                            {{ user.name }}
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-   </div>
+                  </v-list-item>
+                </v-list>
+                </v-card>
+            </v-col>
+            <v-col cols=9>
+                <v-card class="boards" elevation=12 style="height:100%">
+                <v-row no-gutters style="height:100%">
+                    <v-col cols=12 style="height:80%">
+                        <v-container fluid style="height:100%">
+                        <v-list disabled>
+                            <v-list-item
+                                dense
+                                v-for="(message, index) in messages"
+                                :key="index"
+                                @click=""
+                                
+                              >
+                              
+                              <v-list-item-avatar >
+                              <v-img :src="'/images/static/avatars/avatar_' + (message.user.avatar_id) + '.jpg'"></v-img>
+                            </v-list-item-avatar>
+                              <v-list-item-content>
+                                  <v-list-item-title v-text="message.user.name + ' ' + message.created_at">
+                                  </v-list-item-title>
+                                  <v-list-item-subtitle v-text="message.message"></v-list-item-subtitle>
+                                </v-list-item-content>
+                              </v-list-item>
+                        </v-list>
+                        </v-container>
+                    </v-col>
+                    <v-col cols=12 style="height:20%">
+                        <v-container fluid style="height:100%">
+                        <v-row class="px-2" dense>
+                            <v-btn rounded icon >
+                                <v-icon color="primary" dark >mdi-folder-account</v-icon>
+                            </v-btn>
+                            <v-textarea
+                              @keyup.enter="sendMessage"
+                              name="message"
+                              placeholder="Enter your message..."
+                              outlined
+                              v-model="newMessage"
+                              rows="3"
+                              no-resize
+                            ></v-textarea>
+                            <v-btn icon >
+                              <v-icon>mdi-send</v-icon>
+                            </v-btn>
+                        </v-row>
+                        </v-container>
+                    </v-col>
+                </v-row>
+                </v-card>
+            </v-col>
+            
+        </v-row>
+</v-container>
+</v-content>
 </template>
 
 <script>
@@ -47,6 +100,12 @@ import {mapGetters} from "vuex";
         // props:['user'],
         data() {
             return {
+                items: [
+                    { active: true, title: 'Jason Oner', avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg' },
+                    { active: true, title: 'Ranee Carlson', avatar: 'https://cdn.vuetifyjs.com/images/lists/2.jpg' },
+                    { title: 'Cindy Baker', avatar: 'https://cdn.vuetifyjs.com/images/lists/3.jpg' },
+                    { title: 'Ali Connors', avatar: 'https://cdn.vuetifyjs.com/images/lists/4.jpg' },
+                  ],
                 messages: [],
                 newMessage: '',
                 users:[],
@@ -96,6 +155,14 @@ import {mapGetters} from "vuex";
                     room_id : this.$route.params.id
                 }).then(response => {
                     console.log(response.data);
+                    let messages = response.data;
+                    messages.forEach(message => {
+                        let time = new Date(message.created_at);
+                        /* time = time.toLocaleDateString('it-IT').slice(0, -3); */
+                        var options = { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric'};
+                        time = time.toLocaleDateString('en-GB', options);
+                        message.created_at = time;
+                    })
                     this.messages = response.data;
                     // console.log(asdf);
                 })
@@ -120,12 +187,26 @@ import {mapGetters} from "vuex";
             ...mapGetters([
                 // 'userData'
                 ]),
+        },
+        watch:{
+            $route (to, from){
+                console.log(to)
+            }
+        },
+        beforeRouteLeave (to, from, next) {
+            Echo.leave('chat.' + this.$route.params.id);
+            next();
         }
     }
 </script>
 
-<style scope>
+<style scoped>
     li {
         color: black;
     }
+    
+    .boards {
+        border: 1px solid #f0f0f0 !important;
+    }
+    
 </style>
