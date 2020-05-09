@@ -12,6 +12,8 @@
           :mini-variant="drawer.miniVariant"
           :expand-on-hover="drawer.expandOnHover"
 		  :disable-route-watcher="drawer.disableRouteWatcher"
+          :disable-resize-watcher="drawer.disableResizeWatcher"
+          fixed
         >
           <v-list
             nav
@@ -44,16 +46,7 @@
           <router-view></router-view>
         </v-container>
         </v-content>
-        <v-footer
-          :inset="footer.inset"
-          app
-          flat
-          tile
-        >
-        <v-card-text class="py-2 text-center">
-          &copy; {{ new Date().getFullYear() }} — <strong>nChat</strong>
-        </v-card-text>
-        </v-footer>
+       
       </v-app>
 </template>
 
@@ -62,21 +55,22 @@ import {mapMutations, mapActions} from "vuex";
 export default {
       data: () => ({
           footer: {
-              inset: true
+              inset: false
           },
           drawer: {
-          status: false,
-          miniVariant: true,
-          expandOnHover: true,
-          disableRouteWatcher: false,
-          items: [
-              { icon: 'home', text: 'Main Page', path: '/dashBoard', name: 'main' },
-              { icon: 'account-cog', text: 'Account Settings', path:"/dashBoard/profile/settings", name: 'settings' },
-              { icon: 'history', text: 'History', path: '', name: 'history' },
-              { icon: 'card-plus', text: 'Create Room', path: '/dashboard/newRoom', name: 'newRoom'},
-			  { icon: 'group', text: 'Rooms', path: '/dashboard/chatRooms', name: 'rooms'},
-			  { icon: 'logout', text: 'Log Out', path: '', name: 'logOut'},
-          ],
+              status: false,
+              miniVariant: true,
+              expandOnHover: true,
+              disableRouteWatcher: true,
+              disableResizeWatcher: false,
+              items: [
+                  { icon: 'home', text: 'Main Page', path: '/dashBoard', name: 'main' },
+                  { icon: 'account-cog', text: 'Account Settings', path:"/dashBoard/profile/settings", name: 'settings' },
+                  { icon: 'history', text: 'History', path: '', name: 'history' },
+                  { icon: 'card-plus', text: 'Create Room', path: '/dashboard/newRoom', name: 'newRoom'},
+                  { icon: 'group', text: 'Rooms', path: '/dashboard/chatRooms', name: 'rooms'},
+                  { icon: 'logout', text: 'Log Out', path: '', name: 'logOut'},
+              ],
         }
       }),
       created() {

@@ -2,15 +2,16 @@ import Axios from "axios";
 
 const state = () => ({
     rooms: {},
+	currentRoom: {}
 })
 
 const getters = {
     rooms(state){
         return state.rooms;
     },
-	
-	members(state){
-		return state.members;
+		
+	currentRoom(state){
+		return state.currentRoom;
 	}
 }
 
@@ -41,7 +42,12 @@ const mutations = {
 			}
 		})
 		state.rooms = rooms;
+	},
+	
+	currentRoom(state, room){
+		state.currentRoom = room;
 	}
+		
 }
 
 const actions = {
@@ -74,6 +80,17 @@ const actions = {
 			})
     },
 	
+	async getCurrentRoom({ state, commit }, room_id){
+			let rooms = state.rooms;
+			let current = {};
+			rooms.forEach(room => {
+				if(room.id == room_id){
+					current = room;
+				}
+			})
+			commit('currentRoom',current);
+	},
+	
 	async joinRoom({commit, state, dispatch}, room_id ){
 		return new Promise((resolve, reject) => {
 			Axios.post("/api/joinRoom", {room_id}).then(response => {
@@ -97,7 +114,8 @@ const actions = {
 					reject(error);
 			})
 		})
-	}
+	},
+	
 	
 	/* async fetchMembers ({commit, state}){
 		return new Promise((resolve, reject) => {

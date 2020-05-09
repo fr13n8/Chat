@@ -106,7 +106,7 @@ export default{
 		...mapActions([
                 'fetchRooms',
 				'joinRoom',
-				'leaveRoom'
+				'leaveRoom',
                 ]),
 	},
 	computed: {

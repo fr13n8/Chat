@@ -2059,11 +2059,37 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   // props:['user'],
   data: function data() {
     return {
+      toggleIconColor: "white",
+      date: {
+        options: {
+          month: 'short',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric'
+        }
+      },
       items: [{
         active: true,
         title: 'Jason Oner',
@@ -2084,7 +2110,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       users: [],
       user: {},
       activeUser: false,
-      typingTimer: false
+      typingTimer: false,
+      barShow: false,
+      messagesBoxCol: 10
     };
   },
   created: function created() {
@@ -2098,6 +2126,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var message = _ref.message;
       console.log(message);
       console.log("message");
+      var time = new Date(message.created_at);
+      time = time.toLocaleTimeString('en-GB').slice(0, -3);
+      message.created_at = time;
 
       _this.messages.push(message);
     }).here(function (user) {
@@ -2124,8 +2155,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         _this.activeUser = false;
       }, 3000);
     });
+    this.getCurrentRoom(this.$route.params.id);
   },
-  methods: {
+  methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])(["getCurrentRoom"]), {
     fetchMessages: function fetchMessages() {
       var _this2 = this;
 
@@ -2136,38 +2168,38 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         var messages = response.data;
         messages.forEach(function (message) {
           var time = new Date(message.created_at);
-          /* time = time.toLocaleDateString('it-IT').slice(0, -3); */
-
-          var options = {
-            month: 'short',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric'
-          };
-          time = time.toLocaleDateString('en-GB', options);
+          time = time.toLocaleTimeString('en-GB').slice(0, -3);
           message.created_at = time;
         });
         _this2.messages = response.data; // console.log(asdf);
       });
     },
     sendMessage: function sendMessage() {
-      this.messages.push({
-        user: this.user,
-        message: this.newMessage
-      });
-      axios.post('/api/sendMessage', {
-        message: this.newMessage,
-        room_id: this.$route.params.id
-      });
-      this.newMessage = '';
-    } // sendTypingEvent() {
-    //     Echo.join('chat')
-    //         .whisper('typing', this.user);
-    // }
-
-  },
-  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])([// 'userData'
-  ])),
+      if (this.newMessage.trim().length > 0) {
+        var date = new Date();
+        this.messages.push({
+          user: this.user,
+          message: this.newMessage,
+          created_at: date.toLocaleTimeString('en-GB').slice(0, -3)
+        });
+        axios.post('/api/sendMessage', {
+          message: this.newMessage,
+          room_id: this.$route.params.id
+        });
+        this.newMessage = '';
+      }
+    },
+    toggleBar: function toggleBar() {
+      this.barShow = !this.barShow;
+      this.messagesBoxCol = this.barShow ? this.messagesBoxCol - 2 : this.messagesBoxCol + 2;
+      this.toggleIconColor = this.barShow ? "blue" : "white";
+    },
+    sendTypingEvent: function sendTypingEvent() {
+      console.log("asdfasf");
+      Echo.join('chat.' + this.$route.params.id).whisper('typing', this.user);
+    }
+  }),
+  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])(["userData", "currentRoom"])),
   watch: {
     $route: function $route(to, from) {
       console.log(to);
@@ -2391,25 +2423,19 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       footer: {
-        inset: true
+        inset: false
       },
       drawer: {
         status: false,
         miniVariant: true,
         expandOnHover: true,
-        disableRouteWatcher: false,
+        disableRouteWatcher: true,
+        disableResizeWatcher: false,
         items: [{
           icon: 'home',
           text: 'Main Page',
@@ -10201,10 +10227,10 @@ exports.push([module.i, ".swal2-popup.swal2-toast{flex-direction:row;align-items
 
 /***/ }),
 
-/***/ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/App.vue?vue&type=style&index=0&sxoped=true&lang=css&":
-/*!**********************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/App.vue?vue&type=style&index=0&sxoped=true&lang=css& ***!
-  \**********************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/App.vue?vue&type=style&index=0&id=f348271a&scoped=true&lang=css&":
+/*!**********************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/App.vue?vue&type=style&index=0&id=f348271a&scoped=true&lang=css& ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -10213,17 +10239,17 @@ exports = module.exports = __webpack_require__(/*! ../../node_modules/css-loader
 
 
 // module
-exports.push([module.i, "\n.container {\r\n  max-width: 1400px;\n}\r\n", ""]);
+exports.push([module.i, "\n.container[data-v-f348271a] {\r\n  max-width: 1400px;\n}\r\n", ""]);
 
 // exports
 
 
 /***/ }),
 
-/***/ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&id=6c9eb308&scoped=true&lang=css&":
-/*!************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&id=6c9eb308&scoped=true&lang=css& ***!
-  \************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&lang=css&":
+/*!************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&lang=css& ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -10232,7 +10258,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\nli[data-v-6c9eb308] {\n    color: black;\n}\n.boards[data-v-6c9eb308] {\n    border: 1px solid #f0f0f0 !important;\n}\n\n", ""]);
+exports.push([module.i, "\nli {\n        color: black;\n}\n.boards {\n        border: 2px solid #f0f0f0 !important;\n}\n.messageBoxHeader{\n        border-bottom: 1px solid #f0f0f0 !important;\n}\n.v-btn--icon:focus{\n        outline: none;\n}\n    \n   /*  .v-list {\n      overflow-y: auto;\n    } */\n.vuebar-element {\n      height: 100%;\n      width: 100%;\n}\n.vb > .vb-dragger {\n        z-index: 1;\n        width: 12px;\n        right: 0;\n}\n.vb > .vb-dragger > .vb-dragger-styler {\n        -webkit-backface-visibility: hidden;\n        backface-visibility: hidden;\n        transform: rotate3d(0,0,0,0);\n        transition:\n            background-color 100ms ease-out,\n            margin 100ms ease-out,\n            height 100ms ease-out;\n        background-color: rgba(48, 121, 244,.1);\n        margin: 5px 5px 5px 0;\n        border-radius: 20px;\n        height: calc(100% - 10px);\n        display: block;\n}\n.vb.vb-scrolling-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.3);\n}\n.vb > .vb-dragger:hover > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n}\n.messages ul li {\n  display: inline-block;\n  clear: both;\n  float: left;\n  margin: 8px 5px 0px;\n  width: calc(100% - 25px);\n  font-size: 0.9em;\n}\n.messages ul li.sent img {\n  margin: 6px 8px 0 0;\n}\n.messages ul li.sent p {\n  background: #435f7a;\n  color: #f5f5f5;\n  float:left;\n}\n.messages ul li.replies img {\n  float: right;\n  margin: 6px 0 0 8px;\n}\n.messages ul li.replies p {\n  background: #f5f5f5;\n  float: right;\n}\n.messages ul li img {\n  width: 28px;\n  border-radius: 50%;\n  float: left;\n}\n.messages ul li p {\n  display: inline-block;\n  padding: 8px 15px;\n  border-radius: 20px;\n  max-width: 225px;\n  line-height: 130%;\n}\n.msg_time_send{\n\t\tposition: relative;\n\t\tleft: -40px;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n.msg_time{\n\t\tposition: relative;\n\t\tleft: 40px;\n        float:right;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n", ""]);
 
 // exports
 
@@ -49845,15 +49871,15 @@ try {
 
 /***/ }),
 
-/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/App.vue?vue&type=style&index=0&sxoped=true&lang=css&":
-/*!**************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/App.vue?vue&type=style&index=0&sxoped=true&lang=css& ***!
-  \**************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/App.vue?vue&type=style&index=0&id=f348271a&scoped=true&lang=css&":
+/*!**************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/App.vue?vue&type=style&index=0&id=f348271a&scoped=true&lang=css& ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var content = __webpack_require__(/*! !../../node_modules/css-loader??ref--6-1!../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../node_modules/postcss-loader/src??ref--6-2!../../node_modules/vue-loader/lib??vue-loader-options!./App.vue?vue&type=style&index=0&sxoped=true&lang=css& */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/App.vue?vue&type=style&index=0&sxoped=true&lang=css&");
+var content = __webpack_require__(/*! !../../node_modules/css-loader??ref--6-1!../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../node_modules/postcss-loader/src??ref--6-2!../../node_modules/vue-loader/lib??vue-loader-options!./App.vue?vue&type=style&index=0&id=f348271a&scoped=true&lang=css& */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/App.vue?vue&type=style&index=0&id=f348271a&scoped=true&lang=css&");
 
 if(typeof content === 'string') content = [[module.i, content, '']];
 
@@ -49875,15 +49901,15 @@ if(false) {}
 
 /***/ }),
 
-/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&id=6c9eb308&scoped=true&lang=css&":
-/*!****************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&id=6c9eb308&scoped=true&lang=css& ***!
-  \****************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&lang=css&":
+/*!****************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&lang=css& ***!
+  \****************************************************************************************************************************************************************************************************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var content = __webpack_require__(/*! !../../../../node_modules/css-loader??ref--6-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--6-2!../../../../node_modules/vue-loader/lib??vue-loader-options!./ChatList.vue?vue&type=style&index=0&id=6c9eb308&scoped=true&lang=css& */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&id=6c9eb308&scoped=true&lang=css&");
+var content = __webpack_require__(/*! !../../../../node_modules/css-loader??ref--6-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--6-2!../../../../node_modules/vue-loader/lib??vue-loader-options!./ChatList.vue?vue&type=style&index=0&lang=css& */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&lang=css&");
 
 if(typeof content === 'string') content = [[module.i, content, '']];
 
@@ -56406,10 +56432,104 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var _typeof="fun
 
 /***/ }),
 
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/App.vue?vue&type=template&id=f348271a&":
-/*!*******************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/App.vue?vue&type=template&id=f348271a& ***!
-  \*******************************************************************************************************************************************************************************************/
+/***/ "./node_modules/vue-chat-scroll/dist/vue-chat-scroll.js":
+/*!**************************************************************!*\
+  !*** ./node_modules/vue-chat-scroll/dist/vue-chat-scroll.js ***!
+  \**************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+(function (global, factory) {
+   true ? module.exports = factory() :
+  undefined;
+}(this, (function () { 'use strict';
+
+  /**
+  * @name VueJS vChatScroll (vue-chat-scroll)
+  * @description Monitors an element and scrolls to the bottom if a new child is added
+  * @author Theodore Messinezis <theo@theomessin.com>
+  * @file v-chat-scroll  directive definition
+  */
+  var scrollToBottom = function scrollToBottom(el, smooth) {
+    if (typeof el.scroll === "function") {
+      el.scroll({
+        top: el.scrollHeight,
+        behavior: smooth ? 'smooth' : 'instant'
+      });
+    } else {
+      el.scrollTop = el.scrollHeight;
+    }
+  };
+
+  var vChatScroll = {
+    bind: function bind(el, binding) {
+      var scrolled = false;
+      el.addEventListener('scroll', function (e) {
+        scrolled = el.scrollTop + el.clientHeight + 1 < el.scrollHeight;
+
+        if (scrolled && el.scrollTop === 0) {
+          el.dispatchEvent(new Event("v-chat-scroll-top-reached"));
+        }
+      });
+      new MutationObserver(function (e) {
+        var config = binding.value || {};
+        if (config.enabled === false) return;
+        var pause = config.always === false && scrolled;
+        var addedNodes = e[e.length - 1].addedNodes.length;
+        var removedNodes = e[e.length - 1].removedNodes.length;
+
+        if (config.scrollonremoved) {
+          if (pause || addedNodes != 1 && removedNodes != 1) return;
+        } else {
+          if (pause || addedNodes != 1) return;
+        }
+
+        var smooth = config.smooth;
+        var loadingRemoved = !addedNodes && removedNodes === 1;
+
+        if (loadingRemoved && config.scrollonremoved && 'smoothonremoved' in config) {
+          smooth = config.smoothonremoved;
+        }
+
+        scrollToBottom(el, smooth);
+      }).observe(el, {
+        childList: true,
+        subtree: true
+      });
+    },
+    inserted: function inserted(el, binding) {
+      var config = binding.value || {};
+      scrollToBottom(el, config.notSmoothOnInit ? false : config.smooth);
+    }
+  };
+
+  /**
+  * @name VueJS vChatScroll (vue-chat-scroll)
+  * @description Monitors an element and scrolls to the bottom if a new child is added
+  * @author Theodore Messinezis <theo@theomessin.com>
+  * @file vue-chat-scroll plugin definition
+  */
+  var VueChatScroll = {
+    install: function install(Vue, options) {
+      Vue.directive('chat-scroll', vChatScroll);
+    }
+  };
+
+  if (typeof window !== 'undefined' && window.Vue) {
+    window.Vue.use(VueChatScroll);
+  }
+
+  return VueChatScroll;
+
+})));
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/App.vue?vue&type=template&id=f348271a&scoped=true&":
+/*!*******************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/App.vue?vue&type=template&id=f348271a&scoped=true& ***!
+  \*******************************************************************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -56449,10 +56569,10 @@ render._withStripped = true
 
 /***/ }),
 
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Dashboard/ChatList.vue?vue&type=template&id=6c9eb308&scoped=true&":
-/*!*********************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Dashboard/ChatList.vue?vue&type=template&id=6c9eb308&scoped=true& ***!
-  \*********************************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Dashboard/ChatList.vue?vue&type=template&id=6c9eb308&":
+/*!*********************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Dashboard/ChatList.vue?vue&type=template&id=6c9eb308& ***!
+  \*********************************************************************************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -56474,11 +56594,11 @@ var render = function() {
         [
           _c(
             "v-row",
-            { staticStyle: { height: "620px" }, attrs: { dense: "" } },
+            { staticStyle: { height: "650px" }, attrs: { dense: "" } },
             [
               _c(
                 "v-col",
-                { attrs: { cols: "3" } },
+                { attrs: { cols: "2" } },
                 [
                   _c(
                     "v-card",
@@ -56523,7 +56643,7 @@ var render = function() {
                               [
                                 _c(
                                   "v-list-item-avatar",
-                                  { attrs: { size: "64" } },
+                                  { attrs: { size: "38" } },
                                   [
                                     _c("v-img", {
                                       attrs: {
@@ -56570,7 +56690,7 @@ var render = function() {
               _vm._v(" "),
               _c(
                 "v-col",
-                { attrs: { cols: "9" } },
+                { attrs: { cols: _vm.messagesBoxCol, elevation: "12" } },
                 [
                   _c(
                     "v-card",
@@ -56590,78 +56710,202 @@ var render = function() {
                           _c(
                             "v-col",
                             {
-                              staticStyle: { height: "80%" },
+                              staticStyle: { height: "6%" },
+                              attrs: { cols: "12" }
+                            },
+                            [
+                              _c(
+                                "v-card",
+                                {
+                                  staticClass: "messageBoxHeader",
+                                  staticStyle: {
+                                    height: "100%",
+                                    "background-color": "#282E33"
+                                  },
+                                  attrs: { tile: "" }
+                                },
+                                [
+                                  _c(
+                                    "v-card-actions",
+                                    { staticClass: "pa-0" },
+                                    [
+                                      _c(
+                                        "div",
+                                        {
+                                          staticClass:
+                                            "pl-2 darken-2 text-center "
+                                        },
+                                        [
+                                          _c(
+                                            "span",
+                                            {
+                                              staticClass:
+                                                "white--text title font-weight-bold"
+                                            },
+                                            [
+                                              _vm._v(
+                                                _vm._s(_vm.currentRoom.name)
+                                              )
+                                            ]
+                                          )
+                                        ]
+                                      ),
+                                      _vm._v(" "),
+                                      _c(
+                                        "div",
+                                        {
+                                          staticClass:
+                                            "pl-2 darken-2 text-bottom pa-0 pt-1",
+                                          attrs: { elevation: "12" }
+                                        },
+                                        [
+                                          _c(
+                                            "span",
+                                            {
+                                              staticClass:
+                                                "white--text caption font-weight-thin"
+                                            },
+                                            [
+                                              _vm._v(
+                                                _vm._s(
+                                                  _vm.currentRoom.members.length
+                                                ) + " members"
+                                              )
+                                            ]
+                                          )
+                                        ]
+                                      ),
+                                      _vm._v(" "),
+                                      _c("v-spacer"),
+                                      _vm._v(" "),
+                                      _c(
+                                        "v-btn",
+                                        {
+                                          attrs: { text: "", icon: "" },
+                                          on: { click: _vm.toggleBar }
+                                        },
+                                        [
+                                          _c(
+                                            "v-icon",
+                                            {
+                                              attrs: {
+                                                color: _vm.toggleIconColor,
+                                                tile: ""
+                                              }
+                                            },
+                                            [_vm._v("mdi-application")]
+                                          )
+                                        ],
+                                        1
+                                      ),
+                                      _vm._v(" "),
+                                      _c(
+                                        "v-btn",
+                                        { attrs: { text: "", icon: "" } },
+                                        [
+                                          _c(
+                                            "v-icon",
+                                            { attrs: { tile: "" } },
+                                            [_vm._v("mdi-dots-vertical")]
+                                          )
+                                        ],
+                                        1
+                                      )
+                                    ],
+                                    1
+                                  )
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c("v-divider"),
+                          _vm._v(" "),
+                          _c(
+                            "v-col",
+                            {
+                              staticStyle: { height: "74%" },
                               attrs: { cols: "12" }
                             },
                             [
                               _c(
                                 "v-container",
                                 {
+                                  staticClass: "py-0 pt-1",
                                   staticStyle: { height: "100%" },
                                   attrs: { fluid: "" }
                                 },
                                 [
                                   _c(
-                                    "v-list",
-                                    { attrs: { disabled: "" } },
-                                    _vm._l(_vm.messages, function(
-                                      message,
-                                      index
-                                    ) {
-                                      return _c(
-                                        "v-list-item",
+                                    "div",
+                                    {
+                                      directives: [
+                                        { name: "bar", rawName: "v-bar" }
+                                      ],
+                                      staticClass: "vuebar-element messages"
+                                    },
+                                    [
+                                      _c(
+                                        "ul",
                                         {
-                                          key: index,
-                                          attrs: { dense: "" },
-                                          on: { click: function($event) {} }
+                                          directives: [
+                                            {
+                                              name: "chat-scroll",
+                                              rawName: "v-chat-scroll",
+                                              value: {
+                                                smooth: true,
+                                                notSmoothOnInit: true
+                                              },
+                                              expression:
+                                                "{smooth: true, notSmoothOnInit: true}"
+                                            }
+                                          ],
+                                          staticClass: "pa-0 my-0",
+                                          staticStyle: { "max-height": "450px" }
                                         },
-                                        [
-                                          _c(
-                                            "v-list-item-avatar",
+                                        _vm._l(_vm.messages, function(
+                                          message,
+                                          index
+                                        ) {
+                                          return _c(
+                                            "li",
+                                            {
+                                              key: index,
+                                              class:
+                                                _vm.userData.id ==
+                                                message.user.id
+                                                  ? "replies"
+                                                  : "sent",
+                                              on: { click: function($event) {} }
+                                            },
                                             [
-                                              _c("v-img", {
+                                              _c("img", {
                                                 attrs: {
+                                                  elevation: "12",
                                                   src:
                                                     "/images/static/avatars/avatar_" +
                                                     message.user.avatar_id +
-                                                    ".jpg"
-                                                }
-                                              })
-                                            ],
-                                            1
-                                          ),
-                                          _vm._v(" "),
-                                          _c(
-                                            "v-list-item-content",
-                                            [
-                                              _c("v-list-item-title", {
-                                                domProps: {
-                                                  textContent: _vm._s(
-                                                    message.user.name +
-                                                      " " +
-                                                      message.created_at
-                                                  )
+                                                    ".jpg",
+                                                  alt: message.user.name
                                                 }
                                               }),
                                               _vm._v(" "),
-                                              _c("v-list-item-subtitle", {
-                                                domProps: {
-                                                  textContent: _vm._s(
-                                                    message.message
-                                                  )
-                                                }
-                                              })
-                                            ],
-                                            1
+                                              _c("p", [
+                                                _vm._v(
+                                                  _vm._s(message.message) +
+                                                    "\r\n                                "
+                                                )
+                                              ])
+                                            ]
                                           )
-                                        ],
-                                        1
+                                        }),
+                                        0
                                       )
-                                    }),
-                                    1
+                                    ]
                                   )
-                                ],
-                                1
+                                ]
                               )
                             ],
                             1
@@ -56690,7 +56934,10 @@ var render = function() {
                                     [
                                       _c(
                                         "v-btn",
-                                        { attrs: { rounded: "", icon: "" } },
+                                        {
+                                          staticClass: "mr-1",
+                                          attrs: { rounded: "", icon: "" }
+                                        },
                                         [
                                           _c(
                                             "v-icon",
@@ -56708,6 +56955,7 @@ var render = function() {
                                       _vm._v(" "),
                                       _c("v-textarea", {
                                         attrs: {
+                                          "background-color": "#282E33",
                                           name: "message",
                                           placeholder: "Enter your message...",
                                           outlined: "",
@@ -56729,7 +56977,8 @@ var render = function() {
                                               return null
                                             }
                                             return _vm.sendMessage($event)
-                                          }
+                                          },
+                                          keydown: _vm.sendTypingEvent
                                         },
                                         model: {
                                           value: _vm.newMessage,
@@ -56742,7 +56991,11 @@ var render = function() {
                                       _vm._v(" "),
                                       _c(
                                         "v-btn",
-                                        { attrs: { icon: "" } },
+                                        {
+                                          staticClass: "ml-1",
+                                          attrs: { rounded: "", icon: "" },
+                                          on: { click: _vm.sendMessage }
+                                        },
                                         [_c("v-icon", [_vm._v("mdi-send")])],
                                         1
                                       )
@@ -56761,6 +57014,29 @@ var render = function() {
                     ],
                     1
                   )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-col",
+                {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: _vm.barShow,
+                      expression: "barShow"
+                    }
+                  ],
+                  attrs: { cols: "2" }
+                },
+                [
+                  _c("v-card", {
+                    staticClass: "boards",
+                    staticStyle: { height: "100%" },
+                    attrs: { elevation: "12" }
+                  })
                 ],
                 1
               )
@@ -57120,7 +57396,9 @@ var render = function() {
             clipped: _vm.$vuetify.breakpoint.lgAndUp,
             "mini-variant": _vm.drawer.miniVariant,
             "expand-on-hover": _vm.drawer.expandOnHover,
-            "disable-route-watcher": _vm.drawer.disableRouteWatcher
+            "disable-route-watcher": _vm.drawer.disableRouteWatcher,
+            "disable-resize-watcher": _vm.drawer.disableResizeWatcher,
+            fixed: ""
           },
           model: {
             value: _vm.drawer.status,
@@ -57191,18 +57469,6 @@ var render = function() {
       _c(
         "v-content",
         [_c("v-container", { attrs: { fluid: "" } }, [_c("router-view")], 1)],
-        1
-      ),
-      _vm._v(" "),
-      _c(
-        "v-footer",
-        { attrs: { inset: _vm.footer.inset, app: "", flat: "", tile: "" } },
-        [
-          _c("v-card-text", { staticClass: "py-2 text-center" }, [
-            _vm._v("\n          © " + _vm._s(new Date().getFullYear()) + " — "),
-            _c("strong", [_vm._v("nChat")])
-          ])
-        ],
         1
       )
     ],
@@ -73612,6 +73878,906 @@ module.exports = Vue;
 if (false) {} else {
   module.exports = __webpack_require__(/*! ./vue.common.dev.js */ "./node_modules/vue/dist/vue.common.dev.js")
 }
+
+
+/***/ }),
+
+/***/ "./node_modules/vuebar/vuebar.js":
+/*!***************************************!*\
+  !*** ./node_modules/vuebar/vuebar.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*----------------------------------------*\
+    Vuebar
+\*----------------------------------------*/
+;(function(){
+    'use strict';
+
+
+
+    /*------------------------------------*\
+        Vuebar
+    \*------------------------------------*/
+    var Vuebar = {};
+    Vuebar.install = function(Vue, installOptions){
+
+
+        /*------------------------------------*\
+            Custom Directive Name
+        \*------------------------------------*/
+        installOptions = installOptions || {};
+        installOptions.directive = installOptions.directive || 'bar';
+
+
+        /*------------------------------------*\
+            Create State
+            - contains default values
+        \*------------------------------------*/
+        function createState(el){
+            el._vuebarState = {
+
+                // config with default values that may be overwritten on directive intialization
+                config: {
+                    scrollThrottle: 10,
+                    draggerThrottle: 10,
+                    resizeRefresh: true,
+                    observerThrottle: 100,
+                    resizeDebounce: 100,
+                    unselectableBody: true,
+                    overrideFloatingScrollbar: true,
+                    scrollingPhantomDelay: 1000,
+                    draggingPhantomDelay: 1000,
+                    preventParentScroll: false,
+                    useScrollbarPseudo: false, // experimental
+
+                    el1Class: 'vb',
+                    el1ScrollVisibleClass: 'vb-visible',
+                    el1ScrollInvisibleClass: 'vb-invisible',
+                    el1ScrollingClass: 'vb-scrolling',
+                    el1ScrollingPhantomClass: 'vb-scrolling-phantom',
+                    el1DraggingClass: 'vb-dragging',
+                    el1DraggingPhantomClass: 'vb-dragging-phantom',
+
+                    el2Class: 'vb-content',
+
+                    draggerClass: 'vb-dragger',
+                    draggerStylerClass: 'vb-dragger-styler',
+                },
+
+                // reference to binding
+                binding: null,
+
+                // references to directive DOM elements
+                el1: null,
+                el2: null,
+                dragger: null,
+
+                // show dragger
+                draggerEnabled: null,
+
+                // properties computed for internal directive logic & DOM manipulations
+                visibleArea: 0, // ratio between container height and scrollable content height
+                scrollTop: 0, // position of content scrollTop in px
+                barTop: 0, // position of dragger in px
+                barHeight: 0, // height of dragger in px
+                mouseBarOffsetY: 0, // relative position of mouse at the time of clicking on dragger
+                barDragging: false, // when the dragger is used
+
+                // reference to MutationObserver
+                mutationObserver: null,
+
+                // references to timeouts for DOM class manipulation
+                scrollingClassTimeout: null,
+                draggingClassTimeout: null,
+                scrollingPhantomClassTimeout: null,
+                draggingPhantomClassTimeout: null,
+
+                // references to a functions we'll need when removing events
+                barMousedown: null,
+                documentMousemove: null,
+                documentMouseup: null,
+                windowResize: null,
+                scrollHandler: null,
+                wheelHandler: null,
+
+            };
+            return el._vuebarState;
+        }
+
+
+
+
+        /*------------------------------------*\
+            Get State
+        \*------------------------------------*/
+        function getState(el){
+            return el._vuebarState;
+        }
+
+
+
+
+        /*------------------------------------*\
+            Mount Validation
+        \*------------------------------------*/
+        function markupValidation(el){
+            if (!el.firstChild) {
+                Vue.util.warn('(Vuebar) Element 1 with v-bar directive doesn\'t have required child element 2.');
+                return false;
+            }
+            return true;
+        }
+
+
+
+
+
+        /*------------------------------------*\
+            Computing Properties
+        \*------------------------------------*/
+        function computeVisibleArea(el){
+            var state = getState(el);
+            state.visibleArea = (state.el2.clientHeight / state.el2.scrollHeight);
+        }
+
+        function computeScrollTop(el){
+            var state = getState(el);
+            state.scrollTop = state.barTop * (state.el2.scrollHeight / state.el2.clientHeight);
+        }
+
+        function computeBarTop(el, event){
+            var state = getState(el);
+
+            // if the function gets called on scroll event
+            if (!event) {
+                state.barTop = state.el2.scrollTop * state.visibleArea;
+                return false;
+            } // else the function gets called when moving dragger with mouse
+
+
+            var relativeMouseY = (event.clientY - state.el1.getBoundingClientRect().top);
+            if (relativeMouseY <= state.mouseBarOffsetY) { // if bar is trying to go over top
+                state.barTop = 0;
+            }
+
+            if (relativeMouseY > state.mouseBarOffsetY) { // if bar is moving between top and bottom
+                state.barTop = relativeMouseY - state.mouseBarOffsetY;
+            }
+
+
+            if ( (state.barTop + state.barHeight ) >= state.el2.clientHeight ) { // if bar is trying to go over bottom
+                state.barTop = state.el2.clientHeight - state.barHeight;
+            }
+
+        }
+
+        function computeBarHeight(el){
+            var state = getState(el);
+            if (state.visibleArea >= 1) {
+                state.barHeight = 0;
+            } else {
+                state.barHeight = state.el2.clientHeight * state.visibleArea;
+            }
+        }
+
+
+
+
+        /*------------------------------------*\
+            Styles & DOM
+        \*------------------------------------*/
+        function createDragger(el){
+            var state = getState(el);
+
+            var dragger = document.createElement('div');
+            var draggerStyler = document.createElement('div');
+
+            dragger.className = state.config.draggerClass;
+
+            dragger.style.position = 'absolute';
+
+            if (!state.draggerEnabled) {
+                dragger.style.display = 'none';
+            }
+
+            draggerStyler.className = state.config.draggerStylerClass;
+
+            dragger.appendChild(draggerStyler);
+            state.el1.appendChild(dragger);
+
+            return dragger;
+        }
+
+
+        function updateDragger(el, options){
+            var options = options ? options : {};
+            var state = getState(el);
+
+            // setting dragger styles
+            state.dragger.style.height = parseInt( Math.round( state.barHeight)  ) + 'px';
+            state.dragger.style.top = parseInt( Math.round( state.barTop ) ) + 'px';
+            //state.dragger.style.height = Math.ceil( state.barHeight ) + 'px';
+            //state.dragger.style.top = Math.ceil( state.barTop ) + 'px';
+
+            // scrollbar visible / invisible classes
+            if (state.draggerEnabled && (state.visibleArea<1)) {
+                removeClass(state.el1, state.config.el1ScrollInvisibleClass);
+                addClass(state.el1, state.config.el1ScrollVisibleClass);
+            } else {
+                removeClass(state.el1, state.config.el1ScrollVisibleClass);
+                addClass(state.el1, state.config.el1ScrollInvisibleClass);
+            }
+
+
+
+            if (options.withScrollingClasses) {
+
+                // add scrolling class
+                addClass(state.el1, state.config.el1ScrollingClass);
+
+                // remove scrolling class
+                state.scrollingClassTimeout ?
+                    clearTimeout(state.scrollingClassTimeout) : null;
+                state.scrollingClassTimeout = setTimeout(function() {
+                    removeClass(state.el1, state.config.el1ScrollingClass);
+                }, state.config.scrollThrottle + 5);
+
+
+
+                // add phantom scrolling class
+                addClass(state.el1, state.config.el1ScrollingPhantomClass);
+
+                // remove phantom scrolling class
+                state.scrollingPhantomClassTimeout ?
+                    clearTimeout(state.scrollingPhantomClassTimeout) : null;
+                state.scrollingPhantomClassTimeout = setTimeout(function() {
+                    removeClass(state.el1, state.config.el1ScrollingPhantomClass);
+                }, state.config.scrollThrottle + state.config.scrollingPhantomDelay);
+
+            }
+
+        }
+
+
+
+        // this is an experimental feature
+        // - it works only on chrome and safari
+        // - instead of hiding scrollbar by overflowing it with its parent set to overflow:hidden
+        //   we hide scrollbar using pseudo-element selector ::-webkit-scrollbar
+        function hideScrollbarUsingPseudoElement(el){
+            var state = getState(el);
+            var idName = 'vuebar-pseudo-element-styles';
+            var selector = '.' + state.config.el2Class + '::-webkit-scrollbar';
+            var styleElm = document.getElementById(idName);
+            var sheet = null;
+
+            if (styleElm) {
+                sheet = styleElm.sheet;
+            } else {
+                styleElm = document.createElement('style');
+                styleElm.id = idName;
+                document.head.appendChild(styleElm);
+                sheet = styleElm.sheet;
+            }
+
+            // detect if there is a rule already added to the selector
+            var ruleExists = false;
+            for(var i=0, l=sheet.rules.length; i<l; i++){
+                var rule = sheet.rules[i];
+                if (rule.selectorText == selector) {
+                    ruleExists = true;
+                }
+            }
+
+            // if there is rule added already then don't continue
+            if ( ruleExists ) { return false }
+
+            // insert rule
+            // - we only need to use insertRule and don't need to use addRule at all
+            //   because we're only targeting chrome & safari browsers
+            if (sheet.insertRule) {
+                sheet.insertRule(selector + '{display:none}', 0);
+            }
+
+        }
+
+
+
+
+        function preventParentScroll(el, event){
+            var state = getState(el);
+
+            if (state.visibleArea >= 1) {
+                return false;
+            }
+
+            var scrollDist = state.el2.scrollHeight - state.el2.clientHeight;
+            var scrollTop = state.el2.scrollTop;
+
+            var wheelingUp = event.deltaY < 0;
+            var wheelingDown = event.deltaY > 0;
+
+            if ( (scrollTop <= 0) && wheelingUp) {
+                event.preventDefault();
+                return false;
+            }
+
+            if ( (scrollTop >= scrollDist) && wheelingDown) {
+                event.preventDefault();
+                return false;
+            }
+
+        }
+
+
+
+        function updateScroll(el){
+            var state = getState(el);
+            state.el2.scrollTop = state.scrollTop;
+        }
+
+
+
+
+        /*------------------------------------*\
+            Refresh
+        \*------------------------------------*/
+
+        function refreshScrollbar(el, options){
+            var options = options ? options : {};
+
+            if (options.immediate) {
+                computeVisibleArea(el);
+                computeBarTop(el);
+                computeBarHeight(el);
+                updateDragger(el);
+            }
+
+            Vue.nextTick(function(){
+                if ( !getState(el) ) { return false }
+                computeVisibleArea(el);
+                computeBarTop(el);
+                computeBarHeight(el);
+                updateDragger(el);
+            }.bind(this));
+        }
+
+
+
+
+        /*------------------------------------*\
+            Events & Handlers
+        \*------------------------------------*/
+
+        function scrollHandler(el){
+            var state = getState(el);
+            return throttle(function(event){
+                computeVisibleArea(el);
+                computeBarHeight(el); // fallback for an undetected content change
+                if (!state.barDragging) {
+                    computeBarTop(el);
+                    updateDragger(el, {withScrollingClasses: true});
+                }
+            }.bind(this), state.config.scrollThrottle);
+        }
+
+
+        function wheelHandler(el){
+            return function(event){
+                preventParentScroll(el, event);
+            }.bind(this);
+        }
+
+
+        function documentMousemove(el){
+            var state = getState(el);
+            return throttle(function(event){
+                computeBarTop(el, event);
+                updateDragger(el);
+                computeScrollTop(el);
+                updateScroll(el);
+            }.bind(this), state.config.draggerThrottle);
+        }
+
+
+        function documentMouseup(el){
+            var state = getState(el);
+            return function(event){
+
+                //
+                state.barDragging = false;
+
+                // enable user select
+                state.el1.style.userSelect = '';
+                state.config.unselectableBody ? compatStyle(document.body, 'UserSelect', '') : null;
+
+                // remove dragging class
+                removeClass(state.el1, state.config.el1DraggingClass);
+                state.draggingPhantomClassTimeout = setTimeout(function() {
+                    removeClass(state.el1, state.config.el1DraggingPhantomClass);
+                }, state.config.draggingPhantomDelay);
+
+
+                // remove events
+                document.removeEventListener('mousemove', state.documentMousemove, 0);
+                document.removeEventListener('mouseup', state.documentMouseup, 0);
+
+            }.bind(this);
+
+        }
+
+
+        function barMousedown(el){
+            var state = getState(el);
+            return function(event){
+
+                // don't do nothing if it's not left mouse button
+                if ( event.which!==1 ) { return false }
+
+                state.barDragging = true;
+                state.mouseBarOffsetY = event.offsetY;
+
+                // disable user select
+                state.el1.style.userSelect = 'none';
+                state.config.unselectableBody ? compatStyle(document.body, 'UserSelect', 'none') : null;
+
+                // add dragging class
+                addClass(state.el1, state.config.el1DraggingClass);
+                state.draggingPhantomClassTimeout ?
+                    clearTimeout(state.draggingPhantomClassTimeout) : null;
+                addClass(state.el1, state.config.el1DraggingPhantomClass);
+
+                // add events
+                document.addEventListener('mousemove', state.documentMousemove, 0);
+                document.addEventListener('mouseup', state.documentMouseup, 0);
+
+
+            }.bind(this);
+        }
+
+
+        function windowResize(el){
+            var state = getState(el);
+            return debounce(function(event){
+                refreshScrollbar(el);
+            }.bind(this), state.config.resizeDebounce);
+        }
+
+
+
+
+        function initMutationObserver(el){
+            if (typeof MutationObserver === typeof void 0) { return null }
+
+            var state = getState(el);
+
+            var observer = new MutationObserver(throttle(function(mutations) {
+                refreshScrollbar(el);
+            }, state.config.observerThrottle));
+
+            observer.observe(state.el2, {
+                childList: true,
+                characterData: true,
+                subtree: true,
+            });
+
+            return observer;
+        }
+
+
+
+
+        /*------------------------------------*\
+            Initialize Scrollbar
+        \*------------------------------------*/
+        function initScrollbar(el, kwargs){
+
+            // validate on directive bind if the markup is OK
+            if ( !markupValidation.call(this, el) ) { return false }
+
+            // safeguard to not initialize vuebar when it's already initialized
+            if (el._vuebarState) {
+                // and I'm actually curious if that can happen
+                Vue.util.warn('(Vuebar) Tried to initialize second time. If you see this please create an issue on https://github.com/DominikSerafin/vuebar with all relevent debug information. Thank you!');
+                return false;
+            }
+
+            // create state
+            var state = createState(el);
+
+            // get options object
+            // - it will come from directive binding (there is a 'value' property)
+            // - or it will come from public method direct options object
+            var options = kwargs.value ? kwargs.value : (kwargs ? kwargs : {});
+
+            // overwrite defaults with provided options
+            for (var key in options){
+                state.config[key] = options[key];
+            }
+
+            // detect browser
+            var browser = detectBrowser();
+
+            // dragger enabled?
+            var elNativeScrollbarWidth = getNativeScrollbarWidth(el.firstElementChild);
+            var overlayScrollbar = elNativeScrollbarWidth == 0;
+            state.draggerEnabled = ( (!overlayScrollbar) || state.config.overrideFloatingScrollbar ) ? 1 : 0;
+
+            // setup scrollbar "state"
+            state.binding = kwargs.value ? kwargs : null;
+            state.el1 = el;
+            state.el2 = el.firstElementChild;
+            state.dragger = createDragger(el);
+
+            // create and reference event listeners
+            state.barMousedown = barMousedown(el);
+            state.documentMousemove = documentMousemove(el);
+            state.documentMouseup = documentMouseup(el);
+            state.windowResize = windowResize(el);
+            state.scrollHandler = scrollHandler(el);
+            state.wheelHandler = wheelHandler(el);
+
+            // initialize and reference mutation observer
+            state.mutationObserver = initMutationObserver(el);
+
+            // el1 styles and class
+            addClass(state.el1, state.config.el1Class);
+            state.el1.style.position = 'relative';
+            state.el1.style.overflow = 'hidden';
+
+            // el2 styles and class
+            addClass(state.el2, state.config.el2Class);
+            state.el2.style.display = 'block';
+            state.el2.style.overflowX = 'hidden';
+            state.el2.style.overflowY = 'scroll';
+            state.el2.style.height = '100%';
+
+            // do the magic
+            if (state.draggerEnabled) {
+
+                // hide original browser scrollbar using pseudo css selectors (only chrome & safari)
+                if ( state.config.useScrollbarPseudo && (browser.chrome || browser.safari) ) {
+                    state.el2.style.width = '100%';
+                    hideScrollbarUsingPseudoElement(el);
+                }
+
+                // hide original browser overlay scrollbar and add padding to compensate for that
+                else if (overlayScrollbar) {
+                    /* state.el2.style.width = 'calc(100% + ' + 20 + 'px)';
+                    compatStyle(state.el2, 'BoxSizing', 'border-box'); */
+                    state.el2.style.width = '100%';
+                    compatStyle(state.el2, 'BoxSizing', 'content-box');
+                    state.el2.style.paddingRight = '20px';
+                }
+
+                // hide original browser scrollbar behind element edges and hidden overflow
+                else {
+                    state.el2.style.width = 'calc(100% + ' + elNativeScrollbarWidth + 'px)';
+                }
+
+            }
+
+            // add events
+            // - wheel event is only needed when preventParentScroll option is enabled
+            // - resize event is only needed when resizeRefresh option is enabled
+            state.el2.addEventListener('scroll', state.scrollHandler, 0);
+            state.dragger.addEventListener('mousedown', state.barMousedown, 0);
+            state.config.preventParentScroll ? state.el2.addEventListener('wheel', state.wheelHandler, 0) : null;
+            state.config.resizeRefresh ? window.addEventListener('resize', state.windowResize, 0) : null;
+
+            // initial calculations using refresh scrollbar
+            refreshScrollbar(el, {immediate: true});
+
+        }
+
+
+
+
+        /*------------------------------------*\
+            Destroy Scrollbar
+        \*------------------------------------*/
+        function destroyScrollbar(el, options){
+            var options = options ? options : {};
+            var state = getState(el);
+            if (!state) return;
+
+            // clear events
+            state.dragger.removeEventListener('mousedown', state.barMousedown, 0);
+            state.el2.removeEventListener('scroll', state.scrollHandler, 0);
+            state.el2.removeEventListener('wheel', state.scrollHandler, 0);
+            window.removeEventListener('resize', state.windowResize, 0);
+
+            // disconnect mutation observer
+            state.mutationObserver ? state.mutationObserver.disconnect() : null;
+
+            // clear el1 classes
+            removeClass(state.el1, state.config.el1Class);
+            removeClass(state.el1, state.config.el1ScrollVisibleClass);
+            removeClass(state.el1, state.config.el1ScrollInvisibleClass);
+            removeClass(state.el1, state.config.el1ScrollingClass);
+            removeClass(state.el1, state.config.el1ScrollingPhantomClass);
+            removeClass(state.el1, state.config.el1DraggingClass);
+
+            // clear el1 styles
+            if (options.clearStyles) {
+                state.el1.style.position = '';
+                state.el1.style.overflow = '';
+            }
+
+            // clear el2 classes
+            removeClass(state.el2, state.config.el2Class);
+
+            // clear el2 styles
+            if (options.clearStyles) {
+                state.el2.style.display = '';
+                state.el2.style.overflowX = '';
+                state.el2.style.overflowY = '';
+                state.el2.style.msOverflowStyle = '';
+                state.el2.style.height = '';
+                state.el2.style.width = '';
+            }
+
+            // clear dragger
+            state.dragger.removeChild(state.dragger.firstChild);
+            state.el1.removeChild(state.dragger);
+
+            // clear timeouts that may be still running
+            state.scrollingPhantomClassTimeout ?
+                clearTimeout(state.scrollingPhantomClassTimeout) : null;
+            state.draggingPhantomClassTimeout ?
+                clearTimeout(state.draggingPhantomClassTimeout) : null;
+
+            // delete state object from element
+            delete el._vuebarState;
+
+        }
+
+
+
+
+
+
+        /*------------------------------------*\
+            Public Methods Install
+        \*------------------------------------*/
+        function publicMethods(){
+            return {
+                getState: getState,
+                initScrollbar: initScrollbar,
+                destroyScrollbar: destroyScrollbar,
+                refreshScrollbar: refreshScrollbar,
+            };
+        }
+        Vue.vuebar = publicMethods();
+        Vue.prototype.$vuebar = publicMethods();
+
+
+
+
+
+        /*------------------------------------*\
+            Directive Install
+        \*------------------------------------*/
+        Vue.directive(installOptions.directive, {
+
+            inserted: function(el, binding, vnode){
+                initScrollbar.call(this, el, binding);
+            },
+
+            componentUpdated: function(el, binding, vnode, oldVnode){
+                refreshScrollbar.call(this, el);
+            },
+
+            unbind: function(el, binding, vnode, oldVnode){
+                // we shouldn't clearStyles because it actually doesn't matter that much
+                // the element will be always deleted on unbind and its styles also
+                // and if we do clear styles then it looks bad on transitions
+                destroyScrollbar.call(this, el, {clearStyles: false});
+            },
+
+        });
+
+
+
+
+
+
+
+        /*------------------------------------*\
+            Debounce Helper
+            https://remysharp.com/2010/07/21/throttling-function-calls
+        \*------------------------------------*/
+        function debounce(fn, delay) {
+            var timer = null;
+            return function () {
+                var context = this, args = arguments;
+                clearTimeout(timer);
+                timer = setTimeout(function () {
+                    fn.apply(context, args);
+                }, delay);
+            };
+        };
+
+
+
+
+        /*------------------------------------*\
+            Throttle Helper
+            https://remysharp.com/2010/07/21/throttling-function-calls
+        \*------------------------------------*/
+        function throttle(fn, threshhold, scope) {
+            threshhold || (threshhold = 250);
+            var last,
+                deferTimer;
+            return function () {
+                var context = scope || this;
+
+                var now = +new Date,
+                    args = arguments;
+                if (last && now < last + threshhold) {
+                    // hold on to it
+                    clearTimeout(deferTimer);
+                    deferTimer = setTimeout(function () {
+                        last = now;
+                        fn.apply(context, args);
+                    }, threshhold);
+                } else {
+                    last = now;
+                    fn.apply(context, args);
+                }
+            }
+        }
+
+
+
+        /*------------------------------------*\
+            Style Vendor Prefixes Helper
+        \*------------------------------------*/
+        function compatStyle(element, property, value) {
+            element.style['webkit' + property] = value;
+            element.style['moz' + property] = value;
+            element.style['ms' + property] = value;
+            element.style['o' + property] = value;
+            element.style[ property.slice(0,1).toLowerCase() + property.substring(1) ] = value;
+        }
+
+
+
+        /*------------------------------------*\
+            Class Manipulation Helpers
+            https://plainjs.com/javascript/attributes/adding-removing-and-testing-for-classes-9/
+        \*------------------------------------*/
+        function hasClass(el, className) {
+            return el.classList ? el.classList.contains(className) : new RegExp('\\b'+ className+'\\b').test(el.className);
+        }
+
+        function addClass(el, className) {
+            if (el.classList) el.classList.add(className);
+            else if (!hasClass(el, className)) el.className += ' ' + className;
+        }
+
+        function removeClass(el, className) {
+            if (el.classList) el.classList.remove(className);
+            else el.className = el.className.replace(new RegExp('\\b'+ className+'\\b', 'g'), '');
+        }
+
+
+
+
+
+        /*------------------------------------*\
+            Browser Detection Helper
+        \*------------------------------------*/
+        function detectBrowser(){
+
+            // get ie version helper
+            function getIEVersion() {
+                var match = window.navigator.userAgent.match(/(?:MSIE |Trident\/.*; rv:)(\d+)/);
+                return match ? parseInt(match[1]) : void 0;
+            }
+
+            // user agent & vendor
+            var ua = window.navigator.userAgent;
+            var vendor = window.navigator.vendor;
+
+            // chrome
+            var chrome = (
+                (ua.toLowerCase().indexOf('chrome') > -1) && (vendor.toLowerCase().indexOf('google') > -1)
+            );
+
+            // edge
+            var edge = ua.indexOf('Edge') > -1;
+
+            // safari
+            var safari = !!window.safari || ((ua.toLowerCase().indexOf('safari') > -1) && (vendor.toLowerCase().indexOf('apple') > -1));
+
+            // internet explorer
+            var ie8 = getIEVersion() == 8;
+            var ie9 = getIEVersion() == 9;
+            var ie10 = getIEVersion() == 10;
+            var ie11 = getIEVersion() == 11;
+            var ie = ie8 || ie9 || ie10 || ie11;
+
+            // is it mobile browser?
+            // regex below thanks to http://detectmobilebrowsers.com/
+            var uaOrVendor = ua || vendor || window.opera;
+            var mobile = (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(uaOrVendor)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(uaOrVendor.substr(0,4)));
+
+            // construct return object
+            return {
+                edge: edge,
+                chrome: chrome,
+                safari: safari,
+                mobile: mobile,
+                ie: ie,
+                ie8: ie8,
+                ie9: ie9,
+                ie10: ie10,
+                ie11: ie11,
+            };
+
+        }
+
+
+        /*------------------------------------*\
+            Calculate scrollbar width in element
+            - if the width is 0 it means the scrollbar is floated/overlayed
+            - accepts "container" paremeter because ie & edge can have different
+              scrollbar behaviors for different elements using '-ms-overflow-style'
+        \*------------------------------------*/
+        function getNativeScrollbarWidth(container) {
+            var container = container ? container : document.body;
+
+            var fullWidth = 0;
+            var barWidth = 0;
+
+            var wrapper = document.createElement('div');
+            var child = document.createElement('div');
+
+            wrapper.style.position = 'absolute';
+            wrapper.style.pointerEvents = 'none';
+            wrapper.style.bottom = '0';
+            wrapper.style.right = '0';
+            wrapper.style.width = '100px';
+            wrapper.style.overflow = 'hidden';
+
+            wrapper.appendChild(child);
+            container.appendChild(wrapper);
+
+            fullWidth = child.offsetWidth;
+            child.style.width = '100%';
+            wrapper.style.overflowY = 'scroll';
+            barWidth = fullWidth - child.offsetWidth;
+
+            container.removeChild(wrapper);
+
+            return barWidth;
+        }
+
+
+
+
+    };
+
+
+
+    /*------------------------------------*\
+        Expose / Autoinstall
+    \*------------------------------------*/
+    if (true) {
+        module.exports = Vuebar;
+    } else {}
+
+    if (typeof Vue !== typeof void 0) {
+        Vue.use(Vuebar);
+    }
+
+
+
+
+})();
 
 
 /***/ }),
@@ -116394,9 +117560,9 @@ module.exports = "/images/avatar_6.jpg?a2669bc68cd7ece044c3b17a7378ad71";
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _App_vue_vue_type_template_id_f348271a___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./App.vue?vue&type=template&id=f348271a& */ "./resources/js/App.vue?vue&type=template&id=f348271a&");
+/* harmony import */ var _App_vue_vue_type_template_id_f348271a_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./App.vue?vue&type=template&id=f348271a&scoped=true& */ "./resources/js/App.vue?vue&type=template&id=f348271a&scoped=true&");
 /* harmony import */ var _App_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./App.vue?vue&type=script&lang=js& */ "./resources/js/App.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _App_vue_vue_type_style_index_0_sxoped_true_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./App.vue?vue&type=style&index=0&sxoped=true&lang=css& */ "./resources/js/App.vue?vue&type=style&index=0&sxoped=true&lang=css&");
+/* empty/unused harmony star reexport *//* harmony import */ var _App_vue_vue_type_style_index_0_id_f348271a_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./App.vue?vue&type=style&index=0&id=f348271a&scoped=true&lang=css& */ "./resources/js/App.vue?vue&type=style&index=0&id=f348271a&scoped=true&lang=css&");
 /* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
@@ -116408,11 +117574,11 @@ __webpack_require__.r(__webpack_exports__);
 
 var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
   _App_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _App_vue_vue_type_template_id_f348271a___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _App_vue_vue_type_template_id_f348271a___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  _App_vue_vue_type_template_id_f348271a_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _App_vue_vue_type_template_id_f348271a_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
   false,
   null,
-  null,
+  "f348271a",
   null
   
 )
@@ -116438,35 +117604,35 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/js/App.vue?vue&type=style&index=0&sxoped=true&lang=css&":
-/*!***************************************************************************!*\
-  !*** ./resources/js/App.vue?vue&type=style&index=0&sxoped=true&lang=css& ***!
-  \***************************************************************************/
+/***/ "./resources/js/App.vue?vue&type=style&index=0&id=f348271a&scoped=true&lang=css&":
+/*!***************************************************************************************!*\
+  !*** ./resources/js/App.vue?vue&type=style&index=0&id=f348271a&scoped=true&lang=css& ***!
+  \***************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_sxoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/style-loader!../../node_modules/css-loader??ref--6-1!../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../node_modules/postcss-loader/src??ref--6-2!../../node_modules/vue-loader/lib??vue-loader-options!./App.vue?vue&type=style&index=0&sxoped=true&lang=css& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/App.vue?vue&type=style&index=0&sxoped=true&lang=css&");
-/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_sxoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_sxoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_sxoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_sxoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_sxoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_id_f348271a_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/style-loader!../../node_modules/css-loader??ref--6-1!../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../node_modules/postcss-loader/src??ref--6-2!../../node_modules/vue-loader/lib??vue-loader-options!./App.vue?vue&type=style&index=0&id=f348271a&scoped=true&lang=css& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/App.vue?vue&type=style&index=0&id=f348271a&scoped=true&lang=css&");
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_id_f348271a_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_id_f348271a_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_id_f348271a_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_id_f348271a_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_style_index_0_id_f348271a_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
 
 /***/ }),
 
-/***/ "./resources/js/App.vue?vue&type=template&id=f348271a&":
-/*!*************************************************************!*\
-  !*** ./resources/js/App.vue?vue&type=template&id=f348271a& ***!
-  \*************************************************************/
+/***/ "./resources/js/App.vue?vue&type=template&id=f348271a&scoped=true&":
+/*!*************************************************************************!*\
+  !*** ./resources/js/App.vue?vue&type=template&id=f348271a&scoped=true& ***!
+  \*************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_template_id_f348271a___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../node_modules/vue-loader/lib??vue-loader-options!./App.vue?vue&type=template&id=f348271a& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/App.vue?vue&type=template&id=f348271a&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_template_id_f348271a___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_template_id_f348271a_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../node_modules/vue-loader/lib??vue-loader-options!./App.vue?vue&type=template&id=f348271a&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/App.vue?vue&type=template&id=f348271a&scoped=true&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_template_id_f348271a_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_template_id_f348271a___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_App_vue_vue_type_template_id_f348271a_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 
@@ -116488,15 +117654,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var vuetify__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vuetify */ "./node_modules/vuetify/dist/vuetify.js");
 /* harmony import */ var vuetify__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(vuetify__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var vue_sweetalert2__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-sweetalert2 */ "./node_modules/vue-sweetalert2/dist/index.js");
-/* harmony import */ var sweetalert2_dist_sweetalert2_min_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! sweetalert2/dist/sweetalert2.min.css */ "./node_modules/sweetalert2/dist/sweetalert2.min.css");
-/* harmony import */ var sweetalert2_dist_sweetalert2_min_css__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(sweetalert2_dist_sweetalert2_min_css__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var vee_validate_dist_rules__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vee-validate/dist/rules */ "./node_modules/vee-validate/dist/rules.js");
-/* harmony import */ var vee_validate__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! vee-validate */ "./node_modules/vee-validate/dist/vee-validate.esm.js");
-/* harmony import */ var vee_validate_dist_locale_en_json__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! vee-validate/dist/locale/en.json */ "./node_modules/vee-validate/dist/locale/en.json");
-var vee_validate_dist_locale_en_json__WEBPACK_IMPORTED_MODULE_8___namespace = /*#__PURE__*/__webpack_require__.t(/*! vee-validate/dist/locale/en.json */ "./node_modules/vee-validate/dist/locale/en.json", 1);
-/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./store */ "./resources/js/store/index.js");
-/* harmony import */ var _router__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./router */ "./resources/js/router/index.js");
+/* harmony import */ var vue_chat_scroll__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-chat-scroll */ "./node_modules/vue-chat-scroll/dist/vue-chat-scroll.js");
+/* harmony import */ var vue_chat_scroll__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(vue_chat_scroll__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var vuebar__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vuebar */ "./node_modules/vuebar/vuebar.js");
+/* harmony import */ var vuebar__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(vuebar__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var vue_sweetalert2__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vue-sweetalert2 */ "./node_modules/vue-sweetalert2/dist/index.js");
+/* harmony import */ var sweetalert2_dist_sweetalert2_min_css__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! sweetalert2/dist/sweetalert2.min.css */ "./node_modules/sweetalert2/dist/sweetalert2.min.css");
+/* harmony import */ var sweetalert2_dist_sweetalert2_min_css__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(sweetalert2_dist_sweetalert2_min_css__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var vee_validate_dist_rules__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! vee-validate/dist/rules */ "./node_modules/vee-validate/dist/rules.js");
+/* harmony import */ var vee_validate__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! vee-validate */ "./node_modules/vee-validate/dist/vee-validate.esm.js");
+/* harmony import */ var vee_validate_dist_locale_en_json__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! vee-validate/dist/locale/en.json */ "./node_modules/vee-validate/dist/locale/en.json");
+var vee_validate_dist_locale_en_json__WEBPACK_IMPORTED_MODULE_10___namespace = /*#__PURE__*/__webpack_require__.t(/*! vee-validate/dist/locale/en.json */ "./node_modules/vee-validate/dist/locale/en.json", 1);
+/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./store */ "./resources/js/store/index.js");
+/* harmony import */ var _router__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./router */ "./resources/js/router/index.js");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -116523,7 +117693,13 @@ Vue.config.productionTip = false;
 Vue.use(vue_axios__WEBPACK_IMPORTED_MODULE_1___default.a, axios__WEBPACK_IMPORTED_MODULE_2___default.a); // Import vuetify
 
 
-Vue.use(vuetify__WEBPACK_IMPORTED_MODULE_3___default.a); // Import SeetAlert 2
+Vue.use(vuetify__WEBPACK_IMPORTED_MODULE_3___default.a); //import chat-scroll
+
+
+Vue.use(vue_chat_scroll__WEBPACK_IMPORTED_MODULE_4___default.a); // Impoert VueBar
+
+
+Vue.use(vuebar__WEBPACK_IMPORTED_MODULE_5___default.a); // Import SeetAlert 2
 
 
  // Light theme
@@ -116533,17 +117709,17 @@ var options = {
   confirmButtonColor: '#41b882',
   cancelButtonColor: '#ff7674'
 };
-Vue.use(vue_sweetalert2__WEBPACK_IMPORTED_MODULE_4__["default"], options); // Import Vee Validaye for form validation 
+Vue.use(vue_sweetalert2__WEBPACK_IMPORTED_MODULE_6__["default"], options); // Import Vee Validaye for form validation 
 
 
 
 
-Vue.component('ValidationProvider', vee_validate__WEBPACK_IMPORTED_MODULE_7__["ValidationProvider"]);
-Vue.component('ValidationObserver', vee_validate__WEBPACK_IMPORTED_MODULE_7__["ValidationObserver"]);
-Object.keys(vee_validate_dist_rules__WEBPACK_IMPORTED_MODULE_6__).forEach(function (rule) {
-  Object(vee_validate__WEBPACK_IMPORTED_MODULE_7__["extend"])(rule, _objectSpread({}, vee_validate_dist_rules__WEBPACK_IMPORTED_MODULE_6__[rule], {
+Vue.component('ValidationProvider', vee_validate__WEBPACK_IMPORTED_MODULE_9__["ValidationProvider"]);
+Vue.component('ValidationObserver', vee_validate__WEBPACK_IMPORTED_MODULE_9__["ValidationObserver"]);
+Object.keys(vee_validate_dist_rules__WEBPACK_IMPORTED_MODULE_8__).forEach(function (rule) {
+  Object(vee_validate__WEBPACK_IMPORTED_MODULE_9__["extend"])(rule, _objectSpread({}, vee_validate_dist_rules__WEBPACK_IMPORTED_MODULE_8__[rule], {
     // copies rule configuration
-    message: vee_validate_dist_locale_en_json__WEBPACK_IMPORTED_MODULE_8__["messages"][rule] // assign message
+    message: vee_validate_dist_locale_en_json__WEBPACK_IMPORTED_MODULE_10__["messages"][rule] // assign message
 
   }));
 });
@@ -116566,7 +117742,7 @@ Object.keys(vee_validate_dist_rules__WEBPACK_IMPORTED_MODULE_6__).forEach(functi
 // Middlewares
 
 
-_router__WEBPACK_IMPORTED_MODULE_10__["default"].beforeEach(function (to, from, next) {
+_router__WEBPACK_IMPORTED_MODULE_12__["default"].beforeEach(function (to, from, next) {
   if (!to.meta.middleware) {
     return next();
   }
@@ -116576,7 +117752,7 @@ _router__WEBPACK_IMPORTED_MODULE_10__["default"].beforeEach(function (to, from, 
     to: to,
     from: from,
     next: next,
-    store: _store__WEBPACK_IMPORTED_MODULE_9__["store"]
+    store: _store__WEBPACK_IMPORTED_MODULE_11__["store"]
   };
   return middleware[0](_objectSpread({}, context));
 });
@@ -116587,9 +117763,9 @@ _router__WEBPACK_IMPORTED_MODULE_10__["default"].beforeEach(function (to, from, 
  */
 
 var app = new Vue(Vue.util.extend({
-  router: _router__WEBPACK_IMPORTED_MODULE_10__["default"],
+  router: _router__WEBPACK_IMPORTED_MODULE_12__["default"],
   vuetify: new vuetify__WEBPACK_IMPORTED_MODULE_3___default.a({}),
-  store: _store__WEBPACK_IMPORTED_MODULE_9__["store"]
+  store: _store__WEBPACK_IMPORTED_MODULE_11__["store"]
 }, _App_vue__WEBPACK_IMPORTED_MODULE_0__["default"])).$mount("#app");
 
 /***/ }),
@@ -116682,9 +117858,9 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _ChatList_vue_vue_type_template_id_6c9eb308_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ChatList.vue?vue&type=template&id=6c9eb308&scoped=true& */ "./resources/js/components/Dashboard/ChatList.vue?vue&type=template&id=6c9eb308&scoped=true&");
+/* harmony import */ var _ChatList_vue_vue_type_template_id_6c9eb308___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ChatList.vue?vue&type=template&id=6c9eb308& */ "./resources/js/components/Dashboard/ChatList.vue?vue&type=template&id=6c9eb308&");
 /* harmony import */ var _ChatList_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ChatList.vue?vue&type=script&lang=js& */ "./resources/js/components/Dashboard/ChatList.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _ChatList_vue_vue_type_style_index_0_id_6c9eb308_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ChatList.vue?vue&type=style&index=0&id=6c9eb308&scoped=true&lang=css& */ "./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&id=6c9eb308&scoped=true&lang=css&");
+/* empty/unused harmony star reexport *//* harmony import */ var _ChatList_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ChatList.vue?vue&type=style&index=0&lang=css& */ "./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&lang=css&");
 /* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
@@ -116696,11 +117872,11 @@ __webpack_require__.r(__webpack_exports__);
 
 var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
   _ChatList_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _ChatList_vue_vue_type_template_id_6c9eb308_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _ChatList_vue_vue_type_template_id_6c9eb308_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  _ChatList_vue_vue_type_template_id_6c9eb308___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _ChatList_vue_vue_type_template_id_6c9eb308___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
   false,
   null,
-  "6c9eb308",
+  null,
   null
   
 )
@@ -116726,35 +117902,35 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&id=6c9eb308&scoped=true&lang=css&":
-/*!*****************************************************************************************************************!*\
-  !*** ./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&id=6c9eb308&scoped=true&lang=css& ***!
-  \*****************************************************************************************************************/
+/***/ "./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&lang=css&":
+/*!*****************************************************************************************!*\
+  !*** ./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&lang=css& ***!
+  \*****************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_style_index_0_id_6c9eb308_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/style-loader!../../../../node_modules/css-loader??ref--6-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--6-2!../../../../node_modules/vue-loader/lib??vue-loader-options!./ChatList.vue?vue&type=style&index=0&id=6c9eb308&scoped=true&lang=css& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&id=6c9eb308&scoped=true&lang=css&");
-/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_style_index_0_id_6c9eb308_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_style_index_0_id_6c9eb308_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__);
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_style_index_0_id_6c9eb308_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_style_index_0_id_6c9eb308_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
- /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_style_index_0_id_6c9eb308_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/style-loader!../../../../node_modules/css-loader??ref--6-1!../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../node_modules/postcss-loader/src??ref--6-2!../../../../node_modules/vue-loader/lib??vue-loader-options!./ChatList.vue?vue&type=style&index=0&lang=css& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Dashboard/ChatList.vue?vue&type=style&index=0&lang=css&");
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
 
 /***/ }),
 
-/***/ "./resources/js/components/Dashboard/ChatList.vue?vue&type=template&id=6c9eb308&scoped=true&":
-/*!***************************************************************************************************!*\
-  !*** ./resources/js/components/Dashboard/ChatList.vue?vue&type=template&id=6c9eb308&scoped=true& ***!
-  \***************************************************************************************************/
-/*! no static exports found */
+/***/ "./resources/js/components/Dashboard/ChatList.vue?vue&type=template&id=6c9eb308&":
+/*!***************************************************************************************!*\
+  !*** ./resources/js/components/Dashboard/ChatList.vue?vue&type=template&id=6c9eb308& ***!
+  \***************************************************************************************/
+/*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_template_id_6c9eb308_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./ChatList.vue?vue&type=template&id=6c9eb308&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Dashboard/ChatList.vue?vue&type=template&id=6c9eb308&scoped=true&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_template_id_6c9eb308_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_template_id_6c9eb308___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./ChatList.vue?vue&type=template&id=6c9eb308& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Dashboard/ChatList.vue?vue&type=template&id=6c9eb308&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_template_id_6c9eb308___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_template_id_6c9eb308_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ChatList_vue_vue_type_template_id_6c9eb308___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 
@@ -117631,7 +118807,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 var state = function state() {
   return {
-    rooms: {}
+    rooms: {},
+    currentRoom: {}
   };
 };
 
@@ -117639,8 +118816,8 @@ var getters = {
   rooms: function rooms(state) {
     return state.rooms;
   },
-  members: function members(state) {
-    return state.members;
+  currentRoom: function currentRoom(state) {
+    return state.currentRoom;
   }
 };
 var mutations = {
@@ -117667,6 +118844,9 @@ var mutations = {
       }
     });
     state.rooms = rooms;
+  },
+  currentRoom: function currentRoom(state, room) {
+    state.currentRoom = room;
   }
 };
 var actions = {
@@ -117711,15 +118891,40 @@ var actions = {
       }, _callee);
     }))();
   },
-  joinRoom: function joinRoom(_ref2, room_id) {
+  getCurrentRoom: function getCurrentRoom(_ref2, room_id) {
     return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
-      var commit, state, dispatch;
+      var state, commit, rooms, current;
       return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
-              commit = _ref2.commit, state = _ref2.state, dispatch = _ref2.dispatch;
-              return _context2.abrupt("return", new Promise(function (resolve, reject) {
+              state = _ref2.state, commit = _ref2.commit;
+              rooms = state.rooms;
+              current = {};
+              rooms.forEach(function (room) {
+                if (room.id == room_id) {
+                  current = room;
+                }
+              });
+              commit('currentRoom', current);
+
+            case 5:
+            case "end":
+              return _context2.stop();
+          }
+        }
+      }, _callee2);
+    }))();
+  },
+  joinRoom: function joinRoom(_ref3, room_id) {
+    return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
+      var commit, state, dispatch;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              commit = _ref3.commit, state = _ref3.state, dispatch = _ref3.dispatch;
+              return _context3.abrupt("return", new Promise(function (resolve, reject) {
                 axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/joinRoom", {
                   room_id: room_id
                 }).then(function (response) {
@@ -117733,21 +118938,21 @@ var actions = {
 
             case 2:
             case "end":
-              return _context2.stop();
+              return _context3.stop();
           }
         }
-      }, _callee2);
+      }, _callee3);
     }))();
   },
-  leaveRoom: function leaveRoom(_ref3, room_id) {
-    return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
+  leaveRoom: function leaveRoom(_ref4, room_id) {
+    return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee4() {
       var commit, state, dispatch;
-      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee4$(_context4) {
         while (1) {
-          switch (_context3.prev = _context3.next) {
+          switch (_context4.prev = _context4.next) {
             case 0:
-              commit = _ref3.commit, state = _ref3.state, dispatch = _ref3.dispatch;
-              return _context3.abrupt("return", new Promise(function (resolve, reject) {
+              commit = _ref4.commit, state = _ref4.state, dispatch = _ref4.dispatch;
+              return _context4.abrupt("return", new Promise(function (resolve, reject) {
                 axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/leaveRoom", {
                   room_id: room_id
                 }).then(function (response) {
@@ -117761,10 +118966,10 @@ var actions = {
 
             case 2:
             case "end":
-              return _context3.stop();
+              return _context4.stop();
           }
         }
-      }, _callee3);
+      }, _callee4);
     }))();
   }
   /* async fetchMembers ({commit, state}){

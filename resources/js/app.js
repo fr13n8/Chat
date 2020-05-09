@@ -21,6 +21,14 @@ Vue.use(VueAxios, axios);
 import Vuetify from 'vuetify';
 Vue.use(Vuetify);
 
+//import chat-scroll
+import VueChatScroll from 'vue-chat-scroll'
+Vue.use(VueChatScroll)
+
+// Impoert VueBar
+import Vuebar from 'vuebar';
+Vue.use(Vuebar);
+
 // Import SeetAlert 2
 import VueSweetalert2 from 'vue-sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css'; // Light theme

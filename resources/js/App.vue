@@ -25,7 +25,7 @@ export default {
 }
 </script>
 
-<style sxoped >
+<style scoped >
 .container {
   max-width: 1400px;
 }
