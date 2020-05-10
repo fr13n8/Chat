@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\User;
 use App\Members;
+use App\MessageImgs;
 
 class Messages extends Model
 {
@@ -27,5 +28,10 @@ class Messages extends Model
 	public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    
+    public function photos()
+    {
+        return $this->hasMany(MessageImgs::class, 'message_id');
     }
 }

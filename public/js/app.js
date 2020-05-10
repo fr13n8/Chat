@@ -2076,6 +2076,44 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   // props:['user'],
@@ -2111,8 +2149,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       user: {},
       activeUser: false,
       typingTimer: false,
-      barShow: false,
-      messagesBoxCol: 10
+      loading: true,
+      loaded: false
     };
   },
   created: function created() {
@@ -2129,6 +2167,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var time = new Date(message.created_at);
       time = time.toLocaleTimeString('en-GB').slice(0, -3);
       message.created_at = time;
+      message = _this.photosSizing(message);
 
       _this.messages.push(message);
     }).here(function (user) {
@@ -2156,6 +2195,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }, 3000);
     });
     this.getCurrentRoom(this.$route.params.id);
+
+    var readyHandler = function readyHandler() {
+      if (document.readyState == 'complete') {
+        _this.loading = false;
+        _this.loaded = true;
+        document.removeEventListener('readystatechange', readyHandler);
+      }
+    };
+
+    document.addEventListener('readystatechange', readyHandler);
+    readyHandler();
   },
   methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])(["getCurrentRoom"]), {
     fetchMessages: function fetchMessages() {
@@ -2164,14 +2214,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       axios.post('/api/messages', {
         room_id: this.$route.params.id
       }).then(function (response) {
-        console.log(response.data);
         var messages = response.data;
         messages.forEach(function (message) {
           var time = new Date(message.created_at);
           time = time.toLocaleTimeString('en-GB').slice(0, -3);
           message.created_at = time;
+          messages = _this2.photosSizing(message);
         });
-        _this2.messages = response.data; // console.log(asdf);
+        _this2.messages = response.data;
+        console.log(_this2.messages);
       });
     },
     sendMessage: function sendMessage() {
@@ -2189,14 +2240,52 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         this.newMessage = '';
       }
     },
-    toggleBar: function toggleBar() {
-      this.barShow = !this.barShow;
-      this.messagesBoxCol = this.barShow ? this.messagesBoxCol - 2 : this.messagesBoxCol + 2;
-      this.toggleIconColor = this.barShow ? "blue" : "white";
-    },
     sendTypingEvent: function sendTypingEvent() {
       console.log("asdfasf");
       Echo.join('chat.' + this.$route.params.id).whisper('typing', this.user);
+    },
+    photosSizing: function photosSizing(message) {
+      switch (message.photos.length) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+          message.photos.forEach(function (photo) {
+            photo.col = 12 / message.photos.length;
+          });
+          break;
+
+        case 5:
+        case 9:
+          message.photos.forEach(function (photo, id) {
+            photo.col = id == message.photos.length - 1 ? 12 : 3;
+          });
+          break;
+
+        case 6:
+        case 10:
+          message.photos.forEach(function (photo, id) {
+            photo.col = id >= message.photos.length - 2 ? 6 : 3;
+          });
+          break;
+
+        case 7:
+          message.photos.forEach(function (photo, id) {
+            photo.col = id >= message.photos.length - 3 ? 4 : 3;
+          });
+          break;
+
+        case 8:
+          message.photos.forEach(function (photo) {
+            photo.col = 3;
+          });
+          break;
+
+        default:
+          break;
+      }
+
+      return message;
     }
   }),
   computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])(["userData", "currentRoom"])),
@@ -2229,7 +2318,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-//
 //
 //
 //
@@ -10258,7 +10346,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\nli {\n        color: black;\n}\n.boards {\n        border: 2px solid #f0f0f0 !important;\n}\n.messageBoxHeader{\n        border-bottom: 1px solid #f0f0f0 !important;\n}\n.v-btn--icon:focus{\n        outline: none;\n}\n    \n   /*  .v-list {\n      overflow-y: auto;\n    } */\n.vuebar-element {\n      height: 100%;\n      width: 100%;\n}\n.vb > .vb-dragger {\n        z-index: 1;\n        width: 12px;\n        right: 0;\n}\n.vb > .vb-dragger > .vb-dragger-styler {\n        -webkit-backface-visibility: hidden;\n        backface-visibility: hidden;\n        transform: rotate3d(0,0,0,0);\n        transition:\n            background-color 100ms ease-out,\n            margin 100ms ease-out,\n            height 100ms ease-out;\n        background-color: rgba(48, 121, 244,.1);\n        margin: 5px 5px 5px 0;\n        border-radius: 20px;\n        height: calc(100% - 10px);\n        display: block;\n}\n.vb.vb-scrolling-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.3);\n}\n.vb > .vb-dragger:hover > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n}\n.messages ul li {\n  display: inline-block;\n  clear: both;\n  float: left;\n  margin: 8px 5px 0px;\n  width: calc(100% - 25px);\n  font-size: 0.9em;\n}\n.messages ul li.sent img {\n  margin: 6px 8px 0 0;\n}\n.messages ul li.sent p {\n  background: #435f7a;\n  color: #f5f5f5;\n  float:left;\n}\n.messages ul li.replies img {\n  float: right;\n  margin: 6px 0 0 8px;\n}\n.messages ul li.replies p {\n  background: #f5f5f5;\n  float: right;\n}\n.messages ul li img {\n  width: 28px;\n  border-radius: 50%;\n  float: left;\n}\n.messages ul li p {\n  display: inline-block;\n  padding: 8px 15px;\n  border-radius: 20px;\n  max-width: 225px;\n  line-height: 130%;\n}\n.msg_time_send{\n\t\tposition: relative;\n\t\tleft: -40px;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n.msg_time{\n\t\tposition: relative;\n\t\tleft: 40px;\n        float:right;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n", ""]);
+exports.push([module.i, "\n.v-skeleton-loader__avatar{\n        width: 40px;\n        height:40px;\n}\nli {\n        color: black;\n}\n.boards {\n        border: 2px solid #f0f0f0 !important;\n}\n.messageBoxHeader{\n        border-bottom: 1px solid #f0f0f0 !important;\n}\n.v-btn--icon:focus{\n        outline: none;\n}\n    \n   /*  .v-list {\n      overflow-y: auto;\n    } */\n.vuebar-element {\n      height: 100%;\n      width: 100%;\n}\n.vb > .vb-dragger {\n        z-index: 1;\n        width: 12px;\n        right: 0;\n}\n.vb > .vb-dragger > .vb-dragger-styler {\n        -webkit-backface-visibility: hidden;\n        backface-visibility: hidden;\n        transform: rotate3d(0,0,0,0);\n        transition:\n            background-color 100ms ease-out,\n            margin 100ms ease-out,\n            height 100ms ease-out;\n        background-color: rgba(48, 121, 244,.1);\n        margin: 5px 5px 5px 0;\n        border-radius: 20px;\n        height: calc(100% - 10px);\n        display: block;\n}\n.vb.vb-scrolling-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.3);\n}\n.vb > .vb-dragger:hover > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n}\n.messages ul li {\n  display: inline-block;\n  clear: both;\n  float: left;\n  margin: 8px 5px 0px;\n  width: calc(100% - 25px);\n  font-size: 0.9em;\n}\n.messages ul li.sent img {\n  margin: 6px 8px 0 0;\n}\n.messages ul li.sent p {\n  background: #435f7a;\n  color: #f5f5f5;\n  float:left;\n}\n.messages ul li.replies img {\n  float: right;\n  margin: 6px 0 0 8px;\n}\n.messages ul li.replies p {\n  background: #f5f5f5;\n  float: right;\n}\n.messages ul li img {\n  width: 28px;\n  border-radius: 50%;\n  float: left;\n}\n.messages ul li p {\n  display: inline-block;\n  padding: 8px 15px;\n  border-radius: 20px;\n  max-width: 225px;\n  line-height: 130%;\n}\n.msg_time_send{\n\t\tposition: relative;\n\t\tleft: -40px;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n.msg_time{\n\t\tposition: relative;\n\t\tleft: 40px;\n        float:right;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n", ""]);
 
 // exports
 
@@ -56586,19 +56674,26 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "v-content",
-    { staticClass: "pa-0 ma-0" },
+    { staticClass: "pa-0 ma-0", staticStyle: { height: "100%" } },
     [
       _c(
         "v-container",
-        { attrs: { fluid: "" } },
+        {
+          staticClass: "mx-0",
+          staticStyle: { height: "100%" },
+          attrs: { fluid: "" }
+        },
         [
           _c(
             "v-row",
-            { staticStyle: { height: "650px" }, attrs: { dense: "" } },
+            {
+              staticStyle: { height: "100%" },
+              attrs: { align: "stretch", dense: "" }
+            },
             [
               _c(
                 "v-col",
-                { attrs: { cols: "2" } },
+                { attrs: { cols: "3" } },
                 [
                   _c(
                     "v-card",
@@ -56690,7 +56785,7 @@ var render = function() {
               _vm._v(" "),
               _c(
                 "v-col",
-                { attrs: { cols: _vm.messagesBoxCol, elevation: "12" } },
+                { attrs: { cols: 9, elevation: "12" } },
                 [
                   _c(
                     "v-card",
@@ -56780,27 +56875,6 @@ var render = function() {
                                       _vm._v(" "),
                                       _c(
                                         "v-btn",
-                                        {
-                                          attrs: { text: "", icon: "" },
-                                          on: { click: _vm.toggleBar }
-                                        },
-                                        [
-                                          _c(
-                                            "v-icon",
-                                            {
-                                              attrs: {
-                                                color: _vm.toggleIconColor,
-                                                tile: ""
-                                              }
-                                            },
-                                            [_vm._v("mdi-application")]
-                                          )
-                                        ],
-                                        1
-                                      ),
-                                      _vm._v(" "),
-                                      _c(
-                                        "v-btn",
                                         { attrs: { text: "", icon: "" } },
                                         [
                                           _c(
@@ -56833,7 +56907,7 @@ var render = function() {
                               _c(
                                 "v-container",
                                 {
-                                  staticClass: "py-0 pt-1",
+                                  staticClass: "py-0 pt-1 pl-0",
                                   staticStyle: { height: "100%" },
                                   attrs: { fluid: "" }
                                 },
@@ -56844,64 +56918,307 @@ var render = function() {
                                       directives: [
                                         { name: "bar", rawName: "v-bar" }
                                       ],
-                                      staticClass: "vuebar-element messages"
+                                      staticClass: "vuebar-element "
                                     },
                                     [
                                       _c(
-                                        "ul",
+                                        "div",
                                         {
                                           directives: [
                                             {
                                               name: "chat-scroll",
                                               rawName: "v-chat-scroll",
                                               value: {
+                                                always: false,
                                                 smooth: true,
-                                                notSmoothOnInit: true
+                                                scrollonremoved: true,
+                                                smoothonremoved: false
                                               },
                                               expression:
-                                                "{smooth: true, notSmoothOnInit: true}"
+                                                "{always: false, smooth: true, scrollonremoved:true, smoothonremoved: false}"
                                             }
                                           ],
-                                          staticClass: "pa-0 my-0",
-                                          staticStyle: { "max-height": "450px" }
+                                          staticClass: "px-1 pt-2 my-0",
+                                          staticStyle: { "max-height": "470px" }
                                         },
                                         _vm._l(_vm.messages, function(
                                           message,
                                           index
                                         ) {
                                           return _c(
-                                            "li",
+                                            "v-row",
                                             {
                                               key: index,
-                                              class:
-                                                _vm.userData.id ==
-                                                message.user.id
-                                                  ? "replies"
-                                                  : "sent",
+                                              staticClass: "pa-0 pl-2",
+                                              staticStyle: { width: "100%" },
                                               on: { click: function($event) {} }
                                             },
                                             [
-                                              _c("img", {
-                                                attrs: {
-                                                  elevation: "12",
-                                                  src:
-                                                    "/images/static/avatars/avatar_" +
-                                                    message.user.avatar_id +
-                                                    ".jpg",
-                                                  alt: message.user.name
-                                                }
-                                              }),
+                                              _c(
+                                                "v-col",
+                                                {
+                                                  staticClass: "pt-0",
+                                                  attrs: { cols: "1" }
+                                                },
+                                                [
+                                                  _c(
+                                                    "v-skeleton-loader",
+                                                    {
+                                                      attrs: {
+                                                        loading: _vm.loading,
+                                                        transition:
+                                                          "fade-transition",
+                                                        type: "avatar",
+                                                        height: "40",
+                                                        width: "40"
+                                                      }
+                                                    },
+                                                    [
+                                                      _c(
+                                                        "v-avatar",
+                                                        {
+                                                          attrs: {
+                                                            "max-width": "40px",
+                                                            size: "40"
+                                                          }
+                                                        },
+                                                        [
+                                                          _c("v-img", {
+                                                            attrs: {
+                                                              "aspect-ratio": 1,
+                                                              src:
+                                                                "/images/static/avatars/avatar_" +
+                                                                message.user
+                                                                  .avatar_id +
+                                                                ".jpg",
+                                                              alt:
+                                                                message.user
+                                                                  .name
+                                                            }
+                                                          })
+                                                        ],
+                                                        1
+                                                      )
+                                                    ],
+                                                    1
+                                                  )
+                                                ],
+                                                1
+                                              ),
                                               _vm._v(" "),
-                                              _c("p", [
-                                                _vm._v(
-                                                  _vm._s(message.message) +
-                                                    "\r\n                                "
-                                                )
-                                              ])
-                                            ]
+                                              _c(
+                                                "v-col",
+                                                {
+                                                  staticClass: "px-0 pt-0",
+                                                  attrs: { cols: "11" }
+                                                },
+                                                [
+                                                  _c(
+                                                    "v-skeleton-loader",
+                                                    {
+                                                      attrs: {
+                                                        loading: _vm.loading,
+                                                        type:
+                                                          "list-item-two-line",
+                                                        width: "150"
+                                                      }
+                                                    },
+                                                    [
+                                                      _c(
+                                                        "v-card-text",
+                                                        {
+                                                          staticClass:
+                                                            "font-weight-medium subtitle-2 pa-0",
+                                                          class:
+                                                            _vm.currentRoom
+                                                              .admin_id ==
+                                                            message.user.id
+                                                              ? "red--text"
+                                                              : message.user
+                                                                  .id !=
+                                                                _vm.userData.id
+                                                              ? "white--text"
+                                                              : "purple--text"
+                                                        },
+                                                        [
+                                                          _c(
+                                                            "v-icon",
+                                                            {
+                                                              directives: [
+                                                                {
+                                                                  name: "show",
+                                                                  rawName:
+                                                                    "v-show",
+                                                                  value:
+                                                                    _vm
+                                                                      .currentRoom
+                                                                      .admin_id ==
+                                                                    message.user
+                                                                      .id,
+                                                                  expression:
+                                                                    "currentRoom.admin_id == message.user.id"
+                                                                }
+                                                              ],
+                                                              staticClass:
+                                                                "mb-1",
+                                                              attrs: {
+                                                                size: "16"
+                                                              }
+                                                            },
+                                                            [
+                                                              _vm._v(
+                                                                " mdi-account-tie "
+                                                              )
+                                                            ]
+                                                          ),
+                                                          _vm._v(
+                                                            "\r\n                                        " +
+                                                              _vm._s(
+                                                                message.user
+                                                                  .name
+                                                              ) +
+                                                              " "
+                                                          ),
+                                                          _c(
+                                                            "span",
+                                                            {
+                                                              staticClass:
+                                                                "pl-1 overline white--text font-weight-thin",
+                                                              staticStyle: {
+                                                                "font-size":
+                                                                  "10px"
+                                                              }
+                                                            },
+                                                            [
+                                                              _vm._v(
+                                                                _vm._s(
+                                                                  message.created_at
+                                                                )
+                                                              )
+                                                            ]
+                                                          )
+                                                        ],
+                                                        1
+                                                      ),
+                                                      _vm._v(" "),
+                                                      _c(
+                                                        "v-card",
+                                                        {
+                                                          staticClass:
+                                                            "pa-1 ml-1",
+                                                          staticStyle: {
+                                                            display:
+                                                              "inline-block"
+                                                          },
+                                                          attrs: {
+                                                            color: "#282e33",
+                                                            elevation: "12",
+                                                            raised: "",
+                                                            "max-width": "50%"
+                                                          }
+                                                        },
+                                                        [
+                                                          _c("v-card-text", {
+                                                            staticClass:
+                                                              "font-weight-light pa-0 px-2",
+                                                            staticStyle: {
+                                                              "max-width":
+                                                                "300px",
+                                                              "font-size":
+                                                                "12px"
+                                                            },
+                                                            domProps: {
+                                                              textContent: _vm._s(
+                                                                message.message
+                                                              )
+                                                            }
+                                                          }),
+                                                          _vm._v(" "),
+                                                          _c(
+                                                            "v-row",
+                                                            {
+                                                              directives: [
+                                                                {
+                                                                  name: "show",
+                                                                  rawName:
+                                                                    "v-show",
+                                                                  value:
+                                                                    message.photos,
+                                                                  expression:
+                                                                    "message.photos"
+                                                                }
+                                                              ],
+                                                              attrs: {
+                                                                "no-gutters": ""
+                                                              }
+                                                            },
+                                                            _vm._l(
+                                                              message.photos,
+                                                              function(
+                                                                photo,
+                                                                index
+                                                              ) {
+                                                                return _c(
+                                                                  "v-col",
+                                                                  {
+                                                                    key:
+                                                                      photo.id,
+                                                                    attrs: {
+                                                                      cols:
+                                                                        photo.col
+                                                                    }
+                                                                  },
+                                                                  [
+                                                                    _c(
+                                                                      "v-card",
+                                                                      {
+                                                                        staticClass:
+                                                                          "pa-1",
+                                                                        attrs: {
+                                                                          flat:
+                                                                            "",
+                                                                          outlined:
+                                                                            ""
+                                                                        }
+                                                                      },
+                                                                      [
+                                                                        _c(
+                                                                          "v-img",
+                                                                          {
+                                                                            attrs: {
+                                                                              height:
+                                                                                "100",
+                                                                              "aspect-ratio":
+                                                                                "",
+                                                                              src:
+                                                                                photo.path
+                                                                            }
+                                                                          }
+                                                                        )
+                                                                      ],
+                                                                      1
+                                                                    )
+                                                                  ],
+                                                                  1
+                                                                )
+                                                              }
+                                                            ),
+                                                            1
+                                                          )
+                                                        ],
+                                                        1
+                                                      )
+                                                    ],
+                                                    1
+                                                  )
+                                                ],
+                                                1
+                                              )
+                                            ],
+                                            1
                                           )
                                         }),
-                                        0
+                                        1
                                       )
                                     ]
                                   )
@@ -57014,29 +57331,6 @@ var render = function() {
                     ],
                     1
                   )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-col",
-                {
-                  directives: [
-                    {
-                      name: "show",
-                      rawName: "v-show",
-                      value: _vm.barShow,
-                      expression: "barShow"
-                    }
-                  ],
-                  attrs: { cols: "2" }
-                },
-                [
-                  _c("v-card", {
-                    staticClass: "boards",
-                    staticStyle: { height: "100%" },
-                    attrs: { elevation: "12" }
-                  })
                 ],
                 1
               )
@@ -57468,7 +57762,14 @@ var render = function() {
       _vm._v(" "),
       _c(
         "v-content",
-        [_c("v-container", { attrs: { fluid: "" } }, [_c("router-view")], 1)],
+        [
+          _c(
+            "v-container",
+            { staticStyle: { height: "100%" }, attrs: { fluid: "" } },
+            [_c("router-view")],
+            1
+          )
+        ],
         1
       )
     ],

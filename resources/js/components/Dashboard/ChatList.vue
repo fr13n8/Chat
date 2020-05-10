@@ -1,8 +1,8 @@
 <template>
-<v-content class="pa-0 ma-0">
-<v-container fluid>
-        <v-row dense style="height:650px">
-            <v-col cols=2 >
+<v-content  style="height:100%" class="pa-0 ma-0">
+<v-container style="height:100%" fluid class="mx-0" >
+        <v-row align="stretch" dense style="height:100%">
+            <v-col cols=3 >
                 <v-card class="boards"  elevation=12 style="height:100%">
                 <v-list
                     subheader>
@@ -38,7 +38,7 @@
                 </v-list>
                 </v-card>
             </v-col>
-            <v-col :cols="messagesBoxCol" elevation=12>
+            <v-col :cols="9" elevation=12>
                 <v-card class="boards" elevation=12 style="height:100%">
                 <v-row no-gutters style="height:100%">
                 <v-col cols=12 style="height:6%; pa-0">
@@ -51,27 +51,69 @@
                         <span class="white--text caption font-weight-thin">{{currentRoom.members.length}} members</span>
                       </div>
                     <v-spacer></v-spacer>
-                    <v-btn @click="toggleBar" text icon><v-icon :color="toggleIconColor" tile>mdi-application</v-icon></v-btn>
-                              
                            <v-btn text icon><v-icon tile>mdi-dots-vertical</v-icon></v-btn>
                     </v-card-actions>
                     </v-card>
                 </v-col>
                 <v-divider></v-divider>
                     <v-col cols=12 style="height:74%" >
-                        <v-container  fluid class="py-0 pt-1" style="height:100%">
-                        <div class="vuebar-element messages" v-bar>
-                        <ul style="max-height:450px" class="pa-0 my-0" v-chat-scroll="{smooth: true, notSmoothOnInit: true}">
-                            <li v-for="(message, index) in messages"
+                        <v-container  fluid class="py-0 pt-1 pl-0" style="height:100%">
+                        <div class="vuebar-element " v-bar>
+                        <div style="max-height:470px;" class="px-1 pt-2 my-0" v-chat-scroll="{always: false, smooth: true, scrollonremoved:true, smoothonremoved: false}">
+                                <v-row v-for="(message, index) in messages"
                                                     :key="index"
-                                                    @click="" 
-                                                    :class="userData.id == message.user.id? 'replies': 'sent'">
-                                <img elevation=12 :src="'/images/static/avatars/avatar_' + (message.user.avatar_id) + '.jpg'" :alt="message.user.name" />
-                                <p>{{message.message}}
-                                </p>
-                                
-                            </li>
-                        </ul>
+                                                    @click=""
+                                                    class="pa-0 pl-2" style="width:100%;">
+                                                    
+                                                  
+                                    <v-col class="pt-0" cols=1>
+                                    <v-skeleton-loader
+                                                      :loading="loading"
+                                                      transition="fade-transition"
+                                                      type="avatar"
+                                                      height=40
+                                                      width=40
+                                        >
+                                        <v-avatar max-width=40px size=40>
+                                        <v-img
+                                        :aspect-ratio="1"
+                                        :src="'/images/static/avatars/avatar_' + (message.user.avatar_id) + '.jpg'" 
+                                        :alt="message.user.name" ></v-img>
+                                        </v-avatar>
+                                    </v-skeleton-loader>  
+                                        
+                                    </v-col>
+                                    <v-col class="px-0 pt-0" cols=11>
+                                    
+                                    <v-skeleton-loader
+                                                      :loading="loading"
+                                                      type="list-item-two-line"
+                                                      width="150"
+                                        >
+                                        <v-card-text
+                                        class="font-weight-medium subtitle-2 pa-0"
+                                        :class=" currentRoom.admin_id == message.user.id ? 'red--text':message.user.id != userData.id ? 'white--text': 'purple--text'"
+                                        >
+                                        <v-icon class="mb-1" v-show="currentRoom.admin_id == message.user.id" size=16> mdi-account-tie </v-icon>
+                                        {{message.user.name}} <span style="font-size:10px" class="pl-1 overline white--text font-weight-thin">{{message.created_at}}</span>
+                                        </v-card-text>
+                                        <v-card color="#282e33" elevation=12 raised style="display:inline-block" class="pa-1 ml-1" max-width="50%">
+                                        <v-card-text 
+                                        class="font-weight-light pa-0 px-2"
+                                        style="max-width:300px; font-size:12px"
+                                        v-text=message.message>
+                                        </v-card-text>
+                                        <v-row v-show="message.photos"  no-gutters>
+                                            <v-col :cols="photo.col" v-for=" (photo, index) in message.photos" :key="photo.id">
+                                                <v-card class="pa-1" flat outlined><v-img height=100   aspect-ratio :src="photo.path"></v-img></v-card>
+                                            </v-col>
+                                            
+                                        </v-row>
+                                        </v-card>
+                                        </v-skeleton-loader>  
+                                    </v-col>
+                                </v-row>
+                        </div>
                         </div>
                         </v-container>
                     </v-col>
@@ -99,10 +141,6 @@
                         </v-container>
                     </v-col>
                 </v-row>
-                </v-card>
-            </v-col>
-            <v-col v-show="barShow" cols=2>
-                <v-card class="boards" elevation=12 style="height:100%">
                 </v-card>
             </v-col>
             
@@ -139,8 +177,8 @@ import {mapGetters, mapActions} from "vuex";
                 user: {},
                 activeUser: false,
                 typingTimer: false,
-                barShow: false,
-                messagesBoxCol: 10
+                loading: true,
+                loaded: false
             }
         },
         created() {
@@ -156,6 +194,7 @@ import {mapGetters, mapActions} from "vuex";
                     let time = new Date(message.created_at);
                     time = time.toLocaleTimeString('en-GB').slice(0, -3);
                     message.created_at = time;
+                    message = this.photosSizing(message);
                     this.messages.push(message);
                 })
                 .here(user => {
@@ -182,6 +221,16 @@ import {mapGetters, mapActions} from "vuex";
                 });
                 
                 this.getCurrentRoom(this.$route.params.id);
+                const readyHandler = () => {
+                if (document.readyState == 'complete') {
+                        this.loading = false;
+                        this.loaded = true;
+                        document.removeEventListener('readystatechange', readyHandler);
+                    }
+                  };
+
+              document.addEventListener('readystatechange', readyHandler);
+              readyHandler();
         },
         methods: {
             ...mapActions([
@@ -191,15 +240,15 @@ import {mapGetters, mapActions} from "vuex";
                 axios.post('/api/messages', {
                     room_id : this.$route.params.id
                 }).then(response => {
-                    console.log(response.data);
                     let messages = response.data;
                     messages.forEach(message => {
                         let time = new Date(message.created_at);
                         time = time.toLocaleTimeString('en-GB').slice(0, -3);
                         message.created_at = time;
+                        messages = this.photosSizing(message);
                     })
                     this.messages = response.data;
-                    // console.log(asdf);
+                    console.log(this.messages);
                 })
             }, 
             sendMessage() {
@@ -217,15 +266,48 @@ import {mapGetters, mapActions} from "vuex";
                     this.newMessage = '';
                 }
             },
-            toggleBar() {
-                this.barShow = !this.barShow;
-                this.messagesBoxCol = this.barShow ? this.messagesBoxCol - 2 : this.messagesBoxCol + 2;
-                this.toggleIconColor = this.barShow ? "blue" : "white";
-            },
             sendTypingEvent() {
                 console.log("asdfasf")
                 Echo.join('chat.' + this.$route.params.id)
                     .whisper('typing', this.user);
+            },
+            
+            photosSizing(message){
+                switch (message.photos.length) {
+                        case 1:
+                        case 2:
+                        case 3:
+                        case 4:
+                            message.photos.forEach(photo => {
+                                photo.col = 12 / message.photos.length;
+                            })
+                        break;
+                        case 5:
+                        case 9:
+                            message.photos.forEach((photo, id) => {
+                                photo.col = id == (message.photos.length - 1) ? 12 : 3 ; 
+                            })
+                        break;
+                        case 6: 
+                        case 10:
+                            message.photos.forEach((photo, id) => {
+                                photo.col = id >= (message.photos.length - 2) ? 6 : 3 ;
+                            })
+                        break;
+                        case 7:
+                            message.photos.forEach((photo, id) => {
+                                photo.col = id >= (message.photos.length - 3) ? 4 : 3 ; 
+                            })
+                        break;
+                        case 8:
+                            message.photos.forEach(photo => {
+                                photo.col =  3;
+                            })
+                        break;
+                        default:
+                        break;
+                    }
+                    return message;
             }
         },
         computed: {
@@ -247,7 +329,10 @@ import {mapGetters, mapActions} from "vuex";
 </script>
 
 <style >
-
+    .v-skeleton-loader__avatar{
+        width: 40px;
+        height:40px;
+    }
 
     li {
         color: black;

@@ -41,8 +41,8 @@
 			<v-divider></v-divider>
           </v-list>
         </v-navigation-drawer>
-        <v-content>
-        <v-container fluid>
+        <v-content >
+        <v-container style="height:100%" fluid>
           <router-view></router-view>
         </v-container>
         </v-content>

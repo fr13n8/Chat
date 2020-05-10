@@ -26,6 +26,7 @@ class MessagesController extends Controller
 		/* dd($member); */
         foreach ($member as $value) {
             $value->user;
+            $value->photos;
         }
         // dd($member);
         return response()->json($member);
@@ -57,6 +58,7 @@ class MessagesController extends Controller
         // ]);
         // dd($message);
         $message->user;
+        $message->photos;
         // $data = [
         //     "message" => $message,
         //     "room_id" => $req->room_id

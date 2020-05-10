@@ -60,7 +60,6 @@
 						<span v-else>Join</span>
 					 </v-tooltip>
 				  </v-btn>
-				
 				</v-card-actions>
 			  </v-card>
 			</v-col>
