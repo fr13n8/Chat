@@ -2114,6 +2114,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   // props:['user'],
@@ -57148,6 +57150,8 @@ var render = function() {
                                                                     "message.photos"
                                                                 }
                                                               ],
+                                                              staticClass:
+                                                                "pa-0",
                                                               attrs: {
                                                                 "no-gutters": ""
                                                               }
@@ -57175,6 +57179,10 @@ var render = function() {
                                                                         staticClass:
                                                                           "pa-1",
                                                                         attrs: {
+                                                                          height:
+                                                                            "100%",
+                                                                          width:
+                                                                            "100%",
                                                                           flat:
                                                                             "",
                                                                           outlined:
@@ -57183,11 +57191,17 @@ var render = function() {
                                                                       },
                                                                       [
                                                                         _c(
-                                                                          "v-img",
+                                                                          "img",
                                                                           {
-                                                                            attrs: {
+                                                                            staticStyle: {
                                                                               height:
-                                                                                "100",
+                                                                                "100%",
+                                                                              width:
+                                                                                "100%",
+                                                                              "object-fit":
+                                                                                "cover"
+                                                                            },
+                                                                            attrs: {
                                                                               "aspect-ratio":
                                                                                 "",
                                                                               src:
@@ -57195,8 +57209,7 @@ var render = function() {
                                                                             }
                                                                           }
                                                                         )
-                                                                      ],
-                                                                      1
+                                                                      ]
                                                                     )
                                                                   ],
                                                                   1
@@ -119588,8 +119601,8 @@ var actions = {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! C:\xampp\htdocs\nChat\resources\js\app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! C:\xampp\htdocs\nChat\resources\sass\app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! C:\xampp\htdocs\Chat\resources\js\app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! C:\xampp\htdocs\Chat\resources\sass\app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

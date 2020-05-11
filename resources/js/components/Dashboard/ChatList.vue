@@ -103,9 +103,11 @@
                                         style="max-width:300px; font-size:12px"
                                         v-text=message.message>
                                         </v-card-text>
-                                        <v-row v-show="message.photos"  no-gutters>
+                                        <v-row v-show="message.photos" class="pa-0" no-gutters>
                                             <v-col :cols="photo.col" v-for=" (photo, index) in message.photos" :key="photo.id">
-                                                <v-card class="pa-1" flat outlined><v-img height=100   aspect-ratio :src="photo.path"></v-img></v-card>
+                                                <v-card class="pa-1" height=100% width=100% flat outlined>
+													<img style="height:100%; width:100%; object-fit: cover;" aspect-ratio :src="photo.path"/>
+												</v-card>
                                             </v-col>
                                             
                                         </v-row>
