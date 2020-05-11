@@ -2116,12 +2116,44 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   // props:['user'],
   data: function data() {
     return {
-      toggleIconColor: "white",
+      showMsgImgs: true,
+      messageImgs: [],
+      isSelecting: false,
       date: {
         options: {
           month: 'short',
@@ -2209,9 +2241,32 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     document.addEventListener('readystatechange', readyHandler);
     readyHandler();
   },
-  methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])(["getCurrentRoom"]), {
-    fetchMessages: function fetchMessages() {
+  methods: _objectSpread({
+    uploadFile: function uploadFile() {
       var _this2 = this;
+
+      this.isSelecting = true;
+      window.addEventListener('focus', function () {
+        _this2.isSelecting = false;
+      }, {
+        once: true
+      });
+      this.$refs.uploader.click();
+    },
+    onFileChanged: function onFileChanged(e) {
+      console.log(e.target.files);
+
+      for (var file in e.target.files) {
+        console.log(file);
+        this.messageImgs.push(file);
+      }
+
+      this.showMsgImgs = true;
+      console.log(this.messageImgs); // do something
+    }
+  }, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])(["getCurrentRoom"]), {
+    fetchMessages: function fetchMessages() {
+      var _this3 = this;
 
       axios.post('/api/messages', {
         room_id: this.$route.params.id
@@ -2221,10 +2276,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           var time = new Date(message.created_at);
           time = time.toLocaleTimeString('en-GB').slice(0, -3);
           message.created_at = time;
-          messages = _this2.photosSizing(message);
+          messages = _this3.photosSizing(message);
         });
-        _this2.messages = response.data;
-        console.log(_this2.messages);
+        _this3.messages = response.data;
+        console.log(_this3.messages);
       });
     },
     sendMessage: function sendMessage() {
@@ -10348,7 +10403,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\n.v-skeleton-loader__avatar{\n        width: 40px;\n        height:40px;\n}\nli {\n        color: black;\n}\n.boards {\n        border: 2px solid #f0f0f0 !important;\n}\n.messageBoxHeader{\n        border-bottom: 1px solid #f0f0f0 !important;\n}\n.v-btn--icon:focus{\n        outline: none;\n}\n    \n   /*  .v-list {\n      overflow-y: auto;\n    } */\n.vuebar-element {\n      height: 100%;\n      width: 100%;\n}\n.vb > .vb-dragger {\n        z-index: 1;\n        width: 12px;\n        right: 0;\n}\n.vb > .vb-dragger > .vb-dragger-styler {\n        -webkit-backface-visibility: hidden;\n        backface-visibility: hidden;\n        transform: rotate3d(0,0,0,0);\n        transition:\n            background-color 100ms ease-out,\n            margin 100ms ease-out,\n            height 100ms ease-out;\n        background-color: rgba(48, 121, 244,.1);\n        margin: 5px 5px 5px 0;\n        border-radius: 20px;\n        height: calc(100% - 10px);\n        display: block;\n}\n.vb.vb-scrolling-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.3);\n}\n.vb > .vb-dragger:hover > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n}\n.messages ul li {\n  display: inline-block;\n  clear: both;\n  float: left;\n  margin: 8px 5px 0px;\n  width: calc(100% - 25px);\n  font-size: 0.9em;\n}\n.messages ul li.sent img {\n  margin: 6px 8px 0 0;\n}\n.messages ul li.sent p {\n  background: #435f7a;\n  color: #f5f5f5;\n  float:left;\n}\n.messages ul li.replies img {\n  float: right;\n  margin: 6px 0 0 8px;\n}\n.messages ul li.replies p {\n  background: #f5f5f5;\n  float: right;\n}\n.messages ul li img {\n  width: 28px;\n  border-radius: 50%;\n  float: left;\n}\n.messages ul li p {\n  display: inline-block;\n  padding: 8px 15px;\n  border-radius: 20px;\n  max-width: 225px;\n  line-height: 130%;\n}\n.msg_time_send{\n\t\tposition: relative;\n\t\tleft: -40px;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n.msg_time{\n\t\tposition: relative;\n\t\tleft: 40px;\n        float:right;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n", ""]);
+exports.push([module.i, "\n.v-skeleton-loader__avatar{\n        width: 40px;\n        height:40px;\n}\nli {\n        color: black;\n}\n.boards {\n        border: 2px solid #f0f0f0 !important;\n}\n.messageBoxHeader{\n        border-bottom: 1px solid #f0f0f0 !important;\n}\n.v-btn--icon:focus{\n        outline: none;\n}\n    \n   /*  .v-list {\n      overflow-y: auto;\n    } */\n.vuebar-element {\n      height: 100%;\n      width: 100%;\n}\n.vb > .vb-dragger {\n        z-index: 1;\n        width: 12px;\n        right: 0;\n}\n.vb > .vb-dragger > .vb-dragger-styler {\n        -webkit-backface-visibility: hidden;\n        backface-visibility: hidden;\n        transform: rotate3d(0,0,0,0);\n        transition:\n            background-color 100ms ease-out,\n            margin 100ms ease-out,\n            height 100ms ease-out;\n        background-color: rgba(48, 121, 244,.1);\n        margin: 5px 5px 5px 0;\n        border-radius: 20px;\n        height: calc(100% - 10px);\n        display: block;\n}\n.vb.vb-scrolling-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.3);\n}\n.vb > .vb-dragger:hover > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n}\n.messages ul li {\n  display: inline-block;\n  clear: both;\n  float: left;\n  margin: 8px 5px 0px;\n  width: calc(100% - 25px);\n  font-size: 0.9em;\n}\n.messages ul li.sent img {\n  margin: 6px 8px 0 0;\n}\n.messages ul li.sent p {\n  background: #435f7a;\n  color: #f5f5f5;\n  float:left;\n}\n.messages ul li.replies img {\n  float: right;\n  margin: 6px 0 0 8px;\n}\n.messages ul li.replies p {\n  background: #f5f5f5;\n  float: right;\n}\n.messages ul li img {\n  width: 28px;\n  border-radius: 50%;\n  float: left;\n}\n.messages ul li p {\n  display: inline-block;\n  padding: 8px 15px;\n  border-radius: 20px;\n  max-width: 225px;\n  line-height: 130%;\n}\n.msg_time_send{\n\t\tposition: relative;\n\t\tleft: -40px;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n.msg_time{\n\t\tposition: relative;\n\t\tleft: 40px;\n        float:right;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n.v-text-field__details {\n        display: none;\n}\n", ""]);
 
 // exports
 
@@ -56688,10 +56743,7 @@ var render = function() {
         [
           _c(
             "v-row",
-            {
-              staticStyle: { height: "100%" },
-              attrs: { align: "stretch", dense: "" }
-            },
+            { staticStyle: { height: "100%" }, attrs: { dense: "" } },
             [
               _c(
                 "v-col",
@@ -56901,10 +56953,7 @@ var render = function() {
                           _vm._v(" "),
                           _c(
                             "v-col",
-                            {
-                              staticStyle: { height: "74%" },
-                              attrs: { cols: "12" }
-                            },
+                            { attrs: { cols: "12" } },
                             [
                               _c(
                                 "v-container",
@@ -57243,14 +57292,12 @@ var render = function() {
                           _vm._v(" "),
                           _c(
                             "v-col",
-                            {
-                              staticStyle: { height: "20%" },
-                              attrs: { cols: "12" }
-                            },
+                            { attrs: { cols: "12", height: "24%" } },
                             [
                               _c(
                                 "v-container",
                                 {
+                                  staticClass: "pa-1 px-2",
                                   staticStyle: { height: "100%" },
                                   attrs: { fluid: "" }
                                 },
@@ -57266,7 +57313,8 @@ var render = function() {
                                         "v-btn",
                                         {
                                           staticClass: "mr-1",
-                                          attrs: { rounded: "", icon: "" }
+                                          attrs: { rounded: "", icon: "" },
+                                          on: { click: _vm.uploadFile }
                                         },
                                         [
                                           _c(
@@ -57283,7 +57331,19 @@ var render = function() {
                                         1
                                       ),
                                       _vm._v(" "),
+                                      _c("input", {
+                                        ref: "uploader",
+                                        staticClass: "d-none",
+                                        attrs: {
+                                          type: "file",
+                                          accept: "image/*",
+                                          multiple: ""
+                                        },
+                                        on: { change: _vm.onFileChanged }
+                                      }),
+                                      _vm._v(" "),
                                       _c("v-textarea", {
+                                        staticClass: "ma-0",
                                         attrs: {
                                           "background-color": "#282E33",
                                           name: "message",
@@ -57327,6 +57387,136 @@ var render = function() {
                                           on: { click: _vm.sendMessage }
                                         },
                                         [_c("v-icon", [_vm._v("mdi-send")])],
+                                        1
+                                      ),
+                                      _vm._v(" "),
+                                      _c(
+                                        "v-row",
+                                        {
+                                          directives: [
+                                            {
+                                              name: "show",
+                                              rawName: "v-show",
+                                              value: _vm.showMsgImgs,
+                                              expression: "showMsgImgs"
+                                            }
+                                          ],
+                                          staticClass: "py-0 mx-10",
+                                          attrs: { "no-gutters": "" }
+                                        },
+                                        [
+                                          _c(
+                                            "v-col",
+                                            {
+                                              staticClass: "ml-2",
+                                              attrs: { cols: "1" }
+                                            },
+                                            [
+                                              _c(
+                                                "v-card",
+                                                {
+                                                  attrs: {
+                                                    flat: "",
+                                                    outlined: "",
+                                                    height: "100%",
+                                                    width: "100%",
+                                                    flat: "",
+                                                    outlined: ""
+                                                  }
+                                                },
+                                                [
+                                                  _c(
+                                                    "v-card-actions",
+                                                    {
+                                                      staticClass: "pa-0",
+                                                      staticStyle: {
+                                                        position: "absolute",
+                                                        top: "0",
+                                                        right: "0",
+                                                        opacity: "1"
+                                                      },
+                                                      attrs: { flat: "" }
+                                                    },
+                                                    [
+                                                      _c("v-spacer"),
+                                                      _vm._v(" "),
+                                                      _c(
+                                                        "v-btn",
+                                                        {
+                                                          staticClass: "pa-0",
+                                                          attrs: {
+                                                            icon: "",
+                                                            "x-small": ""
+                                                          }
+                                                        },
+                                                        [
+                                                          _c("v-icon", [
+                                                            _vm._v("mdi-close")
+                                                          ])
+                                                        ],
+                                                        1
+                                                      )
+                                                    ],
+                                                    1
+                                                  ),
+                                                  _vm._v(" "),
+                                                  _c("img", {
+                                                    staticStyle: {
+                                                      height: "100%",
+                                                      width: "100%",
+                                                      "object-fit": "cover"
+                                                    },
+                                                    attrs: {
+                                                      "aspect-ratio": "",
+                                                      src:
+                                                        "https://picsum.photos/510/300?random"
+                                                    }
+                                                  })
+                                                ],
+                                                1
+                                              )
+                                            ],
+                                            1
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "v-col",
+                                            {
+                                              staticClass: "ml-2",
+                                              attrs: { cols: "1" }
+                                            },
+                                            [
+                                              _c(
+                                                "v-card",
+                                                {
+                                                  attrs: {
+                                                    flat: "",
+                                                    outlined: "",
+                                                    height: "100%",
+                                                    width: "100%",
+                                                    flat: "",
+                                                    outlined: ""
+                                                  }
+                                                },
+                                                [
+                                                  _c("img", {
+                                                    staticStyle: {
+                                                      height: "100%",
+                                                      width: "100%",
+                                                      "object-fit": "cover"
+                                                    },
+                                                    attrs: {
+                                                      "aspect-ratio": "",
+                                                      src:
+                                                        "https://picsum.photos/510/300?random"
+                                                    }
+                                                  })
+                                                ]
+                                              )
+                                            ],
+                                            1
+                                          )
+                                        ],
                                         1
                                       )
                                     ],

@@ -1,7 +1,7 @@
 <template>
 <v-content  style="height:100%" class="pa-0 ma-0">
 <v-container style="height:100%" fluid class="mx-0" >
-        <v-row align="stretch" dense style="height:100%">
+        <v-row dense style="height:100%">
             <v-col cols=3 >
                 <v-card class="boards"  elevation=12 style="height:100%">
                 <v-list
@@ -56,7 +56,7 @@
                     </v-card>
                 </v-col>
                 <v-divider></v-divider>
-                    <v-col cols=12 style="height:74%" >
+                    <v-col cols=12  >
                         <v-container  fluid class="py-0 pt-1 pl-0" style="height:100%">
                         <div class="vuebar-element " v-bar>
                         <div style="max-height:470px;" class="px-1 pt-2 my-0" v-chat-scroll="{always: false, smooth: true, scrollonremoved:true, smoothonremoved: false}">
@@ -119,17 +119,26 @@
                         </div>
                         </v-container>
                     </v-col>
-                    <v-col cols=12 style="height:20%">
-                        <v-container fluid style="height:100%">
+                    <v-col cols=12 height=24%>
+                        <v-container fluid class="pa-1 px-2" style="height:100%">
                         <v-row class="px-2" dense>
-                            <v-btn class="mr-1" rounded icon >
+                            <v-btn @click="uploadFile" class="mr-1" rounded icon >
                                 <v-icon color="primary" dark >mdi-folder-account</v-icon>
                             </v-btn>
+							<input
+								ref="uploader"
+								class="d-none"
+								type="file"
+								accept="image/*"
+								@change="onFileChanged"
+								multiple
+							  >
                             <v-textarea
                             background-color="#282E33"
                               @keyup.enter="sendMessage"
                               @keydown="sendTypingEvent"
                               name="message"
+                              class="ma-0"
                               placeholder="Enter your message..."
                               outlined
                               v-model="newMessage"
@@ -139,7 +148,28 @@
                             <v-btn class="ml-1" rounded icon  @click="sendMessage">
                               <v-icon>mdi-send</v-icon>
                             </v-btn>
+                            <v-row v-show="showMsgImgs" no-gutters class="py-0 mx-10">
+								<v-col  cols=1 class="ml-2">
+									<v-card flat outlined  class="" height=100% width=100% flat outlined>
+                                    
+                                    <v-card-actions flat style="position:absolute; top: 0; right:0; opacity:1" class="pa-0">
+                                    <v-spacer></v-spacer>
+                                    <v-btn icon class="pa-0" x-small><v-icon>mdi-close</v-icon></v-btn>
+                                  </v-card-actions>
+                                  
+                                    
+										<img style="height:100%; width:100%; object-fit: cover;" aspect-ratio src="https://picsum.photos/510/300?random"/>
+									</v-card>
+								</v-col>
+								<v-col cols=1 class="ml-2" >
+									<v-card flat outlined class="" height=100% width=100% flat outlined>
+										<img style="height:100%; width:100%; object-fit: cover;" aspect-ratio src="https://picsum.photos/510/300?random"/>
+									</v-card>
+								</v-col>
+					</v-row>
                         </v-row>
+                        
+                    
                         </v-container>
                     </v-col>
                 </v-row>
@@ -157,8 +187,9 @@ import {mapGetters, mapActions} from "vuex";
         // props:['user'],
         data() {
             return {
-                
-                toggleIconColor: "white",
+                showMsgImgs: true,
+                messageImgs: [],
+				isSelecting: false,
                 date: {
                     options : { 
                             month: 'short', 
@@ -235,6 +266,24 @@ import {mapGetters, mapActions} from "vuex";
               readyHandler();
         },
         methods: {
+			uploadFile() {
+				  this.isSelecting = true
+				  window.addEventListener('focus', () => {
+					this.isSelecting = false
+				  }, { once: true })
+
+				  this.$refs.uploader.click()
+				},
+			onFileChanged(e) {
+                console.log(e.target.files)
+				  for (let file in e.target.files) {
+                      console.log(file)
+					  this.messageImgs.push(file);
+					}
+                  this.showMsgImgs = true;
+				  console.log(this.messageImgs)
+				  // do something
+				},
             ...mapActions([
                 "getCurrentRoom"
             ]),
@@ -459,4 +508,8 @@ import {mapGetters, mapActions} from "vuex";
 		color: rgba(255,255,255,0.5);
 		font-size: 10px;
 	}
+    
+    .v-text-field__details {
+        display: none;
+    }
 </style>
