@@ -2,22 +2,25 @@ import Axios from "axios";
 
 const state = () => ({
     rooms: {},
-	currentRoom: {}
+	currentRoom: {},
+	getRooms: {},
 })
 
 const getters = {
     rooms(state){
-        return state.rooms;
+        return state.getRooms;
     },
 		
 	currentRoom(state){
 		return state.currentRoom;
-	}
+	},
+
 }
 
 const mutations = {
     setRooms (state, rooms) {
         state.rooms = rooms;
+		state.getRooms = rooms.filter(room => !room.admin);
     },
 	
 	setMembers (state, members){
@@ -46,7 +49,17 @@ const mutations = {
 	
 	currentRoom(state, room){
 		state.currentRoom = room;
+	},
+	
+	roomsType(state, type){
+		if(type == "all"){
+			state.getRooms =  state.rooms.filter(room => !room.admin);
+		}
+		else if(type == "my"){
+			state.getRooms =  state.rooms.filter(room => room.admin);
+		}
 	}
+	
 		
 }
 
@@ -116,7 +129,27 @@ const actions = {
 		})
 	},
 	
-	
+	async addRoom({commit, state, dispatch}, newRoom){
+		
+		return new Promise((resolve, reject) => {
+			Axios.post("/api/addRoom", newRoom).then(response => {
+				if(response.data.message == "success"){
+					
+					resolve({
+						message : "success"
+					});
+				}
+				else if(response.data.message == "error"){
+					resolve({
+						message : "error",
+						error : response.data.body
+					})
+				}
+			}, error => {
+				reject(error);
+			})
+		})
+	}
 	/* async fetchMembers ({commit, state}){
 		return new Promise((resolve, reject) => {
 			Axios.post(")

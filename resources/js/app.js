@@ -17,6 +17,10 @@ import VueAxios from 'vue-axios';
 import axios from 'axios';
 Vue.use(VueAxios, axios);
 
+// import linkify
+import linkify from 'vue-linkify'
+Vue.directive('linkified', linkify)
+
 // Import vuetify
 import Vuetify from 'vuetify';
 Vue.use(Vuetify);

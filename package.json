@@ -33,6 +33,7 @@
         "vee-validate": "^3.2.5",
         "vue-axios": "^2.1.5",
         "vue-chat-scroll": "^1.4.0",
+        "vue-linkify": "^1.0.1",
         "vue-router": "^3.1.6",
         "vue-sweetalert2": "^3.0.3",
         "vuebar": "0.0.20",

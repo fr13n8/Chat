@@ -1,8 +1,11 @@
 <template>
 <v-content  style="height:100%" class="pa-0 ma-0">
 <v-container style="height:100%" fluid class="mx-0" >
-        <v-row dense style="height:100%">
-            <v-col cols=3 >
+        <v-row v-resize="onResize" dense style="height:100%">
+            <v-col
+            cols=3
+            v-show="showUsers"
+            >
                 <v-card class="boards"  elevation=12 style="height:100%">
                 <v-list
                     subheader>
@@ -38,7 +41,7 @@
                 </v-list>
                 </v-card>
             </v-col>
-            <v-col :cols="9" elevation=12>
+            <v-col :cols="chatCols" elevation=12>
                 <v-card class="boards" elevation=12 style="height:100%">
                 <v-row no-gutters style="height:100%">
                 <v-col cols=12 style="height:6%; pa-0">
@@ -58,7 +61,7 @@
                 <v-divider></v-divider>
                     <v-col cols=12  >
                         <v-container  fluid class="py-0 pt-1 pl-0" style="height:100%">
-                        <div class="vuebar-element " v-bar>
+                        <div class="vuebar-element pl-2" v-bar>
                         <div style="max-height:470px;" class="px-1 pt-2 my-0" v-chat-scroll="{always: false, smooth: true, scrollonremoved:true, smoothonremoved: false}">
                                 <v-row v-for="(message, index) in messages"
                                                     :key="index"
@@ -66,7 +69,7 @@
                                                     class="pa-0 pl-2" style="width:100%;">
                                                     
                                                   
-                                    <v-col class="pt-0" cols=1>
+                                    <v-col class="pt-0 pr-0" cols=1>
                                     <v-skeleton-loader
                                                       :loading="loading"
                                                       transition="fade-transition"
@@ -74,11 +77,11 @@
                                                       height=40
                                                       width=40
                                         >
-                                        <v-avatar max-width=40px size=40>
-                                        <v-img
-                                        :aspect-ratio="1"
+                                        <v-avatar size=40px>
+                                        <img
+                                        :aspect-ratio="16/9"
                                         :src="'/images/static/avatars/avatar_' + (message.user.avatar_id) + '.jpg'" 
-                                        :alt="message.user.name" ></v-img>
+                                        :alt="message.user.name" ></img>
                                         </v-avatar>
                                     </v-skeleton-loader>  
                                         
@@ -97,11 +100,11 @@
                                         <v-icon class="mb-1" v-show="currentRoom.admin_id == message.user.id" size=16> mdi-account-tie </v-icon>
                                         {{message.user.name}} <span style="font-size:10px" class="pl-1 overline white--text font-weight-thin">{{message.created_at}}</span>
                                         </v-card-text>
-                                        <v-card color="#282e33" elevation=12 raised style="display:inline-block" class="pa-1 ml-1" max-width="50%">
+                                        <v-card color="#282e33" elevation=12 raised style="display:inline-block" class="pa-1 " max-width="500px">
                                         <v-card-text 
-                                        class="font-weight-light pa-0 px-2"
+                                        class="font-weight-light py-0 px-2"
                                         style="max-width:300px; font-size:12px"
-                                        v-text=message.message>
+                                        v-text=message.message v-linkified>
                                         </v-card-text>
                                         <v-row v-show="message.photos" class="pa-0" no-gutters>
                                             <v-col :cols="photo.col" v-for=" (photo, index) in message.photos" :key="photo.id">
@@ -148,25 +151,8 @@
                             <v-btn class="ml-1" rounded icon  @click="sendMessage">
                               <v-icon>mdi-send</v-icon>
                             </v-btn>
-                            <v-row v-show="showMsgImgs" no-gutters class="py-0 mx-10">
-								<v-col  cols=1 class="ml-2">
-									<v-card flat outlined  class="" height=100% width=100% flat outlined>
-                                    
-                                    <v-card-actions flat style="position:absolute; top: 0; right:0; opacity:1" class="pa-0">
-                                    <v-spacer></v-spacer>
-                                    <v-btn icon class="pa-0" x-small><v-icon>mdi-close</v-icon></v-btn>
-                                  </v-card-actions>
-                                  
-                                    
-										<img style="height:100%; width:100%; object-fit: cover;" aspect-ratio src="https://picsum.photos/510/300?random"/>
-									</v-card>
-								</v-col>
-								<v-col cols=1 class="ml-2" >
-									<v-card flat outlined class="" height=100% width=100% flat outlined>
-										<img style="height:100%; width:100%; object-fit: cover;" aspect-ratio src="https://picsum.photos/510/300?random"/>
-									</v-card>
-								</v-col>
-					</v-row>
+                            <br>
+                            
                         </v-row>
                         
                     
@@ -187,9 +173,16 @@ import {mapGetters, mapActions} from "vuex";
         // props:['user'],
         data() {
             return {
+                windowSize: {
+                            x: 0,
+                            y: 0,
+                            breakpoint: '',
+                          },
                 showMsgImgs: true,
                 messageImgs: [],
 				isSelecting: false,
+                showUsers: true,
+                chatCols: 9,
                 date: {
                     options : { 
                             month: 'short', 
@@ -280,7 +273,7 @@ import {mapGetters, mapActions} from "vuex";
                       console.log(file)
 					  this.messageImgs.push(file);
 					}
-                  this.showMsgImgs = true;
+                  //this.showMsgImgs = true;
 				  console.log(this.messageImgs)
 				  // do something
 				},
@@ -310,10 +303,15 @@ import {mapGetters, mapActions} from "vuex";
                             message: this.newMessage,
                             created_at: date.toLocaleTimeString('en-GB',).slice(0, -3)
                     });
+                    
+                    let formData = new FormData();
+                    this.messageImgs.forEach(img => {
+                        formData.append('imgs', img);
+                    })
                     axios.post('/api/sendMessage', {
                         message: this.newMessage,
-                        room_id: this.$route.params.id
-                        });
+                        room_id: this.$route.params.id,
+                        })
                     this.newMessage = '';
                 }
             },
@@ -359,13 +357,52 @@ import {mapGetters, mapActions} from "vuex";
                         break;
                     }
                     return message;
-            }
+            },
+            chatBoxResize(){
+                    switch(this.windowSize.breakpoint){
+                        case "xs":
+                        case "sm":
+                        case "md":
+                            this.showUsers = false;
+                            this.chatCols = 12;
+                            break;
+                        default:
+                            this.showUsers = true;
+                            this.chatCols = 9;
+                            break;
+                    }
+            },
+            onResize () {
+                this.windowSize = { x: window.innerWidth, y: window.innerHeight, }
+                this.windowSize.breakpoint = this.getBreakpoint(window.innerWidth);
+                this.chatBoxResize();
+            },
+            getBreakpoint (x) {
+                if(x < 600){
+                    return "xs";
+                }
+                else if(x < 960){
+                    return "sm"
+                }
+                else if(x < 1264){
+                    return "md";
+                }
+                else if(x < 1904){
+                    return "lg";
+                }
+                else if(x > 1904){
+                    return "xl";
+                }
+            },
         },
         computed: {
             ...mapGetters([
                 "userData",
                 "currentRoom"
                 ]),
+        },
+        mounted() {
+          this.onResize()  
         },
         watch:{
             $route (to, from){
@@ -511,5 +548,12 @@ import {mapGetters, mapActions} from "vuex";
     
     .v-text-field__details {
         display: none;
+    }
+    
+    .linkified{
+        text-decoration:none;
+    }
+    .linkified:hover{
+        text-decoration:none;
     }
 </style>

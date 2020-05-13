@@ -2132,28 +2132,21 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   // props:['user'],
   data: function data() {
     return {
+      windowSize: {
+        x: 0,
+        y: 0,
+        breakpoint: ''
+      },
       showMsgImgs: true,
       messageImgs: [],
       isSelecting: false,
+      showUsers: true,
+      chatCols: 9,
       date: {
         options: {
           month: 'short',
@@ -2259,9 +2252,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       for (var file in e.target.files) {
         console.log(file);
         this.messageImgs.push(file);
-      }
+      } //this.showMsgImgs = true;
 
-      this.showMsgImgs = true;
+
       console.log(this.messageImgs); // do something
     }
   }, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])(["getCurrentRoom"]), {
@@ -2289,6 +2282,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           user: this.user,
           message: this.newMessage,
           created_at: date.toLocaleTimeString('en-GB').slice(0, -3)
+        });
+        var formData = new FormData();
+        this.messageImgs.forEach(function (img) {
+          formData.append('imgs', img);
         });
         axios.post('/api/sendMessage', {
           message: this.newMessage,
@@ -2343,9 +2340,48 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }
 
       return message;
+    },
+    chatBoxResize: function chatBoxResize() {
+      switch (this.windowSize.breakpoint) {
+        case "xs":
+        case "sm":
+        case "md":
+          this.showUsers = false;
+          this.chatCols = 12;
+          break;
+
+        default:
+          this.showUsers = true;
+          this.chatCols = 9;
+          break;
+      }
+    },
+    onResize: function onResize() {
+      this.windowSize = {
+        x: window.innerWidth,
+        y: window.innerHeight
+      };
+      this.windowSize.breakpoint = this.getBreakpoint(window.innerWidth);
+      this.chatBoxResize();
+    },
+    getBreakpoint: function getBreakpoint(x) {
+      if (x < 600) {
+        return "xs";
+      } else if (x < 960) {
+        return "sm";
+      } else if (x < 1264) {
+        return "md";
+      } else if (x < 1904) {
+        return "lg";
+      } else if (x > 1904) {
+        return "xl";
+      }
     }
   }),
   computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])(["userData", "currentRoom"])),
+  mounted: function mounted() {
+    this.onResize();
+  },
   watch: {
     $route: function $route(to, from) {
       console.log(to);
@@ -2445,14 +2481,85 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
+      dialog: false,
       src: 'https://cdn.vuetifyjs.com/images/cards/road.jpg',
       rating: 3,
       loading: true,
-      loaded: false
+      loaded: false,
+      newRoom: {
+        name: '',
+        description: '',
+        photo: ''
+      },
+      creating: false,
+      checker: true
     };
   },
   mounted: function mounted() {
@@ -2480,15 +2587,36 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         console.error(error);
       });
     }
-  }, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])(['fetchRooms', 'joinRoom', 'leaveRoom'])),
+  }, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapMutations"])(["roomsType"]), {}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])(['fetchRooms', 'joinRoom', 'leaveRoom', 'addRoom']), {
+    createRoom: function createRoom() {
+      var _this = this;
+
+      this.creating = true;
+      console.log("Create");
+      this.addRoom(this.newRoom).then(function (response) {
+        if (response.message == "success") {
+          _this.creating = false;
+          _this.dialog = false;
+        } else if (response.message == "error") {
+          console.log(response.body);
+        }
+      }, function (error) {
+        console.log(error);
+      });
+    },
+    showRooms: function showRooms(type) {
+      this.checker = !this.checker;
+      this.roomsType(type);
+    }
+  }),
   computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])(['rooms', 'userData'])),
   created: function created() {
-    var _this = this;
+    var _this2 = this;
 
     var readyHandler = function readyHandler() {
       if (document.readyState == 'complete') {
-        _this.loading = false;
-        _this.loaded = true;
+        _this2.loading = false;
+        _this2.loaded = true;
         document.removeEventListener('readystatechange', readyHandler);
       }
     };
@@ -10403,7 +10531,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\n.v-skeleton-loader__avatar{\n        width: 40px;\n        height:40px;\n}\nli {\n        color: black;\n}\n.boards {\n        border: 2px solid #f0f0f0 !important;\n}\n.messageBoxHeader{\n        border-bottom: 1px solid #f0f0f0 !important;\n}\n.v-btn--icon:focus{\n        outline: none;\n}\n    \n   /*  .v-list {\n      overflow-y: auto;\n    } */\n.vuebar-element {\n      height: 100%;\n      width: 100%;\n}\n.vb > .vb-dragger {\n        z-index: 1;\n        width: 12px;\n        right: 0;\n}\n.vb > .vb-dragger > .vb-dragger-styler {\n        -webkit-backface-visibility: hidden;\n        backface-visibility: hidden;\n        transform: rotate3d(0,0,0,0);\n        transition:\n            background-color 100ms ease-out,\n            margin 100ms ease-out,\n            height 100ms ease-out;\n        background-color: rgba(48, 121, 244,.1);\n        margin: 5px 5px 5px 0;\n        border-radius: 20px;\n        height: calc(100% - 10px);\n        display: block;\n}\n.vb.vb-scrolling-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.3);\n}\n.vb > .vb-dragger:hover > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n}\n.messages ul li {\n  display: inline-block;\n  clear: both;\n  float: left;\n  margin: 8px 5px 0px;\n  width: calc(100% - 25px);\n  font-size: 0.9em;\n}\n.messages ul li.sent img {\n  margin: 6px 8px 0 0;\n}\n.messages ul li.sent p {\n  background: #435f7a;\n  color: #f5f5f5;\n  float:left;\n}\n.messages ul li.replies img {\n  float: right;\n  margin: 6px 0 0 8px;\n}\n.messages ul li.replies p {\n  background: #f5f5f5;\n  float: right;\n}\n.messages ul li img {\n  width: 28px;\n  border-radius: 50%;\n  float: left;\n}\n.messages ul li p {\n  display: inline-block;\n  padding: 8px 15px;\n  border-radius: 20px;\n  max-width: 225px;\n  line-height: 130%;\n}\n.msg_time_send{\n\t\tposition: relative;\n\t\tleft: -40px;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n.msg_time{\n\t\tposition: relative;\n\t\tleft: 40px;\n        float:right;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n.v-text-field__details {\n        display: none;\n}\n", ""]);
+exports.push([module.i, "\n.v-skeleton-loader__avatar{\n        width: 40px;\n        height:40px;\n}\nli {\n        color: black;\n}\n.boards {\n        border: 2px solid #f0f0f0 !important;\n}\n.messageBoxHeader{\n        border-bottom: 1px solid #f0f0f0 !important;\n}\n.v-btn--icon:focus{\n        outline: none;\n}\n    \n   /*  .v-list {\n      overflow-y: auto;\n    } */\n.vuebar-element {\n      height: 100%;\n      width: 100%;\n}\n.vb > .vb-dragger {\n        z-index: 1;\n        width: 12px;\n        right: 0;\n}\n.vb > .vb-dragger > .vb-dragger-styler {\n        -webkit-backface-visibility: hidden;\n        backface-visibility: hidden;\n        transform: rotate3d(0,0,0,0);\n        transition:\n            background-color 100ms ease-out,\n            margin 100ms ease-out,\n            height 100ms ease-out;\n        background-color: rgba(48, 121, 244,.1);\n        margin: 5px 5px 5px 0;\n        border-radius: 20px;\n        height: calc(100% - 10px);\n        display: block;\n}\n.vb.vb-scrolling-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.3);\n}\n.vb > .vb-dragger:hover > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n}\n.messages ul li {\n  display: inline-block;\n  clear: both;\n  float: left;\n  margin: 8px 5px 0px;\n  width: calc(100% - 25px);\n  font-size: 0.9em;\n}\n.messages ul li.sent img {\n  margin: 6px 8px 0 0;\n}\n.messages ul li.sent p {\n  background: #435f7a;\n  color: #f5f5f5;\n  float:left;\n}\n.messages ul li.replies img {\n  float: right;\n  margin: 6px 0 0 8px;\n}\n.messages ul li.replies p {\n  background: #f5f5f5;\n  float: right;\n}\n.messages ul li img {\n  width: 28px;\n  border-radius: 50%;\n  float: left;\n}\n.messages ul li p {\n  display: inline-block;\n  padding: 8px 15px;\n  border-radius: 20px;\n  max-width: 225px;\n  line-height: 130%;\n}\n.msg_time_send{\n\t\tposition: relative;\n\t\tleft: -40px;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n.msg_time{\n\t\tposition: relative;\n\t\tleft: 40px;\n        float:right;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n.v-text-field__details {\n        display: none;\n}\n.linkified{\n        text-decoration:none;\n}\n.linkified:hover{\n        text-decoration:none;\n}\n", ""]);
 
 // exports
 
@@ -10422,7 +10550,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\n.v-btn[data-v-7966980a]\r\n{\r\n\tcolor: #0060B6;\r\n    text-decoration: none;\n}\n.v-btn[data-v-7966980a]:hover \r\n{\r\n     text-decoration:none; \r\n     cursor:pointer;\n}\r\n", ""]);
+exports.push([module.i, "\n.v-btn[data-v-7966980a]\r\n{\r\n\tcolor: #0060B6;\r\n    text-decoration: none;\n}\n.v-btn[data-v-7966980a]:hover \r\n{\r\n     text-decoration:none; \r\n     cursor:pointer;\n}\r\n\r\n\r\n", ""]);
 
 // exports
 
@@ -22576,6 +22704,2492 @@ class Echo {
 
 /* harmony default export */ __webpack_exports__["default"] = (Echo);
 
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/html.js":
+/*!****************************************!*\
+  !*** ./node_modules/linkifyjs/html.js ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(/*! ./lib/linkify-html */ "./node_modules/linkifyjs/lib/linkify-html.js").default;
+
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/lib/linkify-html.js":
+/*!****************************************************!*\
+  !*** ./node_modules/linkifyjs/lib/linkify-html.js ***!
+  \****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.default = linkifyHtml;
+
+var _simpleHtmlTokenizer = __webpack_require__(/*! ./simple-html-tokenizer */ "./node_modules/linkifyjs/lib/simple-html-tokenizer.js");
+
+var _simpleHtmlTokenizer2 = _interopRequireDefault(_simpleHtmlTokenizer);
+
+var _linkify = __webpack_require__(/*! ./linkify */ "./node_modules/linkifyjs/lib/linkify.js");
+
+var linkify = _interopRequireWildcard(_linkify);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var options = linkify.options;
+var Options = options.Options;
+
+
+var StartTag = 'StartTag';
+var EndTag = 'EndTag';
+var Chars = 'Chars';
+var Comment = 'Comment';
+
+/**
+	`tokens` and `token` in this section refer to tokens generated by the HTML
+	parser.
+*/
+function linkifyHtml(str) {
+	var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+	var tokens = _simpleHtmlTokenizer2.default.tokenize(str);
+	var linkifiedTokens = [];
+	var linkified = [];
+	var i;
+
+	opts = new Options(opts);
+
+	// Linkify the tokens given by the parser
+	for (i = 0; i < tokens.length; i++) {
+		var token = tokens[i];
+
+		if (token.type === StartTag) {
+			linkifiedTokens.push(token);
+
+			// Ignore all the contents of ignored tags
+			var tagName = token.tagName.toUpperCase();
+			var isIgnored = tagName === 'A' || options.contains(opts.ignoreTags, tagName);
+			if (!isIgnored) {
+				continue;
+			}
+
+			var preskipLen = linkifiedTokens.length;
+			skipTagTokens(tagName, tokens, ++i, linkifiedTokens);
+			i += linkifiedTokens.length - preskipLen - 1;
+			continue;
+		} else if (token.type !== Chars) {
+			// Skip this token, it's not important
+			linkifiedTokens.push(token);
+			continue;
+		}
+
+		// Valid text token, linkify it!
+		var linkifedChars = linkifyChars(token.chars, opts);
+		linkifiedTokens.push.apply(linkifiedTokens, linkifedChars);
+	}
+
+	// Convert the tokens back into a string
+	for (i = 0; i < linkifiedTokens.length; i++) {
+		var _token = linkifiedTokens[i];
+		switch (_token.type) {
+			case StartTag:
+				{
+					var link = '<' + _token.tagName;
+					if (_token.attributes.length > 0) {
+						var attrs = attrsToStrings(_token.attributes);
+						link += ' ' + attrs.join(' ');
+					}
+					link += '>';
+					linkified.push(link);
+					break;
+				}
+			case EndTag:
+				linkified.push('</' + _token.tagName + '>');
+				break;
+			case Chars:
+				linkified.push(escapeText(_token.chars));
+				break;
+			case Comment:
+				linkified.push('<!--' + escapeText(_token.chars) + '-->');
+				break;
+		}
+	}
+
+	return linkified.join('');
+}
+
+/**
+	`tokens` and `token` in this section referes to tokens returned by
+	`linkify.tokenize`. `linkified` will contain HTML Parser-style tokens
+*/
+function linkifyChars(str, opts) {
+	var tokens = linkify.tokenize(str);
+	var result = [];
+
+	for (var i = 0; i < tokens.length; i++) {
+		var token = tokens[i];
+
+		if (token.type === 'nl' && opts.nl2br) {
+			result.push({
+				type: StartTag,
+				tagName: 'br',
+				attributes: [],
+				selfClosing: true
+			});
+			continue;
+		} else if (!token.isLink || !opts.check(token)) {
+			result.push({ type: Chars, chars: token.toString() });
+			continue;
+		}
+
+		var _opts$resolve = opts.resolve(token),
+		    formatted = _opts$resolve.formatted,
+		    formattedHref = _opts$resolve.formattedHref,
+		    tagName = _opts$resolve.tagName,
+		    className = _opts$resolve.className,
+		    target = _opts$resolve.target,
+		    attributes = _opts$resolve.attributes;
+
+		// Build up attributes
+
+
+		var attributeArray = [['href', formattedHref]];
+
+		if (className) {
+			attributeArray.push(['class', className]);
+		}
+
+		if (target) {
+			attributeArray.push(['target', target]);
+		}
+
+		for (var attr in attributes) {
+			attributeArray.push([attr, attributes[attr]]);
+		}
+
+		// Add the required tokens
+		result.push({
+			type: StartTag,
+			tagName: tagName,
+			attributes: attributeArray,
+			selfClosing: false
+		});
+		result.push({ type: Chars, chars: formatted });
+		result.push({ type: EndTag, tagName: tagName });
+	}
+
+	return result;
+}
+
+/**
+	Returns a list of tokens skipped until the closing tag of tagName.
+
+	* `tagName` is the closing tag which will prompt us to stop skipping
+	* `tokens` is the array of tokens generated by HTML5Tokenizer which
+	* `i` is the index immediately after the opening tag to skip
+	* `skippedTokens` is an array which skipped tokens are being pushed into
+
+	Caveats
+
+	* Assumes that i is the first token after the given opening tagName
+	* The closing tag will be skipped, but nothing after it
+	* Will track whether there is a nested tag of the same type
+*/
+function skipTagTokens(tagName, tokens, i, skippedTokens) {
+
+	// number of tokens of this type on the [fictional] stack
+	var stackCount = 1;
+
+	while (i < tokens.length && stackCount > 0) {
+		var token = tokens[i];
+
+		if (token.type === StartTag && token.tagName.toUpperCase() === tagName) {
+			// Nested tag of the same type, "add to stack"
+			stackCount++;
+		} else if (token.type === EndTag && token.tagName.toUpperCase() === tagName) {
+			// Closing tag
+			stackCount--;
+		}
+
+		skippedTokens.push(token);
+		i++;
+	}
+
+	// Note that if stackCount > 0 here, the HTML is probably invalid
+	return skippedTokens;
+}
+
+function escapeText(text) {
+	// Not required, HTML tokenizer ensures this occurs properly
+	return text;
+}
+
+function escapeAttr(attr) {
+	return attr.replace(/"/g, '&quot;');
+}
+
+function attrsToStrings(attrs) {
+	var attrStrs = [];
+	for (var i = 0; i < attrs.length; i++) {
+		var _attrs$i = attrs[i],
+		    name = _attrs$i[0],
+		    value = _attrs$i[1];
+
+		attrStrs.push(name + '="' + escapeAttr(value) + '"');
+	}
+	return attrStrs;
+}
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/lib/linkify.js":
+/*!***********************************************!*\
+  !*** ./node_modules/linkifyjs/lib/linkify.js ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.tokenize = exports.test = exports.scanner = exports.parser = exports.options = exports.inherits = exports.find = undefined;
+
+var _class = __webpack_require__(/*! ./linkify/utils/class */ "./node_modules/linkifyjs/lib/linkify/utils/class.js");
+
+var _options = __webpack_require__(/*! ./linkify/utils/options */ "./node_modules/linkifyjs/lib/linkify/utils/options.js");
+
+var options = _interopRequireWildcard(_options);
+
+var _scanner = __webpack_require__(/*! ./linkify/core/scanner */ "./node_modules/linkifyjs/lib/linkify/core/scanner.js");
+
+var scanner = _interopRequireWildcard(_scanner);
+
+var _parser = __webpack_require__(/*! ./linkify/core/parser */ "./node_modules/linkifyjs/lib/linkify/core/parser.js");
+
+var parser = _interopRequireWildcard(_parser);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+if (!Array.isArray) {
+	Array.isArray = function (arg) {
+		return Object.prototype.toString.call(arg) === '[object Array]';
+	};
+}
+
+/**
+	Converts a string into tokens that represent linkable and non-linkable bits
+	@method tokenize
+	@param {String} str
+	@return {Array} tokens
+*/
+var tokenize = function tokenize(str) {
+	return parser.run(scanner.run(str));
+};
+
+/**
+	Returns a list of linkable items in the given string.
+*/
+var find = function find(str) {
+	var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+	var tokens = tokenize(str);
+	var filtered = [];
+
+	for (var i = 0; i < tokens.length; i++) {
+		var token = tokens[i];
+		if (token.isLink && (!type || token.type === type)) {
+			filtered.push(token.toObject());
+		}
+	}
+
+	return filtered;
+};
+
+/**
+	Is the given string valid linkable text of some sort
+	Note that this does not trim the text for you.
+
+	Optionally pass in a second `type` param, which is the type of link to test
+	for.
+
+	For example,
+
+		test(str, 'email');
+
+	Will return `true` if str is a valid email.
+*/
+var test = function test(str) {
+	var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+	var tokens = tokenize(str);
+	return tokens.length === 1 && tokens[0].isLink && (!type || tokens[0].type === type);
+};
+
+// Scanner and parser provide states and tokens for the lexicographic stage
+// (will be used to add additional link types)
+exports.find = find;
+exports.inherits = _class.inherits;
+exports.options = options;
+exports.parser = parser;
+exports.scanner = scanner;
+exports.test = test;
+exports.tokenize = tokenize;
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/lib/linkify/core/parser.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/linkifyjs/lib/linkify/core/parser.js ***!
+  \***********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.start = exports.run = exports.TOKENS = exports.State = undefined;
+
+var _state = __webpack_require__(/*! ./state */ "./node_modules/linkifyjs/lib/linkify/core/state.js");
+
+var _multi = __webpack_require__(/*! ./tokens/multi */ "./node_modules/linkifyjs/lib/linkify/core/tokens/multi.js");
+
+var MULTI_TOKENS = _interopRequireWildcard(_multi);
+
+var _text = __webpack_require__(/*! ./tokens/text */ "./node_modules/linkifyjs/lib/linkify/core/tokens/text.js");
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+/**
+	Not exactly parser, more like the second-stage scanner (although we can
+	theoretically hotswap the code here with a real parser in the future... but
+	for a little URL-finding utility abstract syntax trees may be a little
+	overkill).
+
+	URL format: http://en.wikipedia.org/wiki/URI_scheme
+	Email format: http://en.wikipedia.org/wiki/Email_address (links to RFC in
+	reference)
+
+	@module linkify
+	@submodule parser
+	@main parser
+*/
+
+var makeState = function makeState(tokenClass) {
+	return new _state.TokenState(tokenClass);
+};
+
+// The universal starting state.
+var S_START = makeState();
+
+// Intermediate states for URLs. Note that domains that begin with a protocol
+// are treated slighly differently from those that don't.
+var S_PROTOCOL = makeState(); // e.g., 'http:'
+var S_MAILTO = makeState(); // 'mailto:'
+var S_PROTOCOL_SLASH = makeState(); // e.g., '/', 'http:/''
+var S_PROTOCOL_SLASH_SLASH = makeState(); // e.g., '//', 'http://'
+var S_DOMAIN = makeState(); // parsed string ends with a potential domain name (A)
+var S_DOMAIN_DOT = makeState(); // (A) domain followed by DOT
+var S_TLD = makeState(_multi.URL); // (A) Simplest possible URL with no query string
+var S_TLD_COLON = makeState(); // (A) URL followed by colon (potential port number here)
+var S_TLD_PORT = makeState(_multi.URL); // TLD followed by a port number
+var S_URL = makeState(_multi.URL); // Long URL with optional port and maybe query string
+var S_URL_NON_ACCEPTING = makeState(); // URL followed by some symbols (will not be part of the final URL)
+var S_URL_OPENBRACE = makeState(); // URL followed by {
+var S_URL_OPENBRACKET = makeState(); // URL followed by [
+var S_URL_OPENANGLEBRACKET = makeState(); // URL followed by <
+var S_URL_OPENPAREN = makeState(); // URL followed by (
+var S_URL_OPENBRACE_Q = makeState(_multi.URL); // URL followed by { and some symbols that the URL can end it
+var S_URL_OPENBRACKET_Q = makeState(_multi.URL); // URL followed by [ and some symbols that the URL can end it
+var S_URL_OPENANGLEBRACKET_Q = makeState(_multi.URL); // URL followed by < and some symbols that the URL can end it
+var S_URL_OPENPAREN_Q = makeState(_multi.URL); // URL followed by ( and some symbols that the URL can end it
+var S_URL_OPENBRACE_SYMS = makeState(); // S_URL_OPENBRACE_Q followed by some symbols it cannot end it
+var S_URL_OPENBRACKET_SYMS = makeState(); // S_URL_OPENBRACKET_Q followed by some symbols it cannot end it
+var S_URL_OPENANGLEBRACKET_SYMS = makeState(); // S_URL_OPENANGLEBRACKET_Q followed by some symbols it cannot end it
+var S_URL_OPENPAREN_SYMS = makeState(); // S_URL_OPENPAREN_Q followed by some symbols it cannot end it
+var S_EMAIL_DOMAIN = makeState(); // parsed string starts with local email info + @ with a potential domain name (C)
+var S_EMAIL_DOMAIN_DOT = makeState(); // (C) domain followed by DOT
+var S_EMAIL = makeState(_multi.EMAIL); // (C) Possible email address (could have more tlds)
+var S_EMAIL_COLON = makeState(); // (C) URL followed by colon (potential port number here)
+var S_EMAIL_PORT = makeState(_multi.EMAIL); // (C) Email address with a port
+var S_MAILTO_EMAIL = makeState(_multi.MAILTOEMAIL); // Email that begins with the mailto prefix (D)
+var S_MAILTO_EMAIL_NON_ACCEPTING = makeState(); // (D) Followed by some non-query string chars
+var S_LOCALPART = makeState(); // Local part of the email address
+var S_LOCALPART_AT = makeState(); // Local part of the email address plus @
+var S_LOCALPART_DOT = makeState(); // Local part of the email address plus '.' (localpart cannot end in .)
+var S_NL = makeState(_multi.NL); // single new line
+
+// Make path from start to protocol (with '//')
+S_START.on(_text.NL, S_NL).on(_text.PROTOCOL, S_PROTOCOL).on(_text.MAILTO, S_MAILTO).on(_text.SLASH, S_PROTOCOL_SLASH);
+
+S_PROTOCOL.on(_text.SLASH, S_PROTOCOL_SLASH);
+S_PROTOCOL_SLASH.on(_text.SLASH, S_PROTOCOL_SLASH_SLASH);
+
+// The very first potential domain name
+S_START.on(_text.TLD, S_DOMAIN).on(_text.DOMAIN, S_DOMAIN).on(_text.LOCALHOST, S_TLD).on(_text.NUM, S_DOMAIN);
+
+// Force URL for protocol followed by anything sane
+S_PROTOCOL_SLASH_SLASH.on(_text.TLD, S_URL).on(_text.DOMAIN, S_URL).on(_text.NUM, S_URL).on(_text.LOCALHOST, S_URL);
+
+// Account for dots and hyphens
+// hyphens are usually parts of domain names
+S_DOMAIN.on(_text.DOT, S_DOMAIN_DOT);
+S_EMAIL_DOMAIN.on(_text.DOT, S_EMAIL_DOMAIN_DOT);
+
+// Hyphen can jump back to a domain name
+
+// After the first domain and a dot, we can find either a URL or another domain
+S_DOMAIN_DOT.on(_text.TLD, S_TLD).on(_text.DOMAIN, S_DOMAIN).on(_text.NUM, S_DOMAIN).on(_text.LOCALHOST, S_DOMAIN);
+
+S_EMAIL_DOMAIN_DOT.on(_text.TLD, S_EMAIL).on(_text.DOMAIN, S_EMAIL_DOMAIN).on(_text.NUM, S_EMAIL_DOMAIN).on(_text.LOCALHOST, S_EMAIL_DOMAIN);
+
+// S_TLD accepts! But the URL could be longer, try to find a match greedily
+// The `run` function should be able to "rollback" to the accepting state
+S_TLD.on(_text.DOT, S_DOMAIN_DOT);
+S_EMAIL.on(_text.DOT, S_EMAIL_DOMAIN_DOT);
+
+// Become real URLs after `SLASH` or `COLON NUM SLASH`
+// Here PSS and non-PSS converge
+S_TLD.on(_text.COLON, S_TLD_COLON).on(_text.SLASH, S_URL);
+S_TLD_COLON.on(_text.NUM, S_TLD_PORT);
+S_TLD_PORT.on(_text.SLASH, S_URL);
+S_EMAIL.on(_text.COLON, S_EMAIL_COLON);
+S_EMAIL_COLON.on(_text.NUM, S_EMAIL_PORT);
+
+// Types of characters the URL can definitely end in
+var qsAccepting = [_text.DOMAIN, _text.AT, _text.LOCALHOST, _text.NUM, _text.PLUS, _text.POUND, _text.PROTOCOL, _text.SLASH, _text.TLD, _text.UNDERSCORE, _text.SYM, _text.AMPERSAND];
+
+// Types of tokens that can follow a URL and be part of the query string
+// but cannot be the very last characters
+// Characters that cannot appear in the URL at all should be excluded
+var qsNonAccepting = [_text.COLON, _text.DOT, _text.QUERY, _text.PUNCTUATION, _text.CLOSEBRACE, _text.CLOSEBRACKET, _text.CLOSEANGLEBRACKET, _text.CLOSEPAREN, _text.OPENBRACE, _text.OPENBRACKET, _text.OPENANGLEBRACKET, _text.OPENPAREN];
+
+// These states are responsible primarily for determining whether or not to
+// include the final round bracket.
+
+// URL, followed by an opening bracket
+S_URL.on(_text.OPENBRACE, S_URL_OPENBRACE).on(_text.OPENBRACKET, S_URL_OPENBRACKET).on(_text.OPENANGLEBRACKET, S_URL_OPENANGLEBRACKET).on(_text.OPENPAREN, S_URL_OPENPAREN);
+
+// URL with extra symbols at the end, followed by an opening bracket
+S_URL_NON_ACCEPTING.on(_text.OPENBRACE, S_URL_OPENBRACE).on(_text.OPENBRACKET, S_URL_OPENBRACKET).on(_text.OPENANGLEBRACKET, S_URL_OPENANGLEBRACKET).on(_text.OPENPAREN, S_URL_OPENPAREN);
+
+// Closing bracket component. This character WILL be included in the URL
+S_URL_OPENBRACE.on(_text.CLOSEBRACE, S_URL);
+S_URL_OPENBRACKET.on(_text.CLOSEBRACKET, S_URL);
+S_URL_OPENANGLEBRACKET.on(_text.CLOSEANGLEBRACKET, S_URL);
+S_URL_OPENPAREN.on(_text.CLOSEPAREN, S_URL);
+S_URL_OPENBRACE_Q.on(_text.CLOSEBRACE, S_URL);
+S_URL_OPENBRACKET_Q.on(_text.CLOSEBRACKET, S_URL);
+S_URL_OPENANGLEBRACKET_Q.on(_text.CLOSEANGLEBRACKET, S_URL);
+S_URL_OPENPAREN_Q.on(_text.CLOSEPAREN, S_URL);
+S_URL_OPENBRACE_SYMS.on(_text.CLOSEBRACE, S_URL);
+S_URL_OPENBRACKET_SYMS.on(_text.CLOSEBRACKET, S_URL);
+S_URL_OPENANGLEBRACKET_SYMS.on(_text.CLOSEANGLEBRACKET, S_URL);
+S_URL_OPENPAREN_SYMS.on(_text.CLOSEPAREN, S_URL);
+
+// URL that beings with an opening bracket, followed by a symbols.
+// Note that the final state can still be `S_URL_OPENBRACE_Q` (if the URL only
+// has a single opening bracket for some reason).
+S_URL_OPENBRACE.on(qsAccepting, S_URL_OPENBRACE_Q);
+S_URL_OPENBRACKET.on(qsAccepting, S_URL_OPENBRACKET_Q);
+S_URL_OPENANGLEBRACKET.on(qsAccepting, S_URL_OPENANGLEBRACKET_Q);
+S_URL_OPENPAREN.on(qsAccepting, S_URL_OPENPAREN_Q);
+S_URL_OPENBRACE.on(qsNonAccepting, S_URL_OPENBRACE_SYMS);
+S_URL_OPENBRACKET.on(qsNonAccepting, S_URL_OPENBRACKET_SYMS);
+S_URL_OPENANGLEBRACKET.on(qsNonAccepting, S_URL_OPENANGLEBRACKET_SYMS);
+S_URL_OPENPAREN.on(qsNonAccepting, S_URL_OPENPAREN_SYMS);
+
+// URL that begins with an opening bracket, followed by some symbols
+S_URL_OPENBRACE_Q.on(qsAccepting, S_URL_OPENBRACE_Q);
+S_URL_OPENBRACKET_Q.on(qsAccepting, S_URL_OPENBRACKET_Q);
+S_URL_OPENANGLEBRACKET_Q.on(qsAccepting, S_URL_OPENANGLEBRACKET_Q);
+S_URL_OPENPAREN_Q.on(qsAccepting, S_URL_OPENPAREN_Q);
+S_URL_OPENBRACE_Q.on(qsNonAccepting, S_URL_OPENBRACE_Q);
+S_URL_OPENBRACKET_Q.on(qsNonAccepting, S_URL_OPENBRACKET_Q);
+S_URL_OPENANGLEBRACKET_Q.on(qsNonAccepting, S_URL_OPENANGLEBRACKET_Q);
+S_URL_OPENPAREN_Q.on(qsNonAccepting, S_URL_OPENPAREN_Q);
+
+S_URL_OPENBRACE_SYMS.on(qsAccepting, S_URL_OPENBRACE_Q);
+S_URL_OPENBRACKET_SYMS.on(qsAccepting, S_URL_OPENBRACKET_Q);
+S_URL_OPENANGLEBRACKET_SYMS.on(qsAccepting, S_URL_OPENANGLEBRACKET_Q);
+S_URL_OPENPAREN_SYMS.on(qsAccepting, S_URL_OPENPAREN_Q);
+S_URL_OPENBRACE_SYMS.on(qsNonAccepting, S_URL_OPENBRACE_SYMS);
+S_URL_OPENBRACKET_SYMS.on(qsNonAccepting, S_URL_OPENBRACKET_SYMS);
+S_URL_OPENANGLEBRACKET_SYMS.on(qsNonAccepting, S_URL_OPENANGLEBRACKET_SYMS);
+S_URL_OPENPAREN_SYMS.on(qsNonAccepting, S_URL_OPENPAREN_SYMS);
+
+// Account for the query string
+S_URL.on(qsAccepting, S_URL);
+S_URL_NON_ACCEPTING.on(qsAccepting, S_URL);
+
+S_URL.on(qsNonAccepting, S_URL_NON_ACCEPTING);
+S_URL_NON_ACCEPTING.on(qsNonAccepting, S_URL_NON_ACCEPTING);
+
+// Email address-specific state definitions
+// Note: We are not allowing '/' in email addresses since this would interfere
+// with real URLs
+
+// For addresses with the mailto prefix
+// 'mailto:' followed by anything sane is a valid email
+S_MAILTO.on(_text.TLD, S_MAILTO_EMAIL).on(_text.DOMAIN, S_MAILTO_EMAIL).on(_text.NUM, S_MAILTO_EMAIL).on(_text.LOCALHOST, S_MAILTO_EMAIL);
+
+// Greedily get more potential valid email values
+S_MAILTO_EMAIL.on(qsAccepting, S_MAILTO_EMAIL).on(qsNonAccepting, S_MAILTO_EMAIL_NON_ACCEPTING);
+S_MAILTO_EMAIL_NON_ACCEPTING.on(qsAccepting, S_MAILTO_EMAIL).on(qsNonAccepting, S_MAILTO_EMAIL_NON_ACCEPTING);
+
+// For addresses without the mailto prefix
+// Tokens allowed in the localpart of the email
+var localpartAccepting = [_text.DOMAIN, _text.NUM, _text.PLUS, _text.POUND, _text.QUERY, _text.UNDERSCORE, _text.SYM, _text.AMPERSAND, _text.TLD];
+
+// Some of the tokens in `localpartAccepting` are already accounted for here and
+// will not be overwritten (don't worry)
+S_DOMAIN.on(localpartAccepting, S_LOCALPART).on(_text.AT, S_LOCALPART_AT);
+S_TLD.on(localpartAccepting, S_LOCALPART).on(_text.AT, S_LOCALPART_AT);
+S_DOMAIN_DOT.on(localpartAccepting, S_LOCALPART);
+
+// Okay we're on a localpart. Now what?
+// TODO: IP addresses and what if the email starts with numbers?
+S_LOCALPART.on(localpartAccepting, S_LOCALPART).on(_text.AT, S_LOCALPART_AT) // close to an email address now
+.on(_text.DOT, S_LOCALPART_DOT);
+S_LOCALPART_DOT.on(localpartAccepting, S_LOCALPART);
+S_LOCALPART_AT.on(_text.TLD, S_EMAIL_DOMAIN).on(_text.DOMAIN, S_EMAIL_DOMAIN).on(_text.LOCALHOST, S_EMAIL);
+// States following `@` defined above
+
+var run = function run(tokens) {
+	var len = tokens.length;
+	var cursor = 0;
+	var multis = [];
+	var textTokens = [];
+
+	while (cursor < len) {
+		var state = S_START;
+		var secondState = null;
+		var nextState = null;
+		var multiLength = 0;
+		var latestAccepting = null;
+		var sinceAccepts = -1;
+
+		while (cursor < len && !(secondState = state.next(tokens[cursor]))) {
+			// Starting tokens with nowhere to jump to.
+			// Consider these to be just plain text
+			textTokens.push(tokens[cursor++]);
+		}
+
+		while (cursor < len && (nextState = secondState || state.next(tokens[cursor]))) {
+
+			// Get the next state
+			secondState = null;
+			state = nextState;
+
+			// Keep track of the latest accepting state
+			if (state.accepts()) {
+				sinceAccepts = 0;
+				latestAccepting = state;
+			} else if (sinceAccepts >= 0) {
+				sinceAccepts++;
+			}
+
+			cursor++;
+			multiLength++;
+		}
+
+		if (sinceAccepts < 0) {
+
+			// No accepting state was found, part of a regular text token
+			// Add all the tokens we looked at to the text tokens array
+			for (var i = cursor - multiLength; i < cursor; i++) {
+				textTokens.push(tokens[i]);
+			}
+		} else {
+
+			// Accepting state!
+
+			// First close off the textTokens (if available)
+			if (textTokens.length > 0) {
+				multis.push(new _multi.TEXT(textTokens));
+				textTokens = [];
+			}
+
+			// Roll back to the latest accepting state
+			cursor -= sinceAccepts;
+			multiLength -= sinceAccepts;
+
+			// Create a new multitoken
+			var MULTI = latestAccepting.emit();
+			multis.push(new MULTI(tokens.slice(cursor - multiLength, cursor)));
+		}
+	}
+
+	// Finally close off the textTokens (if available)
+	if (textTokens.length > 0) {
+		multis.push(new _multi.TEXT(textTokens));
+	}
+
+	return multis;
+};
+
+exports.State = _state.TokenState;
+exports.TOKENS = MULTI_TOKENS;
+exports.run = run;
+exports.start = S_START;
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/lib/linkify/core/scanner.js":
+/*!************************************************************!*\
+  !*** ./node_modules/linkifyjs/lib/linkify/core/scanner.js ***!
+  \************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.start = exports.run = exports.TOKENS = exports.State = undefined;
+
+var _state = __webpack_require__(/*! ./state */ "./node_modules/linkifyjs/lib/linkify/core/state.js");
+
+var _text = __webpack_require__(/*! ./tokens/text */ "./node_modules/linkifyjs/lib/linkify/core/tokens/text.js");
+
+var TOKENS = _interopRequireWildcard(_text);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var tlds = 'aaa|aarp|abarth|abb|abbott|abbvie|abc|able|abogado|abudhabi|ac|academy|accenture|accountant|accountants|aco|active|actor|ad|adac|ads|adult|ae|aeg|aero|aetna|af|afamilycompany|afl|africa|ag|agakhan|agency|ai|aig|aigo|airbus|airforce|airtel|akdn|al|alfaromeo|alibaba|alipay|allfinanz|allstate|ally|alsace|alstom|am|americanexpress|americanfamily|amex|amfam|amica|amsterdam|analytics|android|anquan|anz|ao|aol|apartments|app|apple|aq|aquarelle|ar|arab|aramco|archi|army|arpa|art|arte|as|asda|asia|associates|at|athleta|attorney|au|auction|audi|audible|audio|auspost|author|auto|autos|avianca|aw|aws|ax|axa|az|azure|ba|baby|baidu|banamex|bananarepublic|band|bank|bar|barcelona|barclaycard|barclays|barefoot|bargains|baseball|basketball|bauhaus|bayern|bb|bbc|bbt|bbva|bcg|bcn|bd|be|beats|beauty|beer|bentley|berlin|best|bestbuy|bet|bf|bg|bh|bharti|bi|bible|bid|bike|bing|bingo|bio|biz|bj|black|blackfriday|blanco|blockbuster|blog|bloomberg|blue|bm|bms|bmw|bn|bnl|bnpparibas|bo|boats|boehringer|bofa|bom|bond|boo|book|booking|boots|bosch|bostik|boston|bot|boutique|box|br|bradesco|bridgestone|broadway|broker|brother|brussels|bs|bt|budapest|bugatti|build|builders|business|buy|buzz|bv|bw|by|bz|bzh|ca|cab|cafe|cal|call|calvinklein|cam|camera|camp|cancerresearch|canon|capetown|capital|capitalone|car|caravan|cards|care|career|careers|cars|cartier|casa|case|caseih|cash|casino|cat|catering|catholic|cba|cbn|cbre|cbs|cc|cd|ceb|center|ceo|cern|cf|cfa|cfd|cg|ch|chanel|channel|chase|chat|cheap|chintai|chloe|christmas|chrome|chrysler|church|ci|cipriani|circle|cisco|citadel|citi|citic|city|cityeats|ck|cl|claims|cleaning|click|clinic|clinique|clothing|cloud|club|clubmed|cm|cn|co|coach|codes|coffee|college|cologne|com|comcast|commbank|community|company|compare|computer|comsec|condos|construction|consulting|contact|contractors|cooking|cookingchannel|cool|coop|corsica|country|coupon|coupons|courses|cr|credit|creditcard|creditunion|cricket|crown|crs|cruise|cruises|csc|cu|cuisinella|cv|cw|cx|cy|cymru|cyou|cz|dabur|dad|dance|data|date|dating|datsun|day|dclk|dds|de|deal|dealer|deals|degree|delivery|dell|deloitte|delta|democrat|dental|dentist|desi|design|dev|dhl|diamonds|diet|digital|direct|directory|discount|discover|dish|diy|dj|dk|dm|dnp|do|docs|doctor|dodge|dog|doha|domains|dot|download|drive|dtv|dubai|duck|dunlop|duns|dupont|durban|dvag|dvr|dz|earth|eat|ec|eco|edeka|edu|education|ee|eg|email|emerck|energy|engineer|engineering|enterprises|epost|epson|equipment|er|ericsson|erni|es|esq|estate|esurance|et|etisalat|eu|eurovision|eus|events|everbank|exchange|expert|exposed|express|extraspace|fage|fail|fairwinds|faith|family|fan|fans|farm|farmers|fashion|fast|fedex|feedback|ferrari|ferrero|fi|fiat|fidelity|fido|film|final|finance|financial|fire|firestone|firmdale|fish|fishing|fit|fitness|fj|fk|flickr|flights|flir|florist|flowers|fly|fm|fo|foo|food|foodnetwork|football|ford|forex|forsale|forum|foundation|fox|fr|free|fresenius|frl|frogans|frontdoor|frontier|ftr|fujitsu|fujixerox|fun|fund|furniture|futbol|fyi|ga|gal|gallery|gallo|gallup|game|games|gap|garden|gb|gbiz|gd|gdn|ge|gea|gent|genting|george|gf|gg|ggee|gh|gi|gift|gifts|gives|giving|gl|glade|glass|gle|global|globo|gm|gmail|gmbh|gmo|gmx|gn|godaddy|gold|goldpoint|golf|goo|goodhands|goodyear|goog|google|gop|got|gov|gp|gq|gr|grainger|graphics|gratis|green|gripe|grocery|group|gs|gt|gu|guardian|gucci|guge|guide|guitars|guru|gw|gy|hair|hamburg|hangout|haus|hbo|hdfc|hdfcbank|health|healthcare|help|helsinki|here|hermes|hgtv|hiphop|hisamitsu|hitachi|hiv|hk|hkt|hm|hn|hockey|holdings|holiday|homedepot|homegoods|homes|homesense|honda|honeywell|horse|hospital|host|hosting|hot|hoteles|hotels|hotmail|house|how|hr|hsbc|ht|htc|hu|hughes|hyatt|hyundai|ibm|icbc|ice|icu|id|ie|ieee|ifm|ikano|il|im|imamat|imdb|immo|immobilien|in|industries|infiniti|info|ing|ink|institute|insurance|insure|int|intel|international|intuit|investments|io|ipiranga|iq|ir|irish|is|iselect|ismaili|ist|istanbul|it|itau|itv|iveco|iwc|jaguar|java|jcb|jcp|je|jeep|jetzt|jewelry|jio|jlc|jll|jm|jmp|jnj|jo|jobs|joburg|jot|joy|jp|jpmorgan|jprs|juegos|juniper|kaufen|kddi|ke|kerryhotels|kerrylogistics|kerryproperties|kfh|kg|kh|ki|kia|kim|kinder|kindle|kitchen|kiwi|km|kn|koeln|komatsu|kosher|kp|kpmg|kpn|kr|krd|kred|kuokgroup|kw|ky|kyoto|kz|la|lacaixa|ladbrokes|lamborghini|lamer|lancaster|lancia|lancome|land|landrover|lanxess|lasalle|lat|latino|latrobe|law|lawyer|lb|lc|lds|lease|leclerc|lefrak|legal|lego|lexus|lgbt|li|liaison|lidl|life|lifeinsurance|lifestyle|lighting|like|lilly|limited|limo|lincoln|linde|link|lipsy|live|living|lixil|lk|loan|loans|locker|locus|loft|lol|london|lotte|lotto|love|lpl|lplfinancial|lr|ls|lt|ltd|ltda|lu|lundbeck|lupin|luxe|luxury|lv|ly|ma|macys|madrid|maif|maison|makeup|man|management|mango|map|market|marketing|markets|marriott|marshalls|maserati|mattel|mba|mc|mckinsey|md|me|med|media|meet|melbourne|meme|memorial|men|menu|meo|merckmsd|metlife|mg|mh|miami|microsoft|mil|mini|mint|mit|mitsubishi|mk|ml|mlb|mls|mm|mma|mn|mo|mobi|mobile|mobily|moda|moe|moi|mom|monash|money|monster|mopar|mormon|mortgage|moscow|moto|motorcycles|mov|movie|movistar|mp|mq|mr|ms|msd|mt|mtn|mtr|mu|museum|mutual|mv|mw|mx|my|mz|na|nab|nadex|nagoya|name|nationwide|natura|navy|nba|nc|ne|nec|net|netbank|netflix|network|neustar|new|newholland|news|next|nextdirect|nexus|nf|nfl|ng|ngo|nhk|ni|nico|nike|nikon|ninja|nissan|nissay|nl|no|nokia|northwesternmutual|norton|now|nowruz|nowtv|np|nr|nra|nrw|ntt|nu|nyc|nz|obi|observer|off|office|okinawa|olayan|olayangroup|oldnavy|ollo|om|omega|one|ong|onl|online|onyourside|ooo|open|oracle|orange|org|organic|origins|osaka|otsuka|ott|ovh|pa|page|panasonic|panerai|paris|pars|partners|parts|party|passagens|pay|pccw|pe|pet|pf|pfizer|pg|ph|pharmacy|phd|philips|phone|photo|photography|photos|physio|piaget|pics|pictet|pictures|pid|pin|ping|pink|pioneer|pizza|pk|pl|place|play|playstation|plumbing|plus|pm|pn|pnc|pohl|poker|politie|porn|post|pr|pramerica|praxi|press|prime|pro|prod|productions|prof|progressive|promo|properties|property|protection|pru|prudential|ps|pt|pub|pw|pwc|py|qa|qpon|quebec|quest|qvc|racing|radio|raid|re|read|realestate|realtor|realty|recipes|red|redstone|redumbrella|rehab|reise|reisen|reit|reliance|ren|rent|rentals|repair|report|republican|rest|restaurant|review|reviews|rexroth|rich|richardli|ricoh|rightathome|ril|rio|rip|rmit|ro|rocher|rocks|rodeo|rogers|room|rs|rsvp|ru|rugby|ruhr|run|rw|rwe|ryukyu|sa|saarland|safe|safety|sakura|sale|salon|samsclub|samsung|sandvik|sandvikcoromant|sanofi|sap|sapo|sarl|sas|save|saxo|sb|sbi|sbs|sc|sca|scb|schaeffler|schmidt|scholarships|school|schule|schwarz|science|scjohnson|scor|scot|sd|se|search|seat|secure|security|seek|select|sener|services|ses|seven|sew|sex|sexy|sfr|sg|sh|shangrila|sharp|shaw|shell|shia|shiksha|shoes|shop|shopping|shouji|show|showtime|shriram|si|silk|sina|singles|site|sj|sk|ski|skin|sky|skype|sl|sling|sm|smart|smile|sn|sncf|so|soccer|social|softbank|software|sohu|solar|solutions|song|sony|soy|space|spiegel|spot|spreadbetting|sr|srl|srt|st|stada|staples|star|starhub|statebank|statefarm|statoil|stc|stcgroup|stockholm|storage|store|stream|studio|study|style|su|sucks|supplies|supply|support|surf|surgery|suzuki|sv|swatch|swiftcover|swiss|sx|sy|sydney|symantec|systems|sz|tab|taipei|talk|taobao|target|tatamotors|tatar|tattoo|tax|taxi|tc|tci|td|tdk|team|tech|technology|tel|telecity|telefonica|temasek|tennis|teva|tf|tg|th|thd|theater|theatre|tiaa|tickets|tienda|tiffany|tips|tires|tirol|tj|tjmaxx|tjx|tk|tkmaxx|tl|tm|tmall|tn|to|today|tokyo|tools|top|toray|toshiba|total|tours|town|toyota|toys|tr|trade|trading|training|travel|travelchannel|travelers|travelersinsurance|trust|trv|tt|tube|tui|tunes|tushu|tv|tvs|tw|tz|ua|ubank|ubs|uconnect|ug|uk|unicom|university|uno|uol|ups|us|uy|uz|va|vacations|vana|vanguard|vc|ve|vegas|ventures|verisign|versicherung|vet|vg|vi|viajes|video|vig|viking|villas|vin|vip|virgin|visa|vision|vista|vistaprint|viva|vivo|vlaanderen|vn|vodka|volkswagen|volvo|vote|voting|voto|voyage|vu|vuelos|wales|walmart|walter|wang|wanggou|warman|watch|watches|weather|weatherchannel|webcam|weber|website|wed|wedding|weibo|weir|wf|whoswho|wien|wiki|williamhill|win|windows|wine|winners|wme|wolterskluwer|woodside|work|works|world|wow|ws|wtc|wtf|xbox|xerox|xfinity|xihuan|xin|xn--11b4c3d|xn--1ck2e1b|xn--1qqw23a|xn--2scrj9c|xn--30rr7y|xn--3bst00m|xn--3ds443g|xn--3e0b707e|xn--3hcrj9c|xn--3oq18vl8pn36a|xn--3pxu8k|xn--42c2d9a|xn--45br5cyl|xn--45brj9c|xn--45q11c|xn--4gbrim|xn--54b7fta0cc|xn--55qw42g|xn--55qx5d|xn--5su34j936bgsg|xn--5tzm5g|xn--6frz82g|xn--6qq986b3xl|xn--80adxhks|xn--80ao21a|xn--80aqecdr1a|xn--80asehdb|xn--80aswg|xn--8y0a063a|xn--90a3ac|xn--90ae|xn--90ais|xn--9dbq2a|xn--9et52u|xn--9krt00a|xn--b4w605ferd|xn--bck1b9a5dre4c|xn--c1avg|xn--c2br7g|xn--cck2b3b|xn--cg4bki|xn--clchc0ea0b2g2a9gcd|xn--czr694b|xn--czrs0t|xn--czru2d|xn--d1acj3b|xn--d1alf|xn--e1a4c|xn--eckvdtc9d|xn--efvy88h|xn--estv75g|xn--fct429k|xn--fhbei|xn--fiq228c5hs|xn--fiq64b|xn--fiqs8s|xn--fiqz9s|xn--fjq720a|xn--flw351e|xn--fpcrj9c3d|xn--fzc2c9e2c|xn--fzys8d69uvgm|xn--g2xx48c|xn--gckr3f0f|xn--gecrj9c|xn--gk3at1e|xn--h2breg3eve|xn--h2brj9c|xn--h2brj9c8c|xn--hxt814e|xn--i1b6b1a6a2e|xn--imr513n|xn--io0a7i|xn--j1aef|xn--j1amh|xn--j6w193g|xn--jlq61u9w7b|xn--jvr189m|xn--kcrx77d1x4a|xn--kprw13d|xn--kpry57d|xn--kpu716f|xn--kput3i|xn--l1acc|xn--lgbbat1ad8j|xn--mgb9awbf|xn--mgba3a3ejt|xn--mgba3a4f16a|xn--mgba7c0bbn0a|xn--mgbaakc7dvf|xn--mgbaam7a8h|xn--mgbab2bd|xn--mgbai9azgqp6j|xn--mgbayh7gpa|xn--mgbb9fbpob|xn--mgbbh1a|xn--mgbbh1a71e|xn--mgbc0a9azcg|xn--mgbca7dzdo|xn--mgberp4a5d4ar|xn--mgbgu82a|xn--mgbi4ecexp|xn--mgbpl2fh|xn--mgbt3dhd|xn--mgbtx2b|xn--mgbx4cd0ab|xn--mix891f|xn--mk1bu44c|xn--mxtq1m|xn--ngbc5azd|xn--ngbe9e0a|xn--ngbrx|xn--node|xn--nqv7f|xn--nqv7fs00ema|xn--nyqy26a|xn--o3cw4h|xn--ogbpf8fl|xn--p1acf|xn--p1ai|xn--pbt977c|xn--pgbs0dh|xn--pssy2u|xn--q9jyb4c|xn--qcka1pmc|xn--qxam|xn--rhqv96g|xn--rovu88b|xn--rvc1e0am3e|xn--s9brj9c|xn--ses554g|xn--t60b56a|xn--tckwe|xn--tiq49xqyj|xn--unup4y|xn--vermgensberater-ctb|xn--vermgensberatung-pwb|xn--vhquv|xn--vuq861b|xn--w4r85el8fhu5dnra|xn--w4rs40l|xn--wgbh1c|xn--wgbl6a|xn--xhq521b|xn--xkc2al3hye2a|xn--xkc2dl3a5ee0h|xn--y9a3aq|xn--yfro4i67o|xn--ygbi2ammx|xn--zfr164b|xperia|xxx|xyz|yachts|yahoo|yamaxun|yandex|ye|yodobashi|yoga|yokohama|you|youtube|yt|yun|za|zappos|zara|zero|zip|zippo|zm|zone|zuerich|zw'.split('|'); // macro, see gulpfile.js
+
+/**
+	The scanner provides an interface that takes a string of text as input, and
+	outputs an array of tokens instances that can be used for easy URL parsing.
+
+	@module linkify
+	@submodule scanner
+	@main scanner
+*/
+
+var NUMBERS = '0123456789'.split('');
+var ALPHANUM = '0123456789abcdefghijklmnopqrstuvwxyz'.split('');
+var WHITESPACE = [' ', '\f', '\r', '\t', '\v', '\xA0', '\u1680', '\u180E']; // excluding line breaks
+
+var domainStates = []; // states that jump to DOMAIN on /[a-z0-9]/
+var makeState = function makeState(tokenClass) {
+	return new _state.CharacterState(tokenClass);
+};
+
+// Frequently used states
+var S_START = makeState();
+var S_NUM = makeState(_text.NUM);
+var S_DOMAIN = makeState(_text.DOMAIN);
+var S_DOMAIN_HYPHEN = makeState(); // domain followed by 1 or more hyphen characters
+var S_WS = makeState(_text.WS);
+
+// States for special URL symbols
+S_START.on('@', makeState(_text.AT)).on('.', makeState(_text.DOT)).on('+', makeState(_text.PLUS)).on('#', makeState(_text.POUND)).on('?', makeState(_text.QUERY)).on('/', makeState(_text.SLASH)).on('_', makeState(_text.UNDERSCORE)).on(':', makeState(_text.COLON)).on('{', makeState(_text.OPENBRACE)).on('[', makeState(_text.OPENBRACKET)).on('<', makeState(_text.OPENANGLEBRACKET)).on('(', makeState(_text.OPENPAREN)).on('}', makeState(_text.CLOSEBRACE)).on(']', makeState(_text.CLOSEBRACKET)).on('>', makeState(_text.CLOSEANGLEBRACKET)).on(')', makeState(_text.CLOSEPAREN)).on('&', makeState(_text.AMPERSAND)).on([',', ';', '!', '"', '\''], makeState(_text.PUNCTUATION));
+
+// Whitespace jumps
+// Tokens of only non-newline whitespace are arbitrarily long
+S_START.on('\n', makeState(_text.NL)).on(WHITESPACE, S_WS);
+
+// If any whitespace except newline, more whitespace!
+S_WS.on(WHITESPACE, S_WS);
+
+// Generates states for top-level domains
+// Note that this is most accurate when tlds are in alphabetical order
+for (var i = 0; i < tlds.length; i++) {
+	var newStates = (0, _state.stateify)(tlds[i], S_START, _text.TLD, _text.DOMAIN);
+	domainStates.push.apply(domainStates, newStates);
+}
+
+// Collect the states generated by different protocls
+var partialProtocolFileStates = (0, _state.stateify)('file', S_START, _text.DOMAIN, _text.DOMAIN);
+var partialProtocolFtpStates = (0, _state.stateify)('ftp', S_START, _text.DOMAIN, _text.DOMAIN);
+var partialProtocolHttpStates = (0, _state.stateify)('http', S_START, _text.DOMAIN, _text.DOMAIN);
+var partialProtocolMailtoStates = (0, _state.stateify)('mailto', S_START, _text.DOMAIN, _text.DOMAIN);
+
+// Add the states to the array of DOMAINeric states
+domainStates.push.apply(domainStates, partialProtocolFileStates);
+domainStates.push.apply(domainStates, partialProtocolFtpStates);
+domainStates.push.apply(domainStates, partialProtocolHttpStates);
+domainStates.push.apply(domainStates, partialProtocolMailtoStates);
+
+// Protocol states
+var S_PROTOCOL_FILE = partialProtocolFileStates.pop();
+var S_PROTOCOL_FTP = partialProtocolFtpStates.pop();
+var S_PROTOCOL_HTTP = partialProtocolHttpStates.pop();
+var S_MAILTO = partialProtocolMailtoStates.pop();
+var S_PROTOCOL_SECURE = makeState(_text.DOMAIN);
+var S_FULL_PROTOCOL = makeState(_text.PROTOCOL); // Full protocol ends with COLON
+var S_FULL_MAILTO = makeState(_text.MAILTO); // Mailto ends with COLON
+
+// Secure protocols (end with 's')
+S_PROTOCOL_FTP.on('s', S_PROTOCOL_SECURE).on(':', S_FULL_PROTOCOL);
+
+S_PROTOCOL_HTTP.on('s', S_PROTOCOL_SECURE).on(':', S_FULL_PROTOCOL);
+
+domainStates.push(S_PROTOCOL_SECURE);
+
+// Become protocol tokens after a COLON
+S_PROTOCOL_FILE.on(':', S_FULL_PROTOCOL);
+S_PROTOCOL_SECURE.on(':', S_FULL_PROTOCOL);
+S_MAILTO.on(':', S_FULL_MAILTO);
+
+// Localhost
+var partialLocalhostStates = (0, _state.stateify)('localhost', S_START, _text.LOCALHOST, _text.DOMAIN);
+domainStates.push.apply(domainStates, partialLocalhostStates);
+
+// Everything else
+// DOMAINs make more DOMAINs
+// Number and character transitions
+S_START.on(NUMBERS, S_NUM);
+S_NUM.on('-', S_DOMAIN_HYPHEN).on(NUMBERS, S_NUM).on(ALPHANUM, S_DOMAIN); // number becomes DOMAIN
+
+S_DOMAIN.on('-', S_DOMAIN_HYPHEN).on(ALPHANUM, S_DOMAIN);
+
+// All the generated states should have a jump to DOMAIN
+for (var _i = 0; _i < domainStates.length; _i++) {
+	domainStates[_i].on('-', S_DOMAIN_HYPHEN).on(ALPHANUM, S_DOMAIN);
+}
+
+S_DOMAIN_HYPHEN.on('-', S_DOMAIN_HYPHEN).on(NUMBERS, S_DOMAIN).on(ALPHANUM, S_DOMAIN);
+
+// Set default transition
+S_START.defaultTransition = makeState(_text.SYM);
+
+/**
+	Given a string, returns an array of TOKEN instances representing the
+	composition of that string.
+
+	@method run
+	@param {String} str Input string to scan
+	@return {Array} Array of TOKEN instances
+*/
+var run = function run(str) {
+
+	// The state machine only looks at lowercase strings.
+	// This selective `toLowerCase` is used because lowercasing the entire
+	// string causes the length and character position to vary in some in some
+	// non-English strings. This happens only on V8-based runtimes.
+	var lowerStr = str.replace(/[A-Z]/g, function (c) {
+		return c.toLowerCase();
+	});
+	var len = str.length;
+	var tokens = []; // return value
+
+	var cursor = 0;
+
+	// Tokenize the string
+	while (cursor < len) {
+		var state = S_START;
+		var nextState = null;
+		var tokenLength = 0;
+		var latestAccepting = null;
+		var sinceAccepts = -1;
+
+		while (cursor < len && (nextState = state.next(lowerStr[cursor]))) {
+			state = nextState;
+
+			// Keep track of the latest accepting state
+			if (state.accepts()) {
+				sinceAccepts = 0;
+				latestAccepting = state;
+			} else if (sinceAccepts >= 0) {
+				sinceAccepts++;
+			}
+
+			tokenLength++;
+			cursor++;
+		}
+
+		if (sinceAccepts < 0) {
+			continue;
+		} // Should never happen
+
+		// Roll back to the latest accepting state
+		cursor -= sinceAccepts;
+		tokenLength -= sinceAccepts;
+
+		// Get the class for the new token
+		var TOKEN = latestAccepting.emit(); // Current token class
+
+		// No more jumps, just make a new token
+		tokens.push(new TOKEN(str.substr(cursor - tokenLength, tokenLength)));
+	}
+
+	return tokens;
+};
+
+var start = S_START;
+exports.State = _state.CharacterState;
+exports.TOKENS = TOKENS;
+exports.run = run;
+exports.start = start;
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/lib/linkify/core/state.js":
+/*!**********************************************************!*\
+  !*** ./node_modules/linkifyjs/lib/linkify/core/state.js ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.stateify = exports.TokenState = exports.CharacterState = undefined;
+
+var _class = __webpack_require__(/*! ../utils/class */ "./node_modules/linkifyjs/lib/linkify/utils/class.js");
+
+function createStateClass() {
+	return function (tClass) {
+		this.j = [];
+		this.T = tClass || null;
+	};
+}
+
+/**
+	A simple state machine that can emit token classes
+
+	The `j` property in this class refers to state jumps. It's a
+	multidimensional array where for each element:
+
+	* index [0] is a symbol or class of symbols to transition to.
+	* index [1] is a State instance which matches
+
+	The type of symbol will depend on the target implementation for this class.
+	In Linkify, we have a two-stage scanner. Each stage uses this state machine
+	but with a slighly different (polymorphic) implementation.
+
+	The `T` property refers to the token class.
+
+	TODO: Can the `on` and `next` methods be combined?
+
+	@class BaseState
+*/
+var BaseState = createStateClass();
+BaseState.prototype = {
+	defaultTransition: false,
+
+	/**
+ 	@method constructor
+ 	@param {Class} tClass Pass in the kind of token to emit if there are
+ 		no jumps after this state and the state is accepting.
+ */
+
+	/**
+ 	On the given symbol(s), this machine should go to the given state
+ 		@method on
+ 	@param {Array|Mixed} symbol
+ 	@param {BaseState} state Note that the type of this state should be the
+ 		same as the current instance (i.e., don't pass in a different
+ 		subclass)
+ */
+	on: function on(symbol, state) {
+		if (symbol instanceof Array) {
+			for (var i = 0; i < symbol.length; i++) {
+				this.j.push([symbol[i], state]);
+			}
+			return this;
+		}
+		this.j.push([symbol, state]);
+		return this;
+	},
+
+
+	/**
+ 	Given the next item, returns next state for that item
+ 	@method next
+ 	@param {Mixed} item Should be an instance of the symbols handled by
+ 		this particular machine.
+ 	@return {State} state Returns false if no jumps are available
+ */
+	next: function next(item) {
+		for (var i = 0; i < this.j.length; i++) {
+			var jump = this.j[i];
+			var symbol = jump[0]; // Next item to check for
+			var state = jump[1]; // State to jump to if items match
+
+			// compare item with symbol
+			if (this.test(item, symbol)) {
+				return state;
+			}
+		}
+
+		// Nowhere left to jump!
+		return this.defaultTransition;
+	},
+
+
+	/**
+ 	Does this state accept?
+ 	`true` only of `this.T` exists
+ 		@method accepts
+ 	@return {Boolean}
+ */
+	accepts: function accepts() {
+		return !!this.T;
+	},
+
+
+	/**
+ 	Determine whether a given item "symbolizes" the symbol, where symbol is
+ 	a class of items handled by this state machine.
+ 		This method should be overriden in extended classes.
+ 		@method test
+ 	@param {Mixed} item Does this item match the given symbol?
+ 	@param {Mixed} symbol
+ 	@return {Boolean}
+ */
+	test: function test(item, symbol) {
+		return item === symbol;
+	},
+
+
+	/**
+ 	Emit the token for this State (just return it in this case)
+ 	If this emits a token, this instance is an accepting state
+ 	@method emit
+ 	@return {Class} T
+ */
+	emit: function emit() {
+		return this.T;
+	}
+};
+
+/**
+	State machine for string-based input
+
+	@class CharacterState
+	@extends BaseState
+*/
+var CharacterState = (0, _class.inherits)(BaseState, createStateClass(), {
+	/**
+ 	Does the given character match the given character or regular
+ 	expression?
+ 		@method test
+ 	@param {String} char
+ 	@param {String|RegExp} charOrRegExp
+ 	@return {Boolean}
+ */
+	test: function test(character, charOrRegExp) {
+		return character === charOrRegExp || charOrRegExp instanceof RegExp && charOrRegExp.test(character);
+	}
+});
+
+/**
+	State machine for input in the form of TextTokens
+
+	@class TokenState
+	@extends BaseState
+*/
+var TokenState = (0, _class.inherits)(BaseState, createStateClass(), {
+
+	/**
+  * Similar to `on`, but returns the state the results in the transition from
+  * the given item
+  * @method jump
+  * @param {Mixed} item
+  * @param {Token} [token]
+  * @return state
+  */
+	jump: function jump(token) {
+		var tClass = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+		var state = this.next(new token('')); // dummy temp token
+		if (state === this.defaultTransition) {
+			// Make a new state!
+			state = new this.constructor(tClass);
+			this.on(token, state);
+		} else if (tClass) {
+			state.T = tClass;
+		}
+		return state;
+	},
+
+
+	/**
+ 	Is the given token an instance of the given token class?
+ 		@method test
+ 	@param {TextToken} token
+ 	@param {Class} tokenClass
+ 	@return {Boolean}
+ */
+	test: function test(token, tokenClass) {
+		return token instanceof tokenClass;
+	}
+});
+
+/**
+	Given a non-empty target string, generates states (if required) for each
+	consecutive substring of characters in str starting from the beginning of
+	the string. The final state will have a special value, as specified in
+	options. All other "in between" substrings will have a default end state.
+
+	This turns the state machine into a Trie-like data structure (rather than a
+	intelligently-designed DFA).
+
+	Note that I haven't really tried these with any strings other than
+	DOMAIN.
+
+	@param {String} str
+	@param {CharacterState} start State to jump from the first character
+	@param {Class} endToken Token class to emit when the given string has been
+		matched and no more jumps exist.
+	@param {Class} defaultToken "Filler token", or which token type to emit when
+		we don't have a full match
+	@return {Array} list of newly-created states
+*/
+function stateify(str, start, endToken, defaultToken) {
+	var i = 0,
+	    len = str.length,
+	    state = start,
+	    newStates = [],
+	    nextState = void 0;
+
+	// Find the next state without a jump to the next character
+	while (i < len && (nextState = state.next(str[i]))) {
+		state = nextState;
+		i++;
+	}
+
+	if (i >= len) {
+		return [];
+	} // no new tokens were added
+
+	while (i < len - 1) {
+		nextState = new CharacterState(defaultToken);
+		newStates.push(nextState);
+		state.on(str[i], nextState);
+		state = nextState;
+		i++;
+	}
+
+	nextState = new CharacterState(endToken);
+	newStates.push(nextState);
+	state.on(str[len - 1], nextState);
+
+	return newStates;
+}
+
+exports.CharacterState = CharacterState;
+exports.TokenState = TokenState;
+exports.stateify = stateify;
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/lib/linkify/core/tokens/create-token-class.js":
+/*!******************************************************************************!*\
+  !*** ./node_modules/linkifyjs/lib/linkify/core/tokens/create-token-class.js ***!
+  \******************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+function createTokenClass() {
+	return function (value) {
+		if (value) {
+			this.v = value;
+		}
+	};
+}
+
+exports.createTokenClass = createTokenClass;
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/lib/linkify/core/tokens/multi.js":
+/*!*****************************************************************!*\
+  !*** ./node_modules/linkifyjs/lib/linkify/core/tokens/multi.js ***!
+  \*****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.URL = exports.TEXT = exports.NL = exports.EMAIL = exports.MAILTOEMAIL = exports.Base = undefined;
+
+var _createTokenClass = __webpack_require__(/*! ./create-token-class */ "./node_modules/linkifyjs/lib/linkify/core/tokens/create-token-class.js");
+
+var _class = __webpack_require__(/*! ../../utils/class */ "./node_modules/linkifyjs/lib/linkify/utils/class.js");
+
+var _text = __webpack_require__(/*! ./text */ "./node_modules/linkifyjs/lib/linkify/core/tokens/text.js");
+
+/******************************************************************************
+	Multi-Tokens
+	Tokens composed of arrays of TextTokens
+******************************************************************************/
+
+// Is the given token a valid domain token?
+// Should nums be included here?
+function isDomainToken(token) {
+	return token instanceof _text.DOMAIN || token instanceof _text.TLD;
+}
+
+/**
+	Abstract class used for manufacturing tokens of text tokens. That is rather
+	than the value for a token being a small string of text, it's value an array
+	of text tokens.
+
+	Used for grouping together URLs, emails, hashtags, and other potential
+	creations.
+
+	@class MultiToken
+	@abstract
+*/
+var MultiToken = (0, _createTokenClass.createTokenClass)();
+
+MultiToken.prototype = {
+	/**
+ 	String representing the type for this token
+ 	@property type
+ 	@default 'TOKEN'
+ */
+	type: 'token',
+
+	/**
+ 	Is this multitoken a link?
+ 	@property isLink
+ 	@default false
+ */
+	isLink: false,
+
+	/**
+ 	Return the string this token represents.
+ 	@method toString
+ 	@return {String}
+ */
+	toString: function toString() {
+		var result = [];
+		for (var i = 0; i < this.v.length; i++) {
+			result.push(this.v[i].toString());
+		}
+		return result.join('');
+	},
+
+
+	/**
+ 	What should the value for this token be in the `href` HTML attribute?
+ 	Returns the `.toString` value by default.
+ 		@method toHref
+ 	@return {String}
+ */
+	toHref: function toHref() {
+		return this.toString();
+	},
+
+
+	/**
+ 	Returns a hash of relevant values for this token, which includes keys
+ 	* type - Kind of token ('url', 'email', etc.)
+ 	* value - Original text
+ 	* href - The value that should be added to the anchor tag's href
+ 		attribute
+ 		@method toObject
+ 	@param {String} [protocol] `'http'` by default
+ 	@return {Object}
+ */
+	toObject: function toObject() {
+		var protocol = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'http';
+
+		return {
+			type: this.type,
+			value: this.toString(),
+			href: this.toHref(protocol)
+		};
+	}
+};
+
+/**
+	Represents an arbitrarily mailto email address with the prefix included
+	@class MAILTO
+	@extends MultiToken
+*/
+var MAILTOEMAIL = (0, _class.inherits)(MultiToken, (0, _createTokenClass.createTokenClass)(), {
+	type: 'email',
+	isLink: true
+});
+
+/**
+	Represents a list of tokens making up a valid email address
+	@class EMAIL
+	@extends MultiToken
+*/
+var EMAIL = (0, _class.inherits)(MultiToken, (0, _createTokenClass.createTokenClass)(), {
+	type: 'email',
+	isLink: true,
+	toHref: function toHref() {
+		return 'mailto:' + this.toString();
+	}
+});
+
+/**
+	Represents some plain text
+	@class TEXT
+	@extends MultiToken
+*/
+var TEXT = (0, _class.inherits)(MultiToken, (0, _createTokenClass.createTokenClass)(), { type: 'text' });
+
+/**
+	Multi-linebreak token - represents a line break
+	@class NL
+	@extends MultiToken
+*/
+var NL = (0, _class.inherits)(MultiToken, (0, _createTokenClass.createTokenClass)(), { type: 'nl' });
+
+/**
+	Represents a list of tokens making up a valid URL
+	@class URL
+	@extends MultiToken
+*/
+var URL = (0, _class.inherits)(MultiToken, (0, _createTokenClass.createTokenClass)(), {
+	type: 'url',
+	isLink: true,
+
+	/**
+ 	Lowercases relevant parts of the domain and adds the protocol if
+ 	required. Note that this will not escape unsafe HTML characters in the
+ 	URL.
+ 		@method href
+ 	@param {String} protocol
+ 	@return {String}
+ */
+	toHref: function toHref() {
+		var protocol = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'http';
+
+		var hasProtocol = false;
+		var hasSlashSlash = false;
+		var tokens = this.v;
+		var result = [];
+		var i = 0;
+
+		// Make the first part of the domain lowercase
+		// Lowercase protocol
+		while (tokens[i] instanceof _text.PROTOCOL) {
+			hasProtocol = true;
+			result.push(tokens[i].toString().toLowerCase());
+			i++;
+		}
+
+		// Skip slash-slash
+		while (tokens[i] instanceof _text.SLASH) {
+			hasSlashSlash = true;
+			result.push(tokens[i].toString());
+			i++;
+		}
+
+		// Lowercase all other characters in the domain
+		while (isDomainToken(tokens[i])) {
+			result.push(tokens[i].toString().toLowerCase());
+			i++;
+		}
+
+		// Leave all other characters as they were written
+		for (; i < tokens.length; i++) {
+			result.push(tokens[i].toString());
+		}
+
+		result = result.join('');
+
+		if (!(hasProtocol || hasSlashSlash)) {
+			result = protocol + '://' + result;
+		}
+
+		return result;
+	},
+	hasProtocol: function hasProtocol() {
+		return this.v[0] instanceof _text.PROTOCOL;
+	}
+});
+
+exports.Base = MultiToken;
+exports.MAILTOEMAIL = MAILTOEMAIL;
+exports.EMAIL = EMAIL;
+exports.NL = NL;
+exports.TEXT = TEXT;
+exports.URL = URL;
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/lib/linkify/core/tokens/text.js":
+/*!****************************************************************!*\
+  !*** ./node_modules/linkifyjs/lib/linkify/core/tokens/text.js ***!
+  \****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.AMPERSAND = exports.CLOSEPAREN = exports.CLOSEANGLEBRACKET = exports.CLOSEBRACKET = exports.CLOSEBRACE = exports.OPENPAREN = exports.OPENANGLEBRACKET = exports.OPENBRACKET = exports.OPENBRACE = exports.WS = exports.TLD = exports.SYM = exports.UNDERSCORE = exports.SLASH = exports.MAILTO = exports.PROTOCOL = exports.QUERY = exports.POUND = exports.PLUS = exports.NUM = exports.NL = exports.LOCALHOST = exports.PUNCTUATION = exports.DOT = exports.COLON = exports.AT = exports.DOMAIN = exports.Base = undefined;
+
+var _createTokenClass = __webpack_require__(/*! ./create-token-class */ "./node_modules/linkifyjs/lib/linkify/core/tokens/create-token-class.js");
+
+var _class = __webpack_require__(/*! ../../utils/class */ "./node_modules/linkifyjs/lib/linkify/utils/class.js");
+
+/******************************************************************************
+	Text Tokens
+	Tokens composed of strings
+******************************************************************************/
+
+/**
+	Abstract class used for manufacturing text tokens.
+	Pass in the value this token represents
+
+	@class TextToken
+	@abstract
+*/
+var TextToken = (0, _createTokenClass.createTokenClass)();
+TextToken.prototype = {
+	toString: function toString() {
+		return this.v + '';
+	}
+};
+
+function inheritsToken(value) {
+	var props = value ? { v: value } : {};
+	return (0, _class.inherits)(TextToken, (0, _createTokenClass.createTokenClass)(), props);
+}
+
+/**
+	A valid domain token
+	@class DOMAIN
+	@extends TextToken
+*/
+var DOMAIN = inheritsToken();
+
+/**
+	@class AT
+	@extends TextToken
+*/
+var AT = inheritsToken('@');
+
+/**
+	Represents a single colon `:` character
+
+	@class COLON
+	@extends TextToken
+*/
+var COLON = inheritsToken(':');
+
+/**
+	@class DOT
+	@extends TextToken
+*/
+var DOT = inheritsToken('.');
+
+/**
+	A character class that can surround the URL, but which the URL cannot begin
+	or end with. Does not include certain English punctuation like parentheses.
+
+	@class PUNCTUATION
+	@extends TextToken
+*/
+var PUNCTUATION = inheritsToken();
+
+/**
+	The word localhost (by itself)
+	@class LOCALHOST
+	@extends TextToken
+*/
+var LOCALHOST = inheritsToken();
+
+/**
+	Newline token
+	@class NL
+	@extends TextToken
+*/
+var NL = inheritsToken('\n');
+
+/**
+	@class NUM
+	@extends TextToken
+*/
+var NUM = inheritsToken();
+
+/**
+	@class PLUS
+	@extends TextToken
+*/
+var PLUS = inheritsToken('+');
+
+/**
+	@class POUND
+	@extends TextToken
+*/
+var POUND = inheritsToken('#');
+
+/**
+	Represents a web URL protocol. Supported types include
+
+	* `http:`
+	* `https:`
+	* `ftp:`
+	* `ftps:`
+
+	@class PROTOCOL
+	@extends TextToken
+*/
+var PROTOCOL = inheritsToken();
+
+/**
+	Represents the start of the email URI protocol
+
+	@class MAILTO
+	@extends TextToken
+*/
+var MAILTO = inheritsToken('mailto:');
+
+/**
+	@class QUERY
+	@extends TextToken
+*/
+var QUERY = inheritsToken('?');
+
+/**
+	@class SLASH
+	@extends TextToken
+*/
+var SLASH = inheritsToken('/');
+
+/**
+	@class UNDERSCORE
+	@extends TextToken
+*/
+var UNDERSCORE = inheritsToken('_');
+
+/**
+	One ore more non-whitespace symbol.
+	@class SYM
+	@extends TextToken
+*/
+var SYM = inheritsToken();
+
+/**
+	@class TLD
+	@extends TextToken
+*/
+var TLD = inheritsToken();
+
+/**
+	Represents a string of consecutive whitespace characters
+
+	@class WS
+	@extends TextToken
+*/
+var WS = inheritsToken();
+
+/**
+	Opening/closing bracket classes
+*/
+
+var OPENBRACE = inheritsToken('{');
+var OPENBRACKET = inheritsToken('[');
+var OPENANGLEBRACKET = inheritsToken('<');
+var OPENPAREN = inheritsToken('(');
+var CLOSEBRACE = inheritsToken('}');
+var CLOSEBRACKET = inheritsToken(']');
+var CLOSEANGLEBRACKET = inheritsToken('>');
+var CLOSEPAREN = inheritsToken(')');
+
+var AMPERSAND = inheritsToken('&');
+
+exports.Base = TextToken;
+exports.DOMAIN = DOMAIN;
+exports.AT = AT;
+exports.COLON = COLON;
+exports.DOT = DOT;
+exports.PUNCTUATION = PUNCTUATION;
+exports.LOCALHOST = LOCALHOST;
+exports.NL = NL;
+exports.NUM = NUM;
+exports.PLUS = PLUS;
+exports.POUND = POUND;
+exports.QUERY = QUERY;
+exports.PROTOCOL = PROTOCOL;
+exports.MAILTO = MAILTO;
+exports.SLASH = SLASH;
+exports.UNDERSCORE = UNDERSCORE;
+exports.SYM = SYM;
+exports.TLD = TLD;
+exports.WS = WS;
+exports.OPENBRACE = OPENBRACE;
+exports.OPENBRACKET = OPENBRACKET;
+exports.OPENANGLEBRACKET = OPENANGLEBRACKET;
+exports.OPENPAREN = OPENPAREN;
+exports.CLOSEBRACE = CLOSEBRACE;
+exports.CLOSEBRACKET = CLOSEBRACKET;
+exports.CLOSEANGLEBRACKET = CLOSEANGLEBRACKET;
+exports.CLOSEPAREN = CLOSEPAREN;
+exports.AMPERSAND = AMPERSAND;
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/lib/linkify/utils/class.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/linkifyjs/lib/linkify/utils/class.js ***!
+  \***********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.inherits = inherits;
+function inherits(parent, child) {
+	var props = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+	var extended = Object.create(parent.prototype);
+	for (var p in props) {
+		extended[p] = props[p];
+	}
+	extended.constructor = child;
+	child.prototype = extended;
+	return child;
+}
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/lib/linkify/utils/options.js":
+/*!*************************************************************!*\
+  !*** ./node_modules/linkifyjs/lib/linkify/utils/options.js ***!
+  \*************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var defaults = {
+	defaultProtocol: 'http',
+	events: null,
+	format: noop,
+	formatHref: noop,
+	nl2br: false,
+	tagName: 'a',
+	target: typeToTarget,
+	validate: true,
+	ignoreTags: [],
+	attributes: null,
+	className: 'linkified' // Deprecated value - no default class will be provided in the future
+};
+
+exports.defaults = defaults;
+exports.Options = Options;
+exports.contains = contains;
+
+
+function Options(opts) {
+	opts = opts || {};
+
+	this.defaultProtocol = opts.hasOwnProperty('defaultProtocol') ? opts.defaultProtocol : defaults.defaultProtocol;
+	this.events = opts.hasOwnProperty('events') ? opts.events : defaults.events;
+	this.format = opts.hasOwnProperty('format') ? opts.format : defaults.format;
+	this.formatHref = opts.hasOwnProperty('formatHref') ? opts.formatHref : defaults.formatHref;
+	this.nl2br = opts.hasOwnProperty('nl2br') ? opts.nl2br : defaults.nl2br;
+	this.tagName = opts.hasOwnProperty('tagName') ? opts.tagName : defaults.tagName;
+	this.target = opts.hasOwnProperty('target') ? opts.target : defaults.target;
+	this.validate = opts.hasOwnProperty('validate') ? opts.validate : defaults.validate;
+	this.ignoreTags = [];
+
+	// linkAttributes and linkClass is deprecated
+	this.attributes = opts.attributes || opts.linkAttributes || defaults.attributes;
+	this.className = opts.hasOwnProperty('className') ? opts.className : opts.linkClass || defaults.className;
+
+	// Make all tags names upper case
+	var ignoredTags = opts.hasOwnProperty('ignoreTags') ? opts.ignoreTags : defaults.ignoreTags;
+	for (var i = 0; i < ignoredTags.length; i++) {
+		this.ignoreTags.push(ignoredTags[i].toUpperCase());
+	}
+}
+
+Options.prototype = {
+	/**
+  * Given the token, return all options for how it should be displayed
+  */
+	resolve: function resolve(token) {
+		var href = token.toHref(this.defaultProtocol);
+		return {
+			formatted: this.get('format', token.toString(), token),
+			formattedHref: this.get('formatHref', href, token),
+			tagName: this.get('tagName', href, token),
+			className: this.get('className', href, token),
+			target: this.get('target', href, token),
+			events: this.getObject('events', href, token),
+			attributes: this.getObject('attributes', href, token)
+		};
+	},
+
+
+	/**
+  * Returns true or false based on whether a token should be displayed as a
+  * link based on the user options. By default,
+  */
+	check: function check(token) {
+		return this.get('validate', token.toString(), token);
+	},
+
+
+	// Private methods
+
+	/**
+  * Resolve an option's value based on the value of the option and the given
+  * params.
+  * @param {String} key Name of option to use
+  * @param operator will be passed to the target option if it's method
+  * @param {MultiToken} token The token from linkify.tokenize
+  */
+	get: function get(key, operator, token) {
+		var optionValue = void 0,
+		    option = this[key];
+		if (!option) {
+			return option;
+		}
+
+		switch (typeof option === 'undefined' ? 'undefined' : _typeof(option)) {
+			case 'function':
+				return option(operator, token.type);
+			case 'object':
+				optionValue = option.hasOwnProperty(token.type) ? option[token.type] : defaults[key];
+				return typeof optionValue === 'function' ? optionValue(operator, token.type) : optionValue;
+		}
+
+		return option;
+	},
+	getObject: function getObject(key, operator, token) {
+		var option = this[key];
+		return typeof option === 'function' ? option(operator, token.type) : option;
+	}
+};
+
+/**
+ * Quick indexOf replacement for checking the ignoreTags option
+ */
+function contains(arr, value) {
+	for (var i = 0; i < arr.length; i++) {
+		if (arr[i] === value) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function noop(val) {
+	return val;
+}
+
+function typeToTarget(href, type) {
+	return type === 'url' ? '_blank' : null;
+}
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/lib/simple-html-tokenizer.js":
+/*!*************************************************************!*\
+  !*** ./node_modules/linkifyjs/lib/simple-html-tokenizer.js ***!
+  \*************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _html5NamedCharRefs = __webpack_require__(/*! ./simple-html-tokenizer/html5-named-char-refs */ "./node_modules/linkifyjs/lib/simple-html-tokenizer/html5-named-char-refs.js");
+
+var _html5NamedCharRefs2 = _interopRequireDefault(_html5NamedCharRefs);
+
+var _entityParser = __webpack_require__(/*! ./simple-html-tokenizer/entity-parser */ "./node_modules/linkifyjs/lib/simple-html-tokenizer/entity-parser.js");
+
+var _entityParser2 = _interopRequireDefault(_entityParser);
+
+var _eventedTokenizer = __webpack_require__(/*! ./simple-html-tokenizer/evented-tokenizer */ "./node_modules/linkifyjs/lib/simple-html-tokenizer/evented-tokenizer.js");
+
+var _eventedTokenizer2 = _interopRequireDefault(_eventedTokenizer);
+
+var _tokenizer = __webpack_require__(/*! ./simple-html-tokenizer/tokenizer */ "./node_modules/linkifyjs/lib/simple-html-tokenizer/tokenizer.js");
+
+var _tokenizer2 = _interopRequireDefault(_tokenizer);
+
+var _tokenize = __webpack_require__(/*! ./simple-html-tokenizer/tokenize */ "./node_modules/linkifyjs/lib/simple-html-tokenizer/tokenize.js");
+
+var _tokenize2 = _interopRequireDefault(_tokenize);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var HTML5Tokenizer = {
+	HTML5NamedCharRefs: _html5NamedCharRefs2.default,
+	EntityParser: _entityParser2.default,
+	EventedTokenizer: _eventedTokenizer2.default,
+	Tokenizer: _tokenizer2.default,
+	tokenize: _tokenize2.default
+};
+
+exports.default = HTML5Tokenizer;
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/lib/simple-html-tokenizer/entity-parser.js":
+/*!***************************************************************************!*\
+  !*** ./node_modules/linkifyjs/lib/simple-html-tokenizer/entity-parser.js ***!
+  \***************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+function EntityParser(named) {
+  this.named = named;
+}
+
+var HEXCHARCODE = /^#[xX]([A-Fa-f0-9]+)$/;
+var CHARCODE = /^#([0-9]+)$/;
+var NAMED = /^([A-Za-z0-9]+)$/;
+
+EntityParser.prototype.parse = function (entity) {
+  if (!entity) {
+    return;
+  }
+  var matches = entity.match(HEXCHARCODE);
+  if (matches) {
+    return "&#x" + matches[1] + ";";
+  }
+  matches = entity.match(CHARCODE);
+  if (matches) {
+    return "&#" + matches[1] + ";";
+  }
+  matches = entity.match(NAMED);
+  if (matches) {
+    return this.named[matches[1]] || "&" + matches[1] + ";";
+  }
+};
+
+exports.default = EntityParser;
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/lib/simple-html-tokenizer/evented-tokenizer.js":
+/*!*******************************************************************************!*\
+  !*** ./node_modules/linkifyjs/lib/simple-html-tokenizer/evented-tokenizer.js ***!
+  \*******************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _utils = __webpack_require__(/*! ./utils */ "./node_modules/linkifyjs/lib/simple-html-tokenizer/utils.js");
+
+function EventedTokenizer(delegate, entityParser) {
+  this.delegate = delegate;
+  this.entityParser = entityParser;
+
+  this.state = null;
+  this.input = null;
+
+  this.index = -1;
+  this.line = -1;
+  this.column = -1;
+  this.tagLine = -1;
+  this.tagColumn = -1;
+
+  this.reset();
+}
+
+EventedTokenizer.prototype = {
+  reset: function reset() {
+    this.state = 'beforeData';
+    this.input = '';
+
+    this.index = 0;
+    this.line = 1;
+    this.column = 0;
+
+    this.tagLine = -1;
+    this.tagColumn = -1;
+
+    this.delegate.reset();
+  },
+
+  tokenize: function tokenize(input) {
+    this.reset();
+    this.tokenizePart(input);
+    this.tokenizeEOF();
+  },
+
+  tokenizePart: function tokenizePart(input) {
+    this.input += (0, _utils.preprocessInput)(input);
+
+    while (this.index < this.input.length) {
+      this.states[this.state].call(this);
+    }
+  },
+
+  tokenizeEOF: function tokenizeEOF() {
+    this.flushData();
+  },
+
+  flushData: function flushData() {
+    if (this.state === 'data') {
+      this.delegate.finishData();
+      this.state = 'beforeData';
+    }
+  },
+
+  peek: function peek() {
+    return this.input.charAt(this.index);
+  },
+
+  consume: function consume() {
+    var char = this.peek();
+
+    this.index++;
+
+    if (char === "\n") {
+      this.line++;
+      this.column = 0;
+    } else {
+      this.column++;
+    }
+
+    return char;
+  },
+
+  consumeCharRef: function consumeCharRef() {
+    var endIndex = this.input.indexOf(';', this.index);
+    if (endIndex === -1) {
+      return;
+    }
+    var entity = this.input.slice(this.index, endIndex);
+    var chars = this.entityParser.parse(entity);
+    if (chars) {
+      var count = entity.length;
+      // consume the entity chars
+      while (count) {
+        this.consume();
+        count--;
+      }
+      // consume the `;`
+      this.consume();
+
+      return chars;
+    }
+  },
+
+  markTagStart: function markTagStart() {
+    // these properties to be removed in next major bump
+    this.tagLine = this.line;
+    this.tagColumn = this.column;
+
+    if (this.delegate.tagOpen) {
+      this.delegate.tagOpen();
+    }
+  },
+
+  states: {
+    beforeData: function beforeData() {
+      var char = this.peek();
+
+      if (char === "<") {
+        this.state = 'tagOpen';
+        this.markTagStart();
+        this.consume();
+      } else {
+        this.state = 'data';
+        this.delegate.beginData();
+      }
+    },
+
+    data: function data() {
+      var char = this.peek();
+
+      if (char === "<") {
+        this.delegate.finishData();
+        this.state = 'tagOpen';
+        this.markTagStart();
+        this.consume();
+      } else if (char === "&") {
+        this.consume();
+        this.delegate.appendToData(this.consumeCharRef() || "&");
+      } else {
+        this.consume();
+        this.delegate.appendToData(char);
+      }
+    },
+
+    tagOpen: function tagOpen() {
+      var char = this.consume();
+
+      if (char === "!") {
+        this.state = 'markupDeclaration';
+      } else if (char === "/") {
+        this.state = 'endTagOpen';
+      } else if ((0, _utils.isAlpha)(char)) {
+        this.state = 'tagName';
+        this.delegate.beginStartTag();
+        this.delegate.appendToTagName(char.toLowerCase());
+      }
+    },
+
+    markupDeclaration: function markupDeclaration() {
+      var char = this.consume();
+
+      if (char === "-" && this.input.charAt(this.index) === "-") {
+        this.consume();
+        this.state = 'commentStart';
+        this.delegate.beginComment();
+      }
+    },
+
+    commentStart: function commentStart() {
+      var char = this.consume();
+
+      if (char === "-") {
+        this.state = 'commentStartDash';
+      } else if (char === ">") {
+        this.delegate.finishComment();
+        this.state = 'beforeData';
+      } else {
+        this.delegate.appendToCommentData(char);
+        this.state = 'comment';
+      }
+    },
+
+    commentStartDash: function commentStartDash() {
+      var char = this.consume();
+
+      if (char === "-") {
+        this.state = 'commentEnd';
+      } else if (char === ">") {
+        this.delegate.finishComment();
+        this.state = 'beforeData';
+      } else {
+        this.delegate.appendToCommentData("-");
+        this.state = 'comment';
+      }
+    },
+
+    comment: function comment() {
+      var char = this.consume();
+
+      if (char === "-") {
+        this.state = 'commentEndDash';
+      } else {
+        this.delegate.appendToCommentData(char);
+      }
+    },
+
+    commentEndDash: function commentEndDash() {
+      var char = this.consume();
+
+      if (char === "-") {
+        this.state = 'commentEnd';
+      } else {
+        this.delegate.appendToCommentData("-" + char);
+        this.state = 'comment';
+      }
+    },
+
+    commentEnd: function commentEnd() {
+      var char = this.consume();
+
+      if (char === ">") {
+        this.delegate.finishComment();
+        this.state = 'beforeData';
+      } else {
+        this.delegate.appendToCommentData("--" + char);
+        this.state = 'comment';
+      }
+    },
+
+    tagName: function tagName() {
+      var char = this.consume();
+
+      if ((0, _utils.isSpace)(char)) {
+        this.state = 'beforeAttributeName';
+      } else if (char === "/") {
+        this.state = 'selfClosingStartTag';
+      } else if (char === ">") {
+        this.delegate.finishTag();
+        this.state = 'beforeData';
+      } else {
+        this.delegate.appendToTagName(char);
+      }
+    },
+
+    beforeAttributeName: function beforeAttributeName() {
+      var char = this.peek();
+
+      if ((0, _utils.isSpace)(char)) {
+        this.consume();
+        return;
+      } else if (char === "/") {
+        this.state = 'selfClosingStartTag';
+        this.consume();
+      } else if (char === ">") {
+        this.consume();
+        this.delegate.finishTag();
+        this.state = 'beforeData';
+      } else {
+        this.state = 'attributeName';
+        this.delegate.beginAttribute();
+        this.consume();
+        this.delegate.appendToAttributeName(char);
+      }
+    },
+
+    attributeName: function attributeName() {
+      var char = this.peek();
+
+      if ((0, _utils.isSpace)(char)) {
+        this.state = 'afterAttributeName';
+        this.consume();
+      } else if (char === "/") {
+        this.delegate.beginAttributeValue(false);
+        this.delegate.finishAttributeValue();
+        this.consume();
+        this.state = 'selfClosingStartTag';
+      } else if (char === "=") {
+        this.state = 'beforeAttributeValue';
+        this.consume();
+      } else if (char === ">") {
+        this.delegate.beginAttributeValue(false);
+        this.delegate.finishAttributeValue();
+        this.consume();
+        this.delegate.finishTag();
+        this.state = 'beforeData';
+      } else {
+        this.consume();
+        this.delegate.appendToAttributeName(char);
+      }
+    },
+
+    afterAttributeName: function afterAttributeName() {
+      var char = this.peek();
+
+      if ((0, _utils.isSpace)(char)) {
+        this.consume();
+        return;
+      } else if (char === "/") {
+        this.delegate.beginAttributeValue(false);
+        this.delegate.finishAttributeValue();
+        this.consume();
+        this.state = 'selfClosingStartTag';
+      } else if (char === "=") {
+        this.consume();
+        this.state = 'beforeAttributeValue';
+      } else if (char === ">") {
+        this.delegate.beginAttributeValue(false);
+        this.delegate.finishAttributeValue();
+        this.consume();
+        this.delegate.finishTag();
+        this.state = 'beforeData';
+      } else {
+        this.delegate.beginAttributeValue(false);
+        this.delegate.finishAttributeValue();
+        this.consume();
+        this.state = 'attributeName';
+        this.delegate.beginAttribute();
+        this.delegate.appendToAttributeName(char);
+      }
+    },
+
+    beforeAttributeValue: function beforeAttributeValue() {
+      var char = this.peek();
+
+      if ((0, _utils.isSpace)(char)) {
+        this.consume();
+      } else if (char === '"') {
+        this.state = 'attributeValueDoubleQuoted';
+        this.delegate.beginAttributeValue(true);
+        this.consume();
+      } else if (char === "'") {
+        this.state = 'attributeValueSingleQuoted';
+        this.delegate.beginAttributeValue(true);
+        this.consume();
+      } else if (char === ">") {
+        this.delegate.beginAttributeValue(false);
+        this.delegate.finishAttributeValue();
+        this.consume();
+        this.delegate.finishTag();
+        this.state = 'beforeData';
+      } else {
+        this.state = 'attributeValueUnquoted';
+        this.delegate.beginAttributeValue(false);
+        this.consume();
+        this.delegate.appendToAttributeValue(char);
+      }
+    },
+
+    attributeValueDoubleQuoted: function attributeValueDoubleQuoted() {
+      var char = this.consume();
+
+      if (char === '"') {
+        this.delegate.finishAttributeValue();
+        this.state = 'afterAttributeValueQuoted';
+      } else if (char === "&") {
+        this.delegate.appendToAttributeValue(this.consumeCharRef('"') || "&");
+      } else {
+        this.delegate.appendToAttributeValue(char);
+      }
+    },
+
+    attributeValueSingleQuoted: function attributeValueSingleQuoted() {
+      var char = this.consume();
+
+      if (char === "'") {
+        this.delegate.finishAttributeValue();
+        this.state = 'afterAttributeValueQuoted';
+      } else if (char === "&") {
+        this.delegate.appendToAttributeValue(this.consumeCharRef("'") || "&");
+      } else {
+        this.delegate.appendToAttributeValue(char);
+      }
+    },
+
+    attributeValueUnquoted: function attributeValueUnquoted() {
+      var char = this.peek();
+
+      if ((0, _utils.isSpace)(char)) {
+        this.delegate.finishAttributeValue();
+        this.consume();
+        this.state = 'beforeAttributeName';
+      } else if (char === "&") {
+        this.consume();
+        this.delegate.appendToAttributeValue(this.consumeCharRef(">") || "&");
+      } else if (char === ">") {
+        this.delegate.finishAttributeValue();
+        this.consume();
+        this.delegate.finishTag();
+        this.state = 'beforeData';
+      } else {
+        this.consume();
+        this.delegate.appendToAttributeValue(char);
+      }
+    },
+
+    afterAttributeValueQuoted: function afterAttributeValueQuoted() {
+      var char = this.peek();
+
+      if ((0, _utils.isSpace)(char)) {
+        this.consume();
+        this.state = 'beforeAttributeName';
+      } else if (char === "/") {
+        this.consume();
+        this.state = 'selfClosingStartTag';
+      } else if (char === ">") {
+        this.consume();
+        this.delegate.finishTag();
+        this.state = 'beforeData';
+      } else {
+        this.state = 'beforeAttributeName';
+      }
+    },
+
+    selfClosingStartTag: function selfClosingStartTag() {
+      var char = this.peek();
+
+      if (char === ">") {
+        this.consume();
+        this.delegate.markTagAsSelfClosing();
+        this.delegate.finishTag();
+        this.state = 'beforeData';
+      } else {
+        this.state = 'beforeAttributeName';
+      }
+    },
+
+    endTagOpen: function endTagOpen() {
+      var char = this.consume();
+
+      if ((0, _utils.isAlpha)(char)) {
+        this.state = 'tagName';
+        this.delegate.beginEndTag();
+        this.delegate.appendToTagName(char.toLowerCase());
+      }
+    }
+  }
+};
+
+exports.default = EventedTokenizer;
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/lib/simple-html-tokenizer/html5-named-char-refs.js":
+/*!***********************************************************************************!*\
+  !*** ./node_modules/linkifyjs/lib/simple-html-tokenizer/html5-named-char-refs.js ***!
+  \***********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+var HTML5NamedCharRefs = {
+    // We don't need the complete named character reference because linkifyHtml
+    // does not modify the escape sequences. We do need &nbsp; so that
+    // whitespace is parsed properly. Other types of whitespace should already
+    // be accounted for
+    nbsp: "\xA0"
+};
+exports.default = HTML5NamedCharRefs;
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/lib/simple-html-tokenizer/tokenize.js":
+/*!**********************************************************************!*\
+  !*** ./node_modules/linkifyjs/lib/simple-html-tokenizer/tokenize.js ***!
+  \**********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.default = tokenize;
+
+var _tokenizer = __webpack_require__(/*! ./tokenizer */ "./node_modules/linkifyjs/lib/simple-html-tokenizer/tokenizer.js");
+
+var _tokenizer2 = _interopRequireDefault(_tokenizer);
+
+var _entityParser = __webpack_require__(/*! ./entity-parser */ "./node_modules/linkifyjs/lib/simple-html-tokenizer/entity-parser.js");
+
+var _entityParser2 = _interopRequireDefault(_entityParser);
+
+var _html5NamedCharRefs = __webpack_require__(/*! ./html5-named-char-refs */ "./node_modules/linkifyjs/lib/simple-html-tokenizer/html5-named-char-refs.js");
+
+var _html5NamedCharRefs2 = _interopRequireDefault(_html5NamedCharRefs);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function tokenize(input, options) {
+  var tokenizer = new _tokenizer2.default(new _entityParser2.default(_html5NamedCharRefs2.default), options);
+  return tokenizer.tokenize(input);
+}
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/lib/simple-html-tokenizer/tokenizer.js":
+/*!***********************************************************************!*\
+  !*** ./node_modules/linkifyjs/lib/simple-html-tokenizer/tokenizer.js ***!
+  \***********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _eventedTokenizer = __webpack_require__(/*! ./evented-tokenizer */ "./node_modules/linkifyjs/lib/simple-html-tokenizer/evented-tokenizer.js");
+
+var _eventedTokenizer2 = _interopRequireDefault(_eventedTokenizer);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function Tokenizer(entityParser, options) {
+  this.token = null;
+  this.startLine = 1;
+  this.startColumn = 0;
+  this.options = options || {};
+  this.tokenizer = new _eventedTokenizer2.default(this, entityParser);
+}
+
+Tokenizer.prototype = {
+  tokenize: function tokenize(input) {
+    this.tokens = [];
+    this.tokenizer.tokenize(input);
+    return this.tokens;
+  },
+
+  tokenizePart: function tokenizePart(input) {
+    this.tokens = [];
+    this.tokenizer.tokenizePart(input);
+    return this.tokens;
+  },
+
+  tokenizeEOF: function tokenizeEOF() {
+    this.tokens = [];
+    this.tokenizer.tokenizeEOF();
+    return this.tokens[0];
+  },
+
+  reset: function reset() {
+    this.token = null;
+    this.startLine = 1;
+    this.startColumn = 0;
+  },
+
+  addLocInfo: function addLocInfo() {
+    if (this.options.loc) {
+      this.token.loc = {
+        start: {
+          line: this.startLine,
+          column: this.startColumn
+        },
+        end: {
+          line: this.tokenizer.line,
+          column: this.tokenizer.column
+        }
+      };
+    }
+    this.startLine = this.tokenizer.line;
+    this.startColumn = this.tokenizer.column;
+  },
+
+  // Data
+
+  beginData: function beginData() {
+    this.token = {
+      type: 'Chars',
+      chars: ''
+    };
+    this.tokens.push(this.token);
+  },
+
+  appendToData: function appendToData(char) {
+    this.token.chars += char;
+  },
+
+  finishData: function finishData() {
+    this.addLocInfo();
+  },
+
+  // Comment
+
+  beginComment: function beginComment() {
+    this.token = {
+      type: 'Comment',
+      chars: ''
+    };
+    this.tokens.push(this.token);
+  },
+
+  appendToCommentData: function appendToCommentData(char) {
+    this.token.chars += char;
+  },
+
+  finishComment: function finishComment() {
+    this.addLocInfo();
+  },
+
+  // Tags - basic
+
+  beginStartTag: function beginStartTag() {
+    this.token = {
+      type: 'StartTag',
+      tagName: '',
+      attributes: [],
+      selfClosing: false
+    };
+    this.tokens.push(this.token);
+  },
+
+  beginEndTag: function beginEndTag() {
+    this.token = {
+      type: 'EndTag',
+      tagName: ''
+    };
+    this.tokens.push(this.token);
+  },
+
+  finishTag: function finishTag() {
+    this.addLocInfo();
+  },
+
+  markTagAsSelfClosing: function markTagAsSelfClosing() {
+    this.token.selfClosing = true;
+  },
+
+  // Tags - name
+
+  appendToTagName: function appendToTagName(char) {
+    this.token.tagName += char;
+  },
+
+  // Tags - attributes
+
+  beginAttribute: function beginAttribute() {
+    this._currentAttribute = ["", "", null];
+    this.token.attributes.push(this._currentAttribute);
+  },
+
+  appendToAttributeName: function appendToAttributeName(char) {
+    this._currentAttribute[0] += char;
+  },
+
+  beginAttributeValue: function beginAttributeValue(isQuoted) {
+    this._currentAttribute[2] = isQuoted;
+  },
+
+  appendToAttributeValue: function appendToAttributeValue(char) {
+    this._currentAttribute[1] = this._currentAttribute[1] || "";
+    this._currentAttribute[1] += char;
+  },
+
+  finishAttributeValue: function finishAttributeValue() {}
+};
+
+exports.default = Tokenizer;
+
+/***/ }),
+
+/***/ "./node_modules/linkifyjs/lib/simple-html-tokenizer/utils.js":
+/*!*******************************************************************!*\
+  !*** ./node_modules/linkifyjs/lib/simple-html-tokenizer/utils.js ***!
+  \*******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.isSpace = isSpace;
+exports.isAlpha = isAlpha;
+exports.preprocessInput = preprocessInput;
+var WSP = /[\t\n\f ]/;
+var ALPHA = /[A-Za-z]/;
+var CRLF = /\r\n?/g;
+
+function isSpace(char) {
+  return WSP.test(char);
+}
+
+function isAlpha(char) {
+  return ALPHA.test(char);
+}
+
+function preprocessInput(input) {
+  return input.replace(CRLF, "\n");
+}
 
 /***/ }),
 
@@ -56671,6 +59285,20 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var _typeof="fun
 
 /***/ }),
 
+/***/ "./node_modules/vue-linkify/dist/vue-linkify.min.js":
+/*!**********************************************************!*\
+  !*** ./node_modules/vue-linkify/dist/vue-linkify.min.js ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var _typeof='function'==typeof Symbol&&'symbol'==typeof Symbol.iterator?function(obj){return typeof obj}:function(obj){return obj&&'function'==typeof Symbol&&obj.constructor===Symbol&&obj!==Symbol.prototype?'symbol':typeof obj};/*global define*/var _html=__webpack_require__(/*! linkifyjs/html */ "./node_modules/linkifyjs/html.js"),_html2=_interopRequireDefault(_html);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj}}(function(){function a(b,c){b.innerHTML=(0,_html2.default)(b.innerHTML,c.value)}'object'==( false?undefined:_typeof(exports))?module.exports=a: true?!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = (function(){return a}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)):undefined})();
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/App.vue?vue&type=template&id=f348271a&scoped=true&":
 /*!*******************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/App.vue?vue&type=template&id=f348271a&scoped=true& ***!
@@ -56743,11 +59371,32 @@ var render = function() {
         [
           _c(
             "v-row",
-            { staticStyle: { height: "100%" }, attrs: { dense: "" } },
+            {
+              directives: [
+                {
+                  name: "resize",
+                  rawName: "v-resize",
+                  value: _vm.onResize,
+                  expression: "onResize"
+                }
+              ],
+              staticStyle: { height: "100%" },
+              attrs: { dense: "" }
+            },
             [
               _c(
                 "v-col",
-                { attrs: { cols: "3" } },
+                {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: _vm.showUsers,
+                      expression: "showUsers"
+                    }
+                  ],
+                  attrs: { cols: "3" }
+                },
                 [
                   _c(
                     "v-card",
@@ -56839,7 +59488,7 @@ var render = function() {
               _vm._v(" "),
               _c(
                 "v-col",
-                { attrs: { cols: 9, elevation: "12" } },
+                { attrs: { cols: _vm.chatCols, elevation: "12" } },
                 [
                   _c(
                     "v-card",
@@ -56969,7 +59618,7 @@ var render = function() {
                                       directives: [
                                         { name: "bar", rawName: "v-bar" }
                                       ],
-                                      staticClass: "vuebar-element "
+                                      staticClass: "vuebar-element pl-2"
                                     },
                                     [
                                       _c(
@@ -57008,7 +59657,7 @@ var render = function() {
                                               _c(
                                                 "v-col",
                                                 {
-                                                  staticClass: "pt-0",
+                                                  staticClass: "pt-0 pr-0",
                                                   attrs: { cols: "1" }
                                                 },
                                                 [
@@ -57029,14 +59678,14 @@ var render = function() {
                                                         "v-avatar",
                                                         {
                                                           attrs: {
-                                                            "max-width": "40px",
-                                                            size: "40"
+                                                            size: "40px"
                                                           }
                                                         },
                                                         [
-                                                          _c("v-img", {
+                                                          _c("img", {
                                                             attrs: {
-                                                              "aspect-ratio": 1,
+                                                              "aspect-ratio":
+                                                                16 / 9,
                                                               src:
                                                                 "/images/static/avatars/avatar_" +
                                                                 message.user
@@ -57047,8 +59696,7 @@ var render = function() {
                                                                   .name
                                                             }
                                                           })
-                                                        ],
-                                                        1
+                                                        ]
                                                       )
                                                     ],
                                                     1
@@ -57155,8 +59803,7 @@ var render = function() {
                                                       _c(
                                                         "v-card",
                                                         {
-                                                          staticClass:
-                                                            "pa-1 ml-1",
+                                                          staticClass: "pa-1 ",
                                                           staticStyle: {
                                                             display:
                                                               "inline-block"
@@ -57165,13 +59812,21 @@ var render = function() {
                                                             color: "#282e33",
                                                             elevation: "12",
                                                             raised: "",
-                                                            "max-width": "50%"
+                                                            "max-width": "500px"
                                                           }
                                                         },
                                                         [
                                                           _c("v-card-text", {
+                                                            directives: [
+                                                              {
+                                                                name:
+                                                                  "linkified",
+                                                                rawName:
+                                                                  "v-linkified"
+                                                              }
+                                                            ],
                                                             staticClass:
-                                                              "font-weight-light pa-0 px-2",
+                                                              "font-weight-light py-0 px-2",
                                                             staticStyle: {
                                                               "max-width":
                                                                 "300px",
@@ -57390,135 +60045,7 @@ var render = function() {
                                         1
                                       ),
                                       _vm._v(" "),
-                                      _c(
-                                        "v-row",
-                                        {
-                                          directives: [
-                                            {
-                                              name: "show",
-                                              rawName: "v-show",
-                                              value: _vm.showMsgImgs,
-                                              expression: "showMsgImgs"
-                                            }
-                                          ],
-                                          staticClass: "py-0 mx-10",
-                                          attrs: { "no-gutters": "" }
-                                        },
-                                        [
-                                          _c(
-                                            "v-col",
-                                            {
-                                              staticClass: "ml-2",
-                                              attrs: { cols: "1" }
-                                            },
-                                            [
-                                              _c(
-                                                "v-card",
-                                                {
-                                                  attrs: {
-                                                    flat: "",
-                                                    outlined: "",
-                                                    height: "100%",
-                                                    width: "100%",
-                                                    flat: "",
-                                                    outlined: ""
-                                                  }
-                                                },
-                                                [
-                                                  _c(
-                                                    "v-card-actions",
-                                                    {
-                                                      staticClass: "pa-0",
-                                                      staticStyle: {
-                                                        position: "absolute",
-                                                        top: "0",
-                                                        right: "0",
-                                                        opacity: "1"
-                                                      },
-                                                      attrs: { flat: "" }
-                                                    },
-                                                    [
-                                                      _c("v-spacer"),
-                                                      _vm._v(" "),
-                                                      _c(
-                                                        "v-btn",
-                                                        {
-                                                          staticClass: "pa-0",
-                                                          attrs: {
-                                                            icon: "",
-                                                            "x-small": ""
-                                                          }
-                                                        },
-                                                        [
-                                                          _c("v-icon", [
-                                                            _vm._v("mdi-close")
-                                                          ])
-                                                        ],
-                                                        1
-                                                      )
-                                                    ],
-                                                    1
-                                                  ),
-                                                  _vm._v(" "),
-                                                  _c("img", {
-                                                    staticStyle: {
-                                                      height: "100%",
-                                                      width: "100%",
-                                                      "object-fit": "cover"
-                                                    },
-                                                    attrs: {
-                                                      "aspect-ratio": "",
-                                                      src:
-                                                        "https://picsum.photos/510/300?random"
-                                                    }
-                                                  })
-                                                ],
-                                                1
-                                              )
-                                            ],
-                                            1
-                                          ),
-                                          _vm._v(" "),
-                                          _c(
-                                            "v-col",
-                                            {
-                                              staticClass: "ml-2",
-                                              attrs: { cols: "1" }
-                                            },
-                                            [
-                                              _c(
-                                                "v-card",
-                                                {
-                                                  attrs: {
-                                                    flat: "",
-                                                    outlined: "",
-                                                    height: "100%",
-                                                    width: "100%",
-                                                    flat: "",
-                                                    outlined: ""
-                                                  }
-                                                },
-                                                [
-                                                  _c("img", {
-                                                    staticStyle: {
-                                                      height: "100%",
-                                                      width: "100%",
-                                                      "object-fit": "cover"
-                                                    },
-                                                    attrs: {
-                                                      "aspect-ratio": "",
-                                                      src:
-                                                        "https://picsum.photos/510/300?random"
-                                                    }
-                                                  })
-                                                ]
-                                              )
-                                            ],
-                                            1
-                                          )
-                                        ],
-                                        1
-                                      )
+                                      _c("br")
                                     ],
                                     1
                                   )
@@ -57578,6 +60105,332 @@ var render = function() {
         [
           _c(
             "v-row",
+            { staticClass: "mb-5", attrs: { dens: "" } },
+            [
+              _c(
+                "v-col",
+                { staticClass: "pa-0", attrs: { cols: "12" } },
+                [
+                  _c(
+                    "v-container",
+                    {
+                      staticClass: "pa-1 d-flex justify-space-between ",
+                      attrs: { raised: "", elevation: "12" }
+                    },
+                    [
+                      _c(
+                        "v-dialog",
+                        {
+                          attrs: { persistent: "", "max-width": "600px" },
+                          scopedSlots: _vm._u([
+                            {
+                              key: "activator",
+                              fn: function(ref) {
+                                var on = ref.on
+                                return [
+                                  _c(
+                                    "v-btn",
+                                    _vm._g(
+                                      {
+                                        attrs: {
+                                          outlined: "",
+                                          tile: "",
+                                          color: "indigo"
+                                        }
+                                      },
+                                      on
+                                    ),
+                                    [
+                                      _c("v-icon", { attrs: { left: "" } }, [
+                                        _vm._v("mdi-card-plus")
+                                      ]),
+                                      _vm._v(" Create Room")
+                                    ],
+                                    1
+                                  )
+                                ]
+                              }
+                            }
+                          ]),
+                          model: {
+                            value: _vm.dialog,
+                            callback: function($$v) {
+                              _vm.dialog = $$v
+                            },
+                            expression: "dialog"
+                          }
+                        },
+                        [
+                          _vm._v(" "),
+                          _c(
+                            "v-card",
+                            { attrs: { loading: _vm.creating, outlined: "" } },
+                            [
+                              _c("v-card-title", [
+                                _c("span", { staticClass: "headline" }, [
+                                  _vm._v("New Room")
+                                ])
+                              ]),
+                              _vm._v(" "),
+                              _c(
+                                "v-card-text",
+                                { staticClass: "pb-0" },
+                                [
+                                  _c(
+                                    "v-container",
+                                    [
+                                      _c(
+                                        "v-row",
+                                        [
+                                          _c(
+                                            "v-col",
+                                            {
+                                              attrs: {
+                                                cols: "12",
+                                                sm: "12",
+                                                md: "12"
+                                              }
+                                            },
+                                            [
+                                              _c("v-text-field", {
+                                                attrs: {
+                                                  label: "Name*",
+                                                  required: ""
+                                                },
+                                                model: {
+                                                  value: _vm.newRoom.name,
+                                                  callback: function($$v) {
+                                                    _vm.$set(
+                                                      _vm.newRoom,
+                                                      "name",
+                                                      $$v
+                                                    )
+                                                  },
+                                                  expression: "newRoom.name"
+                                                }
+                                              })
+                                            ],
+                                            1
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "v-col",
+                                            { attrs: { cols: "12", sm: "6" } },
+                                            [
+                                              _c("v-select", {
+                                                attrs: {
+                                                  items: [
+                                                    "0-17",
+                                                    "18-29",
+                                                    "30-54",
+                                                    "54+"
+                                                  ],
+                                                  label: "Age*",
+                                                  required: ""
+                                                }
+                                              })
+                                            ],
+                                            1
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "v-col",
+                                            { attrs: { cols: "12", sm: "6" } },
+                                            [
+                                              _c("v-autocomplete", {
+                                                attrs: {
+                                                  items: [
+                                                    "Skiing",
+                                                    "Ice hockey",
+                                                    "Soccer",
+                                                    "Basketball",
+                                                    "Hockey",
+                                                    "Reading",
+                                                    "Writing",
+                                                    "Coding",
+                                                    "Basejump"
+                                                  ],
+                                                  label: "Interests",
+                                                  multiple: ""
+                                                }
+                                              })
+                                            ],
+                                            1
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "v-col",
+                                            {
+                                              attrs: {
+                                                cols: "12",
+                                                sm: "12",
+                                                md: "12"
+                                              }
+                                            },
+                                            [
+                                              _c("v-textarea", {
+                                                staticClass: "ma-0",
+                                                attrs: {
+                                                  "background-color": "#282E33",
+                                                  name: "message",
+                                                  placeholder:
+                                                    "Room description...",
+                                                  outlined: "",
+                                                  rows: "3",
+                                                  "no-resize": ""
+                                                },
+                                                model: {
+                                                  value:
+                                                    _vm.newRoom.description,
+                                                  callback: function($$v) {
+                                                    _vm.$set(
+                                                      _vm.newRoom,
+                                                      "description",
+                                                      $$v
+                                                    )
+                                                  },
+                                                  expression:
+                                                    "newRoom.description"
+                                                }
+                                              })
+                                            ],
+                                            1
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "v-col",
+                                            { attrs: { cols: "12" } },
+                                            [
+                                              _c("v-file-input", {
+                                                attrs: {
+                                                  accept: "image/*",
+                                                  label: "Room image"
+                                                }
+                                              })
+                                            ],
+                                            1
+                                          )
+                                        ],
+                                        1
+                                      )
+                                    ],
+                                    1
+                                  ),
+                                  _vm._v(" "),
+                                  _c("small", [
+                                    _vm._v("*indicates required field")
+                                  ])
+                                ],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "v-card-actions",
+                                [
+                                  _c("v-spacer"),
+                                  _vm._v(" "),
+                                  _c(
+                                    "v-btn",
+                                    {
+                                      attrs: {
+                                        color: "blue darken-1",
+                                        text: ""
+                                      },
+                                      on: {
+                                        click: function($event) {
+                                          _vm.dialog = false
+                                        }
+                                      }
+                                    },
+                                    [_vm._v("Close")]
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "v-btn",
+                                    {
+                                      attrs: {
+                                        color: "blue darken-1",
+                                        text: ""
+                                      },
+                                      on: { click: _vm.createRoom }
+                                    },
+                                    [_vm._v("Save")]
+                                  )
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          directives: [
+                            {
+                              name: "show",
+                              rawName: "v-show",
+                              value: _vm.checker,
+                              expression: "checker"
+                            }
+                          ],
+                          attrs: { outlined: "", tile: "", color: "indigo" },
+                          on: {
+                            click: function($event) {
+                              return _vm.showRooms("my")
+                            }
+                          }
+                        },
+                        [
+                          _c("v-icon", { attrs: { left: "" } }, [
+                            _vm._v("mdi-card-plus")
+                          ]),
+                          _vm._v(" My Rooms")
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          directives: [
+                            {
+                              name: "show",
+                              rawName: "v-show",
+                              value: !_vm.checker,
+                              expression: "!checker"
+                            }
+                          ],
+                          attrs: { outlined: "", tile: "", color: "indigo" },
+                          on: {
+                            click: function($event) {
+                              return _vm.showRooms("all")
+                            }
+                          }
+                        },
+                        [
+                          _c("v-icon", { attrs: { left: "" } }, [
+                            _vm._v("mdi-card-plus")
+                          ]),
+                          _vm._v(" All Rooms")
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "v-row",
             { attrs: { dense: "" } },
             _vm._l(_vm.rooms, function(room) {
               return _c(
@@ -57626,7 +60479,7 @@ var render = function() {
                             src: _vm.src,
                             gradient:
                               "to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)",
-                            height: "200px"
+                            height: "200"
                           }
                         },
                         [
@@ -57667,7 +60520,7 @@ var render = function() {
                                 to: "/dashBoard/room/id" + room.id
                               }
                             },
-                            [_vm._v("\n\t\t\t\t\t\tJoin a chat\n\t\t\t\t")]
+                            [_vm._v("\n\t\t\t\t\t\t\tJoin a chat\n\t\t\t\t\t")]
                           ),
                           _vm._v(" "),
                           _c("v-spacer"),
@@ -118156,21 +121009,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue_axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(vue_axios__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var vuetify__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vuetify */ "./node_modules/vuetify/dist/vuetify.js");
-/* harmony import */ var vuetify__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(vuetify__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var vue_chat_scroll__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-chat-scroll */ "./node_modules/vue-chat-scroll/dist/vue-chat-scroll.js");
-/* harmony import */ var vue_chat_scroll__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(vue_chat_scroll__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var vuebar__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vuebar */ "./node_modules/vuebar/vuebar.js");
-/* harmony import */ var vuebar__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(vuebar__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var vue_sweetalert2__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vue-sweetalert2 */ "./node_modules/vue-sweetalert2/dist/index.js");
-/* harmony import */ var sweetalert2_dist_sweetalert2_min_css__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! sweetalert2/dist/sweetalert2.min.css */ "./node_modules/sweetalert2/dist/sweetalert2.min.css");
-/* harmony import */ var sweetalert2_dist_sweetalert2_min_css__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(sweetalert2_dist_sweetalert2_min_css__WEBPACK_IMPORTED_MODULE_7__);
-/* harmony import */ var vee_validate_dist_rules__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! vee-validate/dist/rules */ "./node_modules/vee-validate/dist/rules.js");
-/* harmony import */ var vee_validate__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! vee-validate */ "./node_modules/vee-validate/dist/vee-validate.esm.js");
-/* harmony import */ var vee_validate_dist_locale_en_json__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! vee-validate/dist/locale/en.json */ "./node_modules/vee-validate/dist/locale/en.json");
-var vee_validate_dist_locale_en_json__WEBPACK_IMPORTED_MODULE_10___namespace = /*#__PURE__*/__webpack_require__.t(/*! vee-validate/dist/locale/en.json */ "./node_modules/vee-validate/dist/locale/en.json", 1);
-/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./store */ "./resources/js/store/index.js");
-/* harmony import */ var _router__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./router */ "./resources/js/router/index.js");
+/* harmony import */ var vue_linkify__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vue-linkify */ "./node_modules/vue-linkify/dist/vue-linkify.min.js");
+/* harmony import */ var vue_linkify__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(vue_linkify__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var vuetify__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vuetify */ "./node_modules/vuetify/dist/vuetify.js");
+/* harmony import */ var vuetify__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(vuetify__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var vue_chat_scroll__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vue-chat-scroll */ "./node_modules/vue-chat-scroll/dist/vue-chat-scroll.js");
+/* harmony import */ var vue_chat_scroll__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(vue_chat_scroll__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var vuebar__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vuebar */ "./node_modules/vuebar/vuebar.js");
+/* harmony import */ var vuebar__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(vuebar__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var vue_sweetalert2__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! vue-sweetalert2 */ "./node_modules/vue-sweetalert2/dist/index.js");
+/* harmony import */ var sweetalert2_dist_sweetalert2_min_css__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! sweetalert2/dist/sweetalert2.min.css */ "./node_modules/sweetalert2/dist/sweetalert2.min.css");
+/* harmony import */ var sweetalert2_dist_sweetalert2_min_css__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(sweetalert2_dist_sweetalert2_min_css__WEBPACK_IMPORTED_MODULE_8__);
+/* harmony import */ var vee_validate_dist_rules__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! vee-validate/dist/rules */ "./node_modules/vee-validate/dist/rules.js");
+/* harmony import */ var vee_validate__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! vee-validate */ "./node_modules/vee-validate/dist/vee-validate.esm.js");
+/* harmony import */ var vee_validate_dist_locale_en_json__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! vee-validate/dist/locale/en.json */ "./node_modules/vee-validate/dist/locale/en.json");
+var vee_validate_dist_locale_en_json__WEBPACK_IMPORTED_MODULE_11___namespace = /*#__PURE__*/__webpack_require__.t(/*! vee-validate/dist/locale/en.json */ "./node_modules/vee-validate/dist/locale/en.json", 1);
+/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./store */ "./resources/js/store/index.js");
+/* harmony import */ var _router__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./router */ "./resources/js/router/index.js");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -118194,16 +121049,19 @@ Vue.config.productionTip = false;
 
 
 
-Vue.use(vue_axios__WEBPACK_IMPORTED_MODULE_1___default.a, axios__WEBPACK_IMPORTED_MODULE_2___default.a); // Import vuetify
+Vue.use(vue_axios__WEBPACK_IMPORTED_MODULE_1___default.a, axios__WEBPACK_IMPORTED_MODULE_2___default.a); // import linkify
 
 
-Vue.use(vuetify__WEBPACK_IMPORTED_MODULE_3___default.a); //import chat-scroll
+Vue.directive('linkified', vue_linkify__WEBPACK_IMPORTED_MODULE_3___default.a); // Import vuetify
 
 
-Vue.use(vue_chat_scroll__WEBPACK_IMPORTED_MODULE_4___default.a); // Impoert VueBar
+Vue.use(vuetify__WEBPACK_IMPORTED_MODULE_4___default.a); //import chat-scroll
 
 
-Vue.use(vuebar__WEBPACK_IMPORTED_MODULE_5___default.a); // Import SeetAlert 2
+Vue.use(vue_chat_scroll__WEBPACK_IMPORTED_MODULE_5___default.a); // Impoert VueBar
+
+
+Vue.use(vuebar__WEBPACK_IMPORTED_MODULE_6___default.a); // Import SeetAlert 2
 
 
  // Light theme
@@ -118213,17 +121071,17 @@ var options = {
   confirmButtonColor: '#41b882',
   cancelButtonColor: '#ff7674'
 };
-Vue.use(vue_sweetalert2__WEBPACK_IMPORTED_MODULE_6__["default"], options); // Import Vee Validaye for form validation 
+Vue.use(vue_sweetalert2__WEBPACK_IMPORTED_MODULE_7__["default"], options); // Import Vee Validaye for form validation 
 
 
 
 
-Vue.component('ValidationProvider', vee_validate__WEBPACK_IMPORTED_MODULE_9__["ValidationProvider"]);
-Vue.component('ValidationObserver', vee_validate__WEBPACK_IMPORTED_MODULE_9__["ValidationObserver"]);
-Object.keys(vee_validate_dist_rules__WEBPACK_IMPORTED_MODULE_8__).forEach(function (rule) {
-  Object(vee_validate__WEBPACK_IMPORTED_MODULE_9__["extend"])(rule, _objectSpread({}, vee_validate_dist_rules__WEBPACK_IMPORTED_MODULE_8__[rule], {
+Vue.component('ValidationProvider', vee_validate__WEBPACK_IMPORTED_MODULE_10__["ValidationProvider"]);
+Vue.component('ValidationObserver', vee_validate__WEBPACK_IMPORTED_MODULE_10__["ValidationObserver"]);
+Object.keys(vee_validate_dist_rules__WEBPACK_IMPORTED_MODULE_9__).forEach(function (rule) {
+  Object(vee_validate__WEBPACK_IMPORTED_MODULE_10__["extend"])(rule, _objectSpread({}, vee_validate_dist_rules__WEBPACK_IMPORTED_MODULE_9__[rule], {
     // copies rule configuration
-    message: vee_validate_dist_locale_en_json__WEBPACK_IMPORTED_MODULE_10__["messages"][rule] // assign message
+    message: vee_validate_dist_locale_en_json__WEBPACK_IMPORTED_MODULE_11__["messages"][rule] // assign message
 
   }));
 });
@@ -118246,7 +121104,7 @@ Object.keys(vee_validate_dist_rules__WEBPACK_IMPORTED_MODULE_8__).forEach(functi
 // Middlewares
 
 
-_router__WEBPACK_IMPORTED_MODULE_12__["default"].beforeEach(function (to, from, next) {
+_router__WEBPACK_IMPORTED_MODULE_13__["default"].beforeEach(function (to, from, next) {
   if (!to.meta.middleware) {
     return next();
   }
@@ -118256,7 +121114,7 @@ _router__WEBPACK_IMPORTED_MODULE_12__["default"].beforeEach(function (to, from, 
     to: to,
     from: from,
     next: next,
-    store: _store__WEBPACK_IMPORTED_MODULE_11__["store"]
+    store: _store__WEBPACK_IMPORTED_MODULE_12__["store"]
   };
   return middleware[0](_objectSpread({}, context));
 });
@@ -118267,9 +121125,9 @@ _router__WEBPACK_IMPORTED_MODULE_12__["default"].beforeEach(function (to, from, 
  */
 
 var app = new Vue(Vue.util.extend({
-  router: _router__WEBPACK_IMPORTED_MODULE_12__["default"],
-  vuetify: new vuetify__WEBPACK_IMPORTED_MODULE_3___default.a({}),
-  store: _store__WEBPACK_IMPORTED_MODULE_11__["store"]
+  router: _router__WEBPACK_IMPORTED_MODULE_13__["default"],
+  vuetify: new vuetify__WEBPACK_IMPORTED_MODULE_4___default.a({}),
+  store: _store__WEBPACK_IMPORTED_MODULE_12__["store"]
 }, _App_vue__WEBPACK_IMPORTED_MODULE_0__["default"])).$mount("#app");
 
 /***/ }),
@@ -119312,13 +122170,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 var state = function state() {
   return {
     rooms: {},
-    currentRoom: {}
+    currentRoom: {},
+    getRooms: {}
   };
 };
 
 var getters = {
   rooms: function rooms(state) {
-    return state.rooms;
+    return state.getRooms;
   },
   currentRoom: function currentRoom(state) {
     return state.currentRoom;
@@ -119327,6 +122186,9 @@ var getters = {
 var mutations = {
   setRooms: function setRooms(state, rooms) {
     state.rooms = rooms;
+    state.getRooms = rooms.filter(function (room) {
+      return !room.admin;
+    });
   },
   setMembers: function setMembers(state, members) {
     state.members = members;
@@ -119351,6 +122213,17 @@ var mutations = {
   },
   currentRoom: function currentRoom(state, room) {
     state.currentRoom = room;
+  },
+  roomsType: function roomsType(state, type) {
+    if (type == "all") {
+      state.getRooms = state.rooms.filter(function (room) {
+        return !room.admin;
+      });
+    } else if (type == "my") {
+      state.getRooms = state.rooms.filter(function (room) {
+        return room.admin;
+      });
+    }
   }
 };
 var actions = {
@@ -119474,6 +122347,39 @@ var actions = {
           }
         }
       }, _callee4);
+    }))();
+  },
+  addRoom: function addRoom(_ref5, newRoom) {
+    return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee5() {
+      var commit, state, dispatch;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee5$(_context5) {
+        while (1) {
+          switch (_context5.prev = _context5.next) {
+            case 0:
+              commit = _ref5.commit, state = _ref5.state, dispatch = _ref5.dispatch;
+              return _context5.abrupt("return", new Promise(function (resolve, reject) {
+                axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/addRoom", newRoom).then(function (response) {
+                  if (response.data.message == "success") {
+                    resolve({
+                      message: "success"
+                    });
+                  } else if (response.data.message == "error") {
+                    resolve({
+                      message: "error",
+                      error: response.data.body
+                    });
+                  }
+                }, function (error) {
+                  reject(error);
+                });
+              }));
+
+            case 2:
+            case "end":
+              return _context5.stop();
+          }
+        }
+      }, _callee5);
     }))();
   }
   /* async fetchMembers ({commit, state}){

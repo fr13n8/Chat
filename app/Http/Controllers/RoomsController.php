@@ -28,12 +28,14 @@ class RoomsController extends Controller
     {
         $validator =  Validator::make($req->all(), [
             'name' => ['required', 'string', 'min:5', 'max:40', 'unique:rooms,name'],
-            'description' => ['required', 'string', 'min:5']
+            'description' => ['string', 'min:10']
         ]);
 
         if($validator->fails())
         {
-            // dd(54);
+            return response()->json(['message' => 'error',
+									 'body' => $validator->messages(),
+									]);
         }
         else
         {
@@ -49,7 +51,7 @@ class RoomsController extends Controller
             $member->user_id = $user->id;
             $member->room_id = $room->id;
             $member->save();
-            return "ok";
+            return response()->json(['message' => 'success']);
         }
     }
 

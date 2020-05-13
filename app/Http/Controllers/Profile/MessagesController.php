@@ -43,6 +43,7 @@ class MessagesController extends Controller
         // $data = $data->joinedRooms;
         // dd($data->messages);
         // dd($req->all());
+        //dd($req->all());
         $message = $data->messages()->create([
             'message' => $req->message,
             'user_id' => $data->id,

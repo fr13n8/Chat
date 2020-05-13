@@ -1,6 +1,69 @@
 <template>
 	<v-container>
 		<v-container fluid>
+		<v-row dens class="mb-5">
+			<v-col class="pa-0" cols=12 >
+		  	<v-container raised elevation=12  class="pa-1 d-flex justify-space-between "> 
+			<v-dialog v-model="dialog" persistent max-width="600px" >
+			  <template v-slot:activator="{ on }">
+				<v-btn v-on="on" outlined tile color="indigo"><v-icon left>mdi-card-plus</v-icon> Create Room</v-btn>
+			  </template>
+			  <v-card :loading="creating" outlined >
+				<v-card-title>
+				  <span class="headline">New Room</span>
+				</v-card-title>
+				<v-card-text class="pb-0">
+				  <v-container>
+					<v-row>
+					  <v-col cols="12" sm="12" md="12">
+						<v-text-field v-model="newRoom.name" label="Name*" required></v-text-field>
+					  </v-col>
+					  <v-col cols="12" sm="6">
+						<v-select
+						  :items="['0-17', '18-29', '30-54', '54+']"
+						  label="Age*"
+						  required
+						></v-select>
+					  </v-col>
+					  <v-col cols="12" sm="6">
+						<v-autocomplete
+						  :items="['Skiing', 'Ice hockey', 'Soccer', 'Basketball', 'Hockey', 'Reading', 'Writing', 'Coding', 'Basejump']"
+						  label="Interests"
+						  multiple
+						></v-autocomplete>
+					  </v-col>
+					  <v-col cols=12 sm=12 md=12>
+					  		<v-textarea
+                              background-color="#282E33"
+                              name="message"
+                              class="ma-0"
+                              placeholder="Room description..."
+                              outlined
+                              v-model="newRoom.description"
+                              rows="3"
+                              no-resize
+                            ></v-textarea>
+					  </v-col>
+					  <v-col cols=12>
+					  	<v-file-input  accept="image/*" label="Room image"></v-file-input>
+					  </v-col>
+					</v-row>
+				  </v-container>
+				  <small>*indicates required field</small>
+				</v-card-text>
+				<v-card-actions>
+				  <v-spacer></v-spacer>
+				  <v-btn color="blue darken-1" text @click="dialog = false">Close</v-btn>
+				  <v-btn color="blue darken-1" text @click="createRoom">Save</v-btn>
+				</v-card-actions>
+			  </v-card>
+			</v-dialog>
+				
+				<v-btn outlined v-show="checker" @click="showRooms('my')" tile color="indigo"><v-icon left>mdi-card-plus</v-icon> My Rooms</v-btn>
+				<v-btn outlined v-show="!checker" @click="showRooms('all')" tile color="indigo"><v-icon left>mdi-card-plus</v-icon> All Rooms</v-btn>
+			</v-container>
+		  </v-col>
+		</v-row>
 		  <v-row dense>
 			<v-col
 			  v-for="room in rooms"
@@ -25,7 +88,7 @@
 				  :src="src"
 				  class="white--text align-start pt-1 pl-1"
 				  gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-				  height="200px"
+				  height="200"
 				>
 				<v-rating small dense v-model="room.id"></v-rating>
 				<v-card-title class="justify-center mb-5" v-text="room.name"></v-card-title>
@@ -69,13 +132,21 @@
 </template>
 
 <script>
-import {mapActions, mapGetters} from "vuex";
+import {mapActions, mapGetters, mapMutations} from "vuex";
 export default{
 	data: () => ({
+		dialog: false,
 		src: 'https://cdn.vuetifyjs.com/images/cards/road.jpg',
 		rating: 3,
 		loading: true,
-		loaded: false
+		loaded: false,
+		newRoom: {
+			name: '',
+			description: '',
+			photo: '',
+		},
+		creating: false,
+		checker: true,
 	}),
 	mounted() {
         // this.$vuetify.theme.dark = true;
@@ -102,16 +173,39 @@ export default{
 				console.error(error);
 			});
 		},
+		...mapMutations([
+				"roomsType"
+    			]),
 		...mapActions([
                 'fetchRooms',
 				'joinRoom',
 				'leaveRoom',
+				'addRoom'
                 ]),
+		createRoom(){
+			this.creating = true;
+			console.log("Create")
+			this.addRoom(this.newRoom).then(response => {
+				if(response.message == "success"){
+					this.creating = false; 
+					this.dialog = false;
+				}
+				else if(response.message == "error"){
+					console.log(response.body)
+				}
+			}, error => {
+				console.log(error)
+			})
+		},
+		showRooms(type){
+			this.checker = !this.checker;
+			this.roomsType(type);
+		}
 	},
 	computed: {
 		...mapGetters([
                 'rooms',
-				'userData'
+				'userData',
                 ]),
 	},
 	created(){
@@ -141,4 +235,6 @@ export default{
      text-decoration:none; 
      cursor:pointer;  
 }
+
+
 </style>
