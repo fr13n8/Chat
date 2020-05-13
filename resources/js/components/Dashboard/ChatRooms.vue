@@ -59,8 +59,8 @@
 			  </v-card>
 			</v-dialog>
 				
-				<v-btn outlined v-show="checker" @click="showRooms('my')" tile color="indigo"><v-icon left>mdi-card-plus</v-icon> My Rooms</v-btn>
-				<v-btn outlined v-show="!checker" @click="showRooms('all')" tile color="indigo"><v-icon left>mdi-card-plus</v-icon> All Rooms</v-btn>
+				<v-btn outlined v-show="checker" @click="showRooms('my')" tile color="indigo"> My Rooms</v-btn>
+				<v-btn outlined v-show="!checker" @click="showRooms('all')" tile color="purple"> All Rooms</v-btn>
 			</v-container>
 		  </v-col>
 		</v-row>

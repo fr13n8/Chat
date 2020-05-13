@@ -2719,17 +2719,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           text: 'Account Settings',
           path: "/dashBoard/profile/settings",
           name: 'settings'
-        }, {
-          icon: 'history',
-          text: 'History',
-          path: '',
-          name: 'history'
-        }, {
-          icon: 'card-plus',
-          text: 'Create Room',
-          path: '/dashboard/newRoom',
-          name: 'newRoom'
-        }, {
+        }, //{ icon: 'history', text: 'History', path: '', name: 'history' },
+        //{ icon: 'card-plus', text: 'Create Room', path: '/dashboard/newRoom', name: 'newRoom'},
+        {
           icon: 'group',
           text: 'Rooms',
           path: '/dashboard/chatRooms',
@@ -60384,13 +60376,7 @@ var render = function() {
                             }
                           }
                         },
-                        [
-                          _c("v-icon", { attrs: { left: "" } }, [
-                            _vm._v("mdi-card-plus")
-                          ]),
-                          _vm._v(" My Rooms")
-                        ],
-                        1
+                        [_vm._v(" My Rooms")]
                       ),
                       _vm._v(" "),
                       _c(
@@ -60404,20 +60390,14 @@ var render = function() {
                               expression: "!checker"
                             }
                           ],
-                          attrs: { outlined: "", tile: "", color: "indigo" },
+                          attrs: { outlined: "", tile: "", color: "purple" },
                           on: {
                             click: function($event) {
                               return _vm.showRooms("all")
                             }
                           }
                         },
-                        [
-                          _c("v-icon", { attrs: { left: "" } }, [
-                            _vm._v("mdi-card-plus")
-                          ]),
-                          _vm._v(" All Rooms")
-                        ],
-                        1
+                        [_vm._v(" All Rooms")]
                       )
                     ],
                     1

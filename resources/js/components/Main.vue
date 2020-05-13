@@ -66,8 +66,8 @@ export default {
               items: [
                   { icon: 'home', text: 'Main Page', path: '/dashBoard', name: 'main' },
                   { icon: 'account-cog', text: 'Account Settings', path:"/dashBoard/profile/settings", name: 'settings' },
-                  { icon: 'history', text: 'History', path: '', name: 'history' },
-                  { icon: 'card-plus', text: 'Create Room', path: '/dashboard/newRoom', name: 'newRoom'},
+                  //{ icon: 'history', text: 'History', path: '', name: 'history' },
+                  //{ icon: 'card-plus', text: 'Create Room', path: '/dashboard/newRoom', name: 'newRoom'},
                   { icon: 'group', text: 'Rooms', path: '/dashboard/chatRooms', name: 'rooms'},
                   { icon: 'logout', text: 'Log Out', path: '', name: 'logOut'},
               ],

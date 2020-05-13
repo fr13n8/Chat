@@ -1,5 +1,5 @@
 <template>
-  <v-app class="px-0 mx-0">
+  <v-app class="px-0 mx-0" >
         
       <v-content class="pa-0 ma-0">
       <v-container fluid class="py-0 my-0" >
