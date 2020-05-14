@@ -8,7 +8,7 @@
 			  <template v-slot:activator="{ on }">
 				<v-btn v-on="on" outlined tile color="indigo"><v-icon left>mdi-card-plus</v-icon> Create Room</v-btn>
 			  </template>
-			  <v-card :loading="creating" outlined >
+			  <v-card :loading="creating" tile flat outlined style="border:1px solid blue">
 				<v-card-title>
 				  <span class="headline">New Room</span>
 				</v-card-title>
@@ -18,19 +18,12 @@
 					  <v-col cols="12" sm="12" md="12">
 						<v-text-field v-model="newRoom.name" label="Name*" required></v-text-field>
 					  </v-col>
-					  <v-col cols="12" sm="6">
+					  <v-col cols="12" sm="12">
 						<v-select
 						  :items="['0-17', '18-29', '30-54', '54+']"
 						  label="Age*"
 						  required
 						></v-select>
-					  </v-col>
-					  <v-col cols="12" sm="6">
-						<v-autocomplete
-						  :items="['Skiing', 'Ice hockey', 'Soccer', 'Basketball', 'Hockey', 'Reading', 'Writing', 'Coding', 'Basejump']"
-						  label="Interests"
-						  multiple
-						></v-autocomplete>
 					  </v-col>
 					  <v-col cols=12 sm=12 md=12>
 					  		<v-textarea
@@ -45,7 +38,7 @@
                             ></v-textarea>
 					  </v-col>
 					  <v-col cols=12>
-					  	<v-file-input  accept="image/*" label="Room image"></v-file-input>
+					  	<v-file-input @change="onFileChanged"  accept="image/*" label="Room card image"></v-file-input>
 					  </v-col>
 					</v-row>
 				  </v-container>
@@ -60,7 +53,7 @@
 			</v-dialog>
 				
 				<v-btn outlined v-show="checker" @click="showRooms('my')" tile color="indigo"> My Rooms</v-btn>
-				<v-btn outlined v-show="!checker" @click="showRooms('all')" tile color="purple"> All Rooms</v-btn>
+				<v-btn outlined v-show="!checker" @click="showRooms('all')" tile color="purple"> Other Rooms</v-btn>
 			</v-container>
 		  </v-col>
 		</v-row>
@@ -85,7 +78,7 @@
 			
 			  <v-card  v-show="loaded" elevation=12>
 				<v-img
-				  :src="src"
+				  :src="'http://localhost:8000/images/RoomImgs/' + room.photo"
 				  class="white--text align-start pt-1 pl-1"
 				  gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
 				  height="200"
@@ -157,6 +150,9 @@ export default{
 		})
     },
 	methods: {
+		onFileChanged(e){
+			this.newRoom.photo = e;
+		},
 		joinRoom: function(room_id){
 			console.log(room_id)
 			this.joinRoom(room_id).then(response => {
@@ -189,6 +185,11 @@ export default{
 				if(response.message == "success"){
 					this.creating = false; 
 					this.dialog = false;
+					this.fetchRooms().then(response => {
+						console.log(response);
+					}, error => {
+						console.error(error)
+					})
 				}
 				else if(response.message == "error"){
 					console.log(response.body)

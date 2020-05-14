@@ -25,11 +25,15 @@ class RoomsController extends Controller
     }
 
     public function addRoom(Request $req)
-    {
-        $validator =  Validator::make($req->all(), [
+    {	
+		$request = json_decode($req->newRoom, 1);
+		//dd($request);
+        $validator =  Validator::make($request, [
             'name' => ['required', 'string', 'min:5', 'max:40', 'unique:rooms,name'],
             'description' => ['string', 'min:10']
         ]);
+
+
 
         if($validator->fails())
         {
@@ -39,13 +43,18 @@ class RoomsController extends Controller
         }
         else
         {
+			$upload_path = public_path('images/RoomImgs');
+			//$file_name = $req->photo->getClientOriginalName();
+			$generated_new_name = time() . '.' . $req->photo->getClientOriginalExtension();
+			$req->photo->move($upload_path, $generated_new_name);
             // return response()->json($user);
             $user = $this->getUser();
             // dd($user);
             $room = new Rooms();
-            $room->name = $req->name;
-            $room->description = $req->description;
+            $room->name = $request["name"];
+            $room->description = $request["description"];
             $room->admin_id = $user->id;
+			$room->photo = $generated_new_name;
             $room->save();
             $member = new Members();
             $member->user_id = $user->id;

@@ -130,9 +130,20 @@ const actions = {
 	},
 	
 	async addRoom({commit, state, dispatch}, newRoom){
-		
+		const config = {
+			headers : {
+				'Content-type': 'multipart/form-data',
+			}
+		}
+		let formData = new FormData();
+        formData.append('photo', newRoom.photo);
+		const json = JSON.stringify(newRoom);
+		const blob = new Blob([json], {
+		  type: 'application/json'
+		});
+		formData.append('newRoom', json);
 		return new Promise((resolve, reject) => {
-			Axios.post("/api/addRoom", newRoom).then(response => {
+			Axios.post("/api/addRoom", formData, config).then(response => {
 				if(response.data.message == "success"){
 					
 					resolve({

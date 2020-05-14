@@ -2537,13 +2537,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -2571,6 +2564,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     });
   },
   methods: _objectSpread({
+    onFileChanged: function onFileChanged(e) {
+      this.newRoom.photo = e;
+    },
     joinRoom: function joinRoom(room_id) {
       console.log(room_id);
       this.joinRoom(room_id).then(function (response) {
@@ -2597,6 +2593,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         if (response.message == "success") {
           _this.creating = false;
           _this.dialog = false;
+
+          _this.fetchRooms().then(function (response) {
+            console.log(response);
+          }, function (error) {
+            console.error(error);
+          });
         } else if (response.message == "error") {
           console.log(response.body);
         }
@@ -60156,7 +60158,15 @@ var render = function() {
                           _vm._v(" "),
                           _c(
                             "v-card",
-                            { attrs: { loading: _vm.creating, outlined: "" } },
+                            {
+                              staticStyle: { border: "1px solid blue" },
+                              attrs: {
+                                loading: _vm.creating,
+                                tile: "",
+                                flat: "",
+                                outlined: ""
+                              }
+                            },
                             [
                               _c("v-card-title", [
                                 _c("span", { staticClass: "headline" }, [
@@ -60207,7 +60217,7 @@ var render = function() {
                                           _vm._v(" "),
                                           _c(
                                             "v-col",
-                                            { attrs: { cols: "12", sm: "6" } },
+                                            { attrs: { cols: "12", sm: "12" } },
                                             [
                                               _c("v-select", {
                                                 attrs: {
@@ -60219,31 +60229,6 @@ var render = function() {
                                                   ],
                                                   label: "Age*",
                                                   required: ""
-                                                }
-                                              })
-                                            ],
-                                            1
-                                          ),
-                                          _vm._v(" "),
-                                          _c(
-                                            "v-col",
-                                            { attrs: { cols: "12", sm: "6" } },
-                                            [
-                                              _c("v-autocomplete", {
-                                                attrs: {
-                                                  items: [
-                                                    "Skiing",
-                                                    "Ice hockey",
-                                                    "Soccer",
-                                                    "Basketball",
-                                                    "Hockey",
-                                                    "Reading",
-                                                    "Writing",
-                                                    "Coding",
-                                                    "Basejump"
-                                                  ],
-                                                  label: "Interests",
-                                                  multiple: ""
                                                 }
                                               })
                                             ],
@@ -60296,7 +60281,10 @@ var render = function() {
                                               _c("v-file-input", {
                                                 attrs: {
                                                   accept: "image/*",
-                                                  label: "Room image"
+                                                  label: "Room card image"
+                                                },
+                                                on: {
+                                                  change: _vm.onFileChanged
                                                 }
                                               })
                                             ],
@@ -60397,7 +60385,7 @@ var render = function() {
                             }
                           }
                         },
-                        [_vm._v(" All Rooms")]
+                        [_vm._v(" Other Rooms")]
                       )
                     ],
                     1
@@ -60456,7 +60444,9 @@ var render = function() {
                         {
                           staticClass: "white--text align-start pt-1 pl-1",
                           attrs: {
-                            src: _vm.src,
+                            src:
+                              "http://localhost:8000/images/RoomImgs/" +
+                              room.photo,
                             gradient:
                               "to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)",
                             height: "200"
@@ -122331,14 +122321,26 @@ var actions = {
   },
   addRoom: function addRoom(_ref5, newRoom) {
     return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee5() {
-      var commit, state, dispatch;
+      var commit, state, dispatch, config, formData, json, blob;
       return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee5$(_context5) {
         while (1) {
           switch (_context5.prev = _context5.next) {
             case 0:
               commit = _ref5.commit, state = _ref5.state, dispatch = _ref5.dispatch;
+              config = {
+                headers: {
+                  'Content-type': 'multipart/form-data'
+                }
+              };
+              formData = new FormData();
+              formData.append('photo', newRoom.photo);
+              json = JSON.stringify(newRoom);
+              blob = new Blob([json], {
+                type: 'application/json'
+              });
+              formData.append('newRoom', json);
               return _context5.abrupt("return", new Promise(function (resolve, reject) {
-                axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/addRoom", newRoom).then(function (response) {
+                axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/addRoom", formData, config).then(function (response) {
                   if (response.data.message == "success") {
                     resolve({
                       message: "success"
@@ -122354,7 +122356,7 @@ var actions = {
                 });
               }));
 
-            case 2:
+            case 8:
             case "end":
               return _context5.stop();
           }
