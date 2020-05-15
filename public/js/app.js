@@ -2537,16 +2537,64 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       dialog: false,
-      src: 'https://cdn.vuetifyjs.com/images/cards/road.jpg',
+      settings: false,
       rating: 3,
       loading: true,
       loaded: false,
       newRoom: {
+        name: '',
+        description: '',
+        photo: ''
+      },
+      updateRoom: {
         name: '',
         description: '',
         photo: ''
@@ -2566,6 +2614,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   methods: _objectSpread({
     onFileChanged: function onFileChanged(e) {
       this.newRoom.photo = e;
+    },
+    onUpdateFileChanged: function onUpdateFileChanged(e) {
+      this.updateRoom.photo = e;
     },
     joinRoom: function joinRoom(room_id) {
       console.log(room_id);
@@ -2609,7 +2660,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     showRooms: function showRooms(type) {
       this.checker = !this.checker;
       this.roomsType(type);
-    }
+    },
+    updatRoom: function updatRoom() {}
   }),
   computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])(['rooms', 'userData'])),
   created: function created() {
@@ -60470,7 +60522,7 @@ var render = function() {
                           }),
                           _vm._v(" "),
                           _c("v-card-text", {
-                            staticClass: "text--primary text-center",
+                            staticClass: "text-center",
                             domProps: { textContent: _vm._s(room.description) }
                           })
                         ],
@@ -60498,7 +60550,15 @@ var render = function() {
                           room.admin
                             ? _c(
                                 "v-btn",
-                                { attrs: { icon: "" } },
+                                {
+                                  attrs: { icon: "" },
+                                  on: {
+                                    click: function($event) {
+                                      $event.stopPropagation()
+                                      _vm.settings = true
+                                    }
+                                  }
+                                },
                                 [
                                   _c(
                                     "v-tooltip",
@@ -60541,6 +60601,215 @@ var render = function() {
                                 1
                               )
                             : _vm._e(),
+                          _vm._v(" "),
+                          _c(
+                            "v-dialog",
+                            {
+                              attrs: {
+                                persistent: "",
+                                "retain-focus": false,
+                                "max-width": "600px"
+                              },
+                              model: {
+                                value: _vm.settings,
+                                callback: function($$v) {
+                                  _vm.settings = $$v
+                                },
+                                expression: "settings"
+                              }
+                            },
+                            [
+                              _c(
+                                "v-card",
+                                [
+                                  _c("v-card-title", [
+                                    _c("span", { staticClass: "headline" }, [
+                                      _vm._v("Room settings")
+                                    ])
+                                  ]),
+                                  _vm._v(" "),
+                                  _c(
+                                    "v-card-text",
+                                    [
+                                      _c(
+                                        "v-container",
+                                        [
+                                          _c(
+                                            "v-row",
+                                            [
+                                              _c(
+                                                "v-col",
+                                                {
+                                                  attrs: {
+                                                    cols: "12",
+                                                    sm: "12",
+                                                    md: "12"
+                                                  }
+                                                },
+                                                [
+                                                  _c("v-text-field", {
+                                                    attrs: {
+                                                      placeholder: room.name,
+                                                      label: "Name*",
+                                                      required: ""
+                                                    },
+                                                    model: {
+                                                      value:
+                                                        _vm.updateRoom.name,
+                                                      callback: function($$v) {
+                                                        _vm.$set(
+                                                          _vm.updateRoom,
+                                                          "name",
+                                                          $$v
+                                                        )
+                                                      },
+                                                      expression:
+                                                        "updateRoom.name"
+                                                    }
+                                                  })
+                                                ],
+                                                1
+                                              ),
+                                              _vm._v(" "),
+                                              _c(
+                                                "v-col",
+                                                {
+                                                  attrs: {
+                                                    cols: "12",
+                                                    sm: "12"
+                                                  }
+                                                },
+                                                [
+                                                  _c("v-select", {
+                                                    attrs: {
+                                                      items: [
+                                                        "0-17",
+                                                        "18-29",
+                                                        "30-54",
+                                                        "54+"
+                                                      ],
+                                                      label: "Age*",
+                                                      required: ""
+                                                    }
+                                                  })
+                                                ],
+                                                1
+                                              ),
+                                              _vm._v(" "),
+                                              _c(
+                                                "v-col",
+                                                {
+                                                  attrs: {
+                                                    cols: "12",
+                                                    sm: "12",
+                                                    md: "12"
+                                                  }
+                                                },
+                                                [
+                                                  _c("v-textarea", {
+                                                    staticClass: "ma-0",
+                                                    attrs: {
+                                                      "background-color":
+                                                        "#282E33",
+                                                      name: "message",
+                                                      placeholder:
+                                                        room.description,
+                                                      outlined: "",
+                                                      rows: "3",
+                                                      "no-resize": ""
+                                                    },
+                                                    model: {
+                                                      value:
+                                                        _vm.updateRoom
+                                                          .description,
+                                                      callback: function($$v) {
+                                                        _vm.$set(
+                                                          _vm.updateRoom,
+                                                          "description",
+                                                          $$v
+                                                        )
+                                                      },
+                                                      expression:
+                                                        "updateRoom.description"
+                                                    }
+                                                  })
+                                                ],
+                                                1
+                                              ),
+                                              _vm._v(" "),
+                                              _c(
+                                                "v-col",
+                                                { attrs: { cols: "12" } },
+                                                [
+                                                  _c("v-file-input", {
+                                                    attrs: {
+                                                      accept: "image/*",
+                                                      label: "Room card image"
+                                                    },
+                                                    on: {
+                                                      change:
+                                                        _vm.onUpdateFileChanged
+                                                    }
+                                                  })
+                                                ],
+                                                1
+                                              )
+                                            ],
+                                            1
+                                          )
+                                        ],
+                                        1
+                                      ),
+                                      _vm._v(" "),
+                                      _c("small", [
+                                        _vm._v("*indicates required field")
+                                      ])
+                                    ],
+                                    1
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "v-card-actions",
+                                    [
+                                      _c("v-spacer"),
+                                      _vm._v(" "),
+                                      _c(
+                                        "v-btn",
+                                        {
+                                          attrs: {
+                                            color: "blue darken-1",
+                                            text: ""
+                                          },
+                                          on: {
+                                            click: function($event) {
+                                              $event.stopPropagation()
+                                              _vm.settings = false
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("Close")]
+                                      ),
+                                      _vm._v(" "),
+                                      _c(
+                                        "v-btn",
+                                        {
+                                          attrs: {
+                                            color: "blue darken-1",
+                                            text: ""
+                                          },
+                                          on: { click: _vm.updatRoom }
+                                        },
+                                        [_vm._v("Save")]
+                                      )
+                                    ],
+                                    1
+                                  )
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          ),
                           _vm._v(" "),
                           _c(
                             "v-btn",
@@ -122212,13 +122481,14 @@ var actions = {
                   rooms.forEach(function (elem) {
                     elem.joined = false;
                     elem.admin = false;
+
+                    if (elem.admin_id == user_id) {
+                      elem.admin = true;
+                    }
+
                     elem.members.forEach(function (member) {
                       if (member.user_id == user_id) {
                         elem.joined = true;
-                      }
-
-                      if (elem.admin_id == user_id) {
-                        elem.admin = true;
                       }
                     });
                   });

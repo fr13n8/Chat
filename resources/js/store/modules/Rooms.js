@@ -75,12 +75,12 @@ const actions = {
 						rooms.forEach(elem => {
 							elem.joined = false;
 							elem.admin = false;
+							if(elem.admin_id == user_id){
+								elem.admin = true;
+							}
 							elem.members.forEach(member => {
 								if(member.user_id == user_id){
 									elem.joined = true;
-								}
-								if(elem.admin_id == user_id){
-									elem.admin = true;
 								}
 							})
 						})

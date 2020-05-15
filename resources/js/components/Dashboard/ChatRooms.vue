@@ -85,7 +85,7 @@
 				>
 				<v-rating small dense v-model="room.id"></v-rating>
 				<v-card-title class="justify-center mb-5" v-text="room.name"></v-card-title>
-				<v-card-text class="text--primary text-center" v-text="room.description"></v-card-text>
+				<v-card-text class="text-center" v-text="room.description"></v-card-text>
 				</v-img>
 				<v-card-actions>
 				  
@@ -95,15 +95,58 @@
 					
 				<v-spacer></v-spacer>
 	
-				<v-btn icon v-if="room.admin">
+				<v-btn @click.stop="settings = true" icon v-if="room.admin">
 					<v-tooltip bottom>
 						<template v-slot:activator="{ on }" >
 							<v-icon color="primary" dark v-on="on">mdi-cog</v-icon>
 						</template>
 						<span >Settings</span>
 					 </v-tooltip>
-				  </v-btn>
-	
+				</v-btn>
+				<v-dialog v-model="settings" persistent :retain-focus="false" max-width="600px">
+				  <v-card>
+					<v-card-title>
+					  <span class="headline">Room settings</span>
+					</v-card-title>
+					<v-card-text>
+					  <v-container>
+						<v-row>
+						  <v-col cols="12" sm="12" md="12">
+							<v-text-field v-model="updateRoom.name" :placeholder="room.name" label="Name*" required></v-text-field>
+						  </v-col>
+						  <v-col cols="12" sm="12">
+							<v-select
+							  :items="['0-17', '18-29', '30-54', '54+']"
+							  label="Age*"
+							  required
+							></v-select>
+						  </v-col>
+						  <v-col cols=12 sm=12 md=12>
+								<v-textarea
+								  background-color="#282E33"
+								  name="message"
+								  class="ma-0"
+								  :placeholder="room.description"
+								  outlined
+								  v-model="updateRoom.description"
+								  rows="3"
+								  no-resize
+								></v-textarea>
+						  </v-col>
+						  <v-col cols=12>
+							<v-file-input @change="onUpdateFileChanged"  accept="image/*" label="Room card image"></v-file-input>
+						  </v-col>
+						</v-row>
+					  </v-container>
+					  <small>*indicates required field</small>
+					</v-card-text>
+					<v-card-actions>
+					  <v-spacer></v-spacer>
+					  <v-btn color="blue darken-1" text @click.stop="settings = false">Close</v-btn>
+					  <v-btn color="blue darken-1" text @click="updatRoom">Save</v-btn>
+					</v-card-actions>
+				  </v-card>
+				</v-dialog>
 				  <v-btn icon>
 					<v-tooltip bottom>
 						<template v-slot:activator="{ on }" v-if="room.joined">
@@ -129,11 +172,16 @@ import {mapActions, mapGetters, mapMutations} from "vuex";
 export default{
 	data: () => ({
 		dialog: false,
-		src: 'https://cdn.vuetifyjs.com/images/cards/road.jpg',
+		settings: false,
 		rating: 3,
 		loading: true,
 		loaded: false,
 		newRoom: {
+			name: '',
+			description: '',
+			photo: '',
+		},
+		updateRoom: {
 			name: '',
 			description: '',
 			photo: '',
@@ -152,6 +200,9 @@ export default{
 	methods: {
 		onFileChanged(e){
 			this.newRoom.photo = e;
+		},
+		onUpdateFileChanged(e){
+			this.updateRoom.photo = e;
 		},
 		joinRoom: function(room_id){
 			console.log(room_id)
@@ -201,6 +252,9 @@ export default{
 		showRooms(type){
 			this.checker = !this.checker;
 			this.roomsType(type);
+		},
+		updatRoom(){
+			
 		}
 	},
 	computed: {
