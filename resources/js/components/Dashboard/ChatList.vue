@@ -58,8 +58,7 @@
                     </v-card-actions>
                     </v-card>
                 </v-col>
-                <v-divider></v-divider>
-                    <v-col cols=12  >
+                    <v-col cols=12 style="height:70%">
                         <v-container  fluid class="py-0 pt-1 pl-0" style="height:100%">
                         <div class="vuebar-element pl-2" v-bar>
                         <div style="max-height:470px;" class="px-1 pt-2 my-0" v-chat-scroll="{always: false, smooth: true, scrollonremoved:true, smoothonremoved: false}">
@@ -122,6 +121,7 @@
                         </div>
                         </v-container>
                     </v-col>
+                    <v-spacer></v-spacer>
                     <v-col cols=12 height=24%>
                         <v-container fluid class="pa-1 px-2" style="height:100%">
                         <v-row class="px-2" dense>

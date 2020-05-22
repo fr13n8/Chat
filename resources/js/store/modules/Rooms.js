@@ -160,6 +160,20 @@ const actions = {
 				reject(error);
 			})
 		})
+	},
+	
+	async deleteRoom({commit, state, dispatch}, roomId){
+		return new Promise((resolve, reject) => {
+			Axios.post("/api/deleteRoom", {roomId}).then(response => {
+				if(response.data.message == "success"){
+					resolve({
+						message : "success"
+					});
+				}
+			})
+		}, error => {
+			reject(error)
+		})
 	}
 	/* async fetchMembers ({commit, state}){
 		return new Promise((resolve, reject) => {

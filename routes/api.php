@@ -57,3 +57,5 @@ Route::post('/joinRoom', 'RoomsController@joinRoom');
 Route::post('/leaveRoom', 'RoomsController@leaveRoom');
 
 Route::post('/fetchRooms', 'RoomsController@fetchRooms');
+
+Route::post('/deleteRoom', 'RoomsController@deleteRoom');

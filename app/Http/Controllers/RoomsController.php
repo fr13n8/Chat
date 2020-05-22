@@ -92,4 +92,10 @@ class RoomsController extends Controller
 			"room_id" => $req->room_id
 		])->delete();
 	}
+	
+	public function deleteRoom(Request $req)
+	{
+		Rooms::where("id", $req->roomId)->delete();
+		return response()->json(['message' => 'success']);
+	}
 }
