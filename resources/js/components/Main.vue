@@ -39,6 +39,24 @@
               primary
             />
 			<v-divider></v-divider>
+            <v-list subheader>
+                <v-list-item
+                dense
+                    v-for="(room, index) in joinedRooms" 
+                    :key="index"
+                    @click=""
+                    class="pa-0"
+                  >
+                    <v-list-item-avatar size=38>
+                      <v-img :src="'http://localhost:8000/images/RoomImgs/' + room.photo"></v-img>
+                    </v-list-item-avatar>
+
+                    <v-list-item-content>
+                      <v-list-item-title v-text="room.name"></v-list-item-title>
+                      <v-list-item-subtitle v-text="room.description"></v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                  </v-list>
           </v-list>
         </v-navigation-drawer>
         <v-content >
@@ -51,7 +69,7 @@
 </template>
 
 <script>
-import {mapMutations, mapActions} from "vuex";
+import {mapMutations, mapActions, mapGetters} from "vuex";
 export default {
       data: () => ({
           footer: {
@@ -79,6 +97,7 @@ export default {
       methods: {
         ...mapActions([
                 'logOut',
+                'fetchRooms'
                 ]),
 
         itemEvent: function(name){
@@ -94,6 +113,18 @@ export default {
           }
         }
       },
+      computed:{
+          ...mapGetters([
+                'joinedRooms',
+                ]),
+      },
+      mounted(){
+          this.fetchRooms().then(response => {
+			console.log(response);
+		}, error => {
+			console.error(error)
+		})
+      }
 
 }
 </script>

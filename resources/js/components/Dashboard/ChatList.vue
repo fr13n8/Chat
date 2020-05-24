@@ -108,7 +108,7 @@
                                         <v-row v-show="message.photos" class="pa-0" no-gutters>
                                             <v-col :cols="photo.col" v-for=" (photo, index) in message.photos" :key="photo.id">
                                                 <v-card class="pa-1" height=100% width=100% flat outlined>
-													<img style="height:100%; width:100%; object-fit: cover;" aspect-ratio :src="photo.path"/>
+													<img style="height:100%; width:100%; object-fit: cover;" aspect-ratio :src="'http://localhost:8000/images/MsgAttachments/Images/' + photo.path"/>
 												</v-card>
                                             </v-col>
                                             
@@ -270,8 +270,8 @@ import {mapGetters, mapActions} from "vuex";
 			onFileChanged(e) {
                 console.log(e.target.files)
 				  for (let file in e.target.files) {
-                      console.log(file)
-					  this.messageImgs.push(file);
+                      console.log(e.target.files[file])
+					  this.messageImgs.push(e.target.files[file]);
 					}
                   //this.showMsgImgs = true;
 				  console.log(this.messageImgs)
@@ -296,23 +296,35 @@ import {mapGetters, mapActions} from "vuex";
                 })
             }, 
             sendMessage() {
-                if(this.newMessage.trim().length > 0){
+                if(this.newMessage.trim().length > 0 || this.messageImgs.length > 0){
                     let date = new Date();
                     this.messages.push({
                             user: this.user,
                             message: this.newMessage,
                             created_at: date.toLocaleTimeString('en-GB',).slice(0, -3)
                     });
-                    
+                    const config = {
+                        headers : {
+                            'Content-type': 'multipart/form-data',
+                        }
+                    }
                     let formData = new FormData();
-                    this.messageImgs.forEach(img => {
-                        formData.append('imgs', img);
+                    this.messageImgs.forEach((img, index) => {
+                        console.log("img = " + img)
+                        formData.append(index, img);
                     })
-                    axios.post('/api/sendMessage', {
+                    const msgDetails = {
                         message: this.newMessage,
                         room_id: this.$route.params.id,
-                        })
+                    }
+                    const json = JSON.stringify(msgDetails);
+                    const blob = new Blob([json], {
+                      type: 'application/json'
+                    });
+                    formData.append('msgDetails', json);
+                    axios.post('/api/sendMessage', formData, config);
                     this.newMessage = '';
+                    this.messageImgs.length = 0;
                 }
             },
             sendTypingEvent() {
@@ -427,11 +439,11 @@ import {mapGetters, mapActions} from "vuex";
     }
     
     .boards {
-        border: 2px solid #f0f0f0 !important;
+        border: 2px solid #9C1CB1 !important; 
     }
     
     .messageBoxHeader{
-        border-bottom: 1px solid #f0f0f0 !important;
+        border-bottom: 1px solid #9C1CB1 !important;
     }
     
     .v-btn--icon:focus{

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Messages;
 use App\Members;
+use App\MessageImgs;
 use App\Events\MessageSend;
 
 class MessagesController extends Controller
@@ -44,11 +45,24 @@ class MessagesController extends Controller
         // dd($data->messages);
         // dd($req->all());
         //dd($req->all());
+        $request = json_decode($req->msgDetails, 1);
         $message = $data->messages()->create([
-            'message' => $req->message,
+            'message' => $request["message"],
             'user_id' => $data->id,
-            'room_id' => $req->room_id
+            'room_id' => $request["room_id"]
         ]);
+        if($req->files){
+            $upload_path = public_path('images/MsgAttachments/Images');
+            //$file_name = $req->photo->getClientOriginalName();
+            foreach($req->files as $img){
+                $newImg = new MessageImgs();
+                $generated_new_name = rand() . time() . '.' . $img->getClientOriginalExtension();
+                $img->move($upload_path, $generated_new_name);
+                $newImg->path = $generated_new_name;
+                $newImg->message_id = $message->id;
+                $newImg->save();
+            }
+        }
         // $message->user();
         // $message = Messages::create([
         //     'message' => $req->message,

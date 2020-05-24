@@ -15,6 +15,10 @@ const getters = {
 		return state.currentRoom;
 	},
 
+	joinedRooms(state){
+		return state.rooms.filter(room => room.joined);
+	},
+
 }
 
 const mutations = {
@@ -173,6 +177,15 @@ const actions = {
 			})
 		}, error => {
 			reject(error)
+		})
+	},
+	
+	async setgsRoom({commit, state, dispatch}, roomId){
+		return new Promise((resolve, reject) => {
+			let getRoom = state.rooms.filter(room => room.id == roomId );
+			resolve(getRoom);
+		}, error => {
+			reject(error);
 		})
 	}
 	/* async fetchMembers ({commit, state}){

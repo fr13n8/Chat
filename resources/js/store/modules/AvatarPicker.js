@@ -16,9 +16,9 @@ const mutations = {
 
 const actions = {
     fetchAvatars ({ commit, state }) {
-        if (Object.keys(state.avatars).length) {
-            return state.avatars
-        }
+        //if (Object.keys(state.avatars).length) {
+        //    return state.avatars
+        //}
 
         let avatars = {}
         let files = require.context('./../../../../public/images/static/avatars', true, /\.jpg$/i)

@@ -2250,8 +2250,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       console.log(e.target.files);
 
       for (var file in e.target.files) {
-        console.log(file);
-        this.messageImgs.push(file);
+        console.log(e.target.files[file]);
+        this.messageImgs.push(e.target.files[file]);
       } //this.showMsgImgs = true;
 
 
@@ -2276,22 +2276,35 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       });
     },
     sendMessage: function sendMessage() {
-      if (this.newMessage.trim().length > 0) {
+      if (this.newMessage.trim().length > 0 || this.messageImgs.length > 0) {
         var date = new Date();
         this.messages.push({
           user: this.user,
           message: this.newMessage,
           created_at: date.toLocaleTimeString('en-GB').slice(0, -3)
         });
+        var config = {
+          headers: {
+            'Content-type': 'multipart/form-data'
+          }
+        };
         var formData = new FormData();
-        this.messageImgs.forEach(function (img) {
-          formData.append('imgs', img);
+        this.messageImgs.forEach(function (img, index) {
+          console.log("img = " + img);
+          formData.append(index, img);
         });
-        axios.post('/api/sendMessage', {
+        var msgDetails = {
           message: this.newMessage,
           room_id: this.$route.params.id
+        };
+        var json = JSON.stringify(msgDetails);
+        var blob = new Blob([json], {
+          type: 'application/json'
         });
+        formData.append('msgDetails', json);
+        axios.post('/api/sendMessage', formData, config);
         this.newMessage = '';
+        this.messageImgs.length = 0;
       }
     },
     sendTypingEvent: function sendTypingEvent() {
@@ -2624,10 +2637,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
+      rules: [function (value) {
+        return !value || value.size < 2000000 || 'Avatar size should be less than 2 MB!';
+      }],
       dialog: false,
       settings: false,
       rating: 3,
@@ -2645,7 +2666,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         photo: ''
       },
       creating: false,
-      checker: true
+      checker: true,
+      updRoom: {}
     };
   },
   mounted: function mounted() {
@@ -2679,7 +2701,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         console.error(error);
       });
     }
-  }, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapMutations"])(["roomsType"]), {}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])(['fetchRooms', 'joinRoom', 'leaveRoom', 'addRoom', 'deleteRoom']), {
+  }, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapMutations"])(["roomsType"]), {}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])(['fetchRooms', 'joinRoom', 'leaveRoom', 'addRoom', 'deleteRoom', 'setgsRoom']), {
     createRoom: function createRoom() {
       var _this = this;
 
@@ -2689,6 +2711,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         if (response.message == "success") {
           _this.creating = false;
           _this.dialog = false;
+          _this.newRoom.photo = '';
 
           _this.fetchRooms().then(function (response) {
             console.log(response);
@@ -2710,6 +2733,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     delRoom: function delRoom(roomId) {
       var _this2 = this;
 
+      console.log("delete room " + roomId);
       this.deleteRoom(roomId).then(function (response) {
         if (response.message == "success") {
           _this2.settings = false;
@@ -2724,16 +2748,24 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }, function (error) {
         console.log(error);
       });
+    },
+    openSettings: function openSettings(roomId) {
+      var _this3 = this;
+
+      this.settings = true;
+      this.setgsRoom(roomId).then(function (response) {
+        _this3.updRoom = response[0];
+      });
     }
   }),
   computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])(['rooms', 'userData'])),
   created: function created() {
-    var _this3 = this;
+    var _this4 = this;
 
     var readyHandler = function readyHandler() {
       if (document.readyState == 'complete') {
-        _this3.loading = false;
-        _this3.loaded = true;
+        _this4.loading = false;
+        _this4.loaded = true;
         document.removeEventListener('readystatechange', readyHandler);
       }
     };
@@ -2761,6 +2793,24 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -2854,7 +2904,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   },
   created: function created() {// this.$vuetify.theme.dark = true;
   },
-  methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])(['logOut']), {
+  methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])(['logOut', 'fetchRooms']), {
     itemEvent: function itemEvent(name) {
       var _this = this;
 
@@ -2869,7 +2919,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           break;
       }
     }
-  })
+  }),
+  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])(['joinedRooms'])),
+  mounted: function mounted() {
+    this.fetchRooms().then(function (response) {
+      console.log(response);
+    }, function (error) {
+      console.error(error);
+    });
+  }
 });
 
 /***/ }),
@@ -10640,7 +10698,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\n.v-skeleton-loader__avatar{\n        width: 40px;\n        height:40px;\n}\nli {\n        color: black;\n}\n.boards {\n        border: 2px solid #f0f0f0 !important;\n}\n.messageBoxHeader{\n        border-bottom: 1px solid #f0f0f0 !important;\n}\n.v-btn--icon:focus{\n        outline: none;\n}\n    \n   /*  .v-list {\n      overflow-y: auto;\n    } */\n.vuebar-element {\n      height: 100%;\n      width: 100%;\n}\n.vb > .vb-dragger {\n        z-index: 1;\n        width: 12px;\n        right: 0;\n}\n.vb > .vb-dragger > .vb-dragger-styler {\n        -webkit-backface-visibility: hidden;\n        backface-visibility: hidden;\n        transform: rotate3d(0,0,0,0);\n        transition:\n            background-color 100ms ease-out,\n            margin 100ms ease-out,\n            height 100ms ease-out;\n        background-color: rgba(48, 121, 244,.1);\n        margin: 5px 5px 5px 0;\n        border-radius: 20px;\n        height: calc(100% - 10px);\n        display: block;\n}\n.vb.vb-scrolling-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.3);\n}\n.vb > .vb-dragger:hover > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n}\n.messages ul li {\n  display: inline-block;\n  clear: both;\n  float: left;\n  margin: 8px 5px 0px;\n  width: calc(100% - 25px);\n  font-size: 0.9em;\n}\n.messages ul li.sent img {\n  margin: 6px 8px 0 0;\n}\n.messages ul li.sent p {\n  background: #435f7a;\n  color: #f5f5f5;\n  float:left;\n}\n.messages ul li.replies img {\n  float: right;\n  margin: 6px 0 0 8px;\n}\n.messages ul li.replies p {\n  background: #f5f5f5;\n  float: right;\n}\n.messages ul li img {\n  width: 28px;\n  border-radius: 50%;\n  float: left;\n}\n.messages ul li p {\n  display: inline-block;\n  padding: 8px 15px;\n  border-radius: 20px;\n  max-width: 225px;\n  line-height: 130%;\n}\n.msg_time_send{\n\t\tposition: relative;\n\t\tleft: -40px;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n.msg_time{\n\t\tposition: relative;\n\t\tleft: 40px;\n        float:right;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n.v-text-field__details {\n        display: none;\n}\n.linkified{\n        text-decoration:none;\n}\n.linkified:hover{\n        text-decoration:none;\n}\n", ""]);
+exports.push([module.i, "\n.v-skeleton-loader__avatar{\n        width: 40px;\n        height:40px;\n}\nli {\n        color: black;\n}\n.boards {\n        border: 2px solid #9C1CB1 !important;\n}\n.messageBoxHeader{\n        border-bottom: 1px solid #9C1CB1 !important;\n}\n.v-btn--icon:focus{\n        outline: none;\n}\n    \n   /*  .v-list {\n      overflow-y: auto;\n    } */\n.vuebar-element {\n      height: 100%;\n      width: 100%;\n}\n.vb > .vb-dragger {\n        z-index: 1;\n        width: 12px;\n        right: 0;\n}\n.vb > .vb-dragger > .vb-dragger-styler {\n        -webkit-backface-visibility: hidden;\n        backface-visibility: hidden;\n        transform: rotate3d(0,0,0,0);\n        transition:\n            background-color 100ms ease-out,\n            margin 100ms ease-out,\n            height 100ms ease-out;\n        background-color: rgba(48, 121, 244,.1);\n        margin: 5px 5px 5px 0;\n        border-radius: 20px;\n        height: calc(100% - 10px);\n        display: block;\n}\n.vb.vb-scrolling-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.3);\n}\n.vb > .vb-dragger:hover > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n        margin: 0px;\n        height: 100%;\n}\n.vb.vb-dragging-phantom > .vb-dragger > .vb-dragger-styler {\n        background-color: rgba(48, 121, 244,.5);\n}\n.messages ul li {\n  display: inline-block;\n  clear: both;\n  float: left;\n  margin: 8px 5px 0px;\n  width: calc(100% - 25px);\n  font-size: 0.9em;\n}\n.messages ul li.sent img {\n  margin: 6px 8px 0 0;\n}\n.messages ul li.sent p {\n  background: #435f7a;\n  color: #f5f5f5;\n  float:left;\n}\n.messages ul li.replies img {\n  float: right;\n  margin: 6px 0 0 8px;\n}\n.messages ul li.replies p {\n  background: #f5f5f5;\n  float: right;\n}\n.messages ul li img {\n  width: 28px;\n  border-radius: 50%;\n  float: left;\n}\n.messages ul li p {\n  display: inline-block;\n  padding: 8px 15px;\n  border-radius: 20px;\n  max-width: 225px;\n  line-height: 130%;\n}\n.msg_time_send{\n\t\tposition: relative;\n\t\tleft: -40px;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n.msg_time{\n\t\tposition: relative;\n\t\tleft: 40px;\n        float:right;\n\t\tbottom: -35px;\n\t\tcolor: rgba(255,255,255,0.5);\n\t\tfont-size: 10px;\n}\n.v-text-field__details {\n        display: none;\n}\n.linkified{\n        text-decoration:none;\n}\n.linkified:hover{\n        text-decoration:none;\n}\n", ""]);
 
 // exports
 
@@ -60019,6 +60077,7 @@ var render = function() {
                                                                               "aspect-ratio":
                                                                                 "",
                                                                               src:
+                                                                                "http://localhost:8000/images/MsgAttachments/Images/" +
                                                                                 photo.path
                                                                             }
                                                                           }
@@ -60233,7 +60292,11 @@ var render = function() {
                       _c(
                         "v-dialog",
                         {
-                          attrs: { persistent: "", "max-width": "600px" },
+                          attrs: {
+                            "retain-focus": false,
+                            persistent: "",
+                            "max-width": "600px"
+                          },
                           scopedSlots: _vm._u([
                             {
                               key: "activator",
@@ -60398,7 +60461,8 @@ var render = function() {
                                             [
                                               _c("v-file-input", {
                                                 attrs: {
-                                                  accept: "image/*",
+                                                  rules: _vm.rules,
+                                                  accept: "image/jpeg",
                                                   label: "Room card image"
                                                 },
                                                 on: {
@@ -60516,6 +60580,310 @@ var render = function() {
           ),
           _vm._v(" "),
           _c(
+            "v-dialog",
+            {
+              attrs: {
+                persistent: "",
+                "retain-focus": false,
+                "max-width": "600px"
+              },
+              model: {
+                value: _vm.settings,
+                callback: function($$v) {
+                  _vm.settings = $$v
+                },
+                expression: "settings"
+              }
+            },
+            [
+              _c(
+                "v-card",
+                [
+                  _c("v-card-title", [
+                    _c("span", { staticClass: "headline" }, [
+                      _vm._v("Room settings")
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-text",
+                    [
+                      _c(
+                        "v-container",
+                        [
+                          _c(
+                            "v-row",
+                            [
+                              _c(
+                                "v-col",
+                                { attrs: { cols: "12", sm: "12", md: "12" } },
+                                [
+                                  _c("v-text-field", {
+                                    attrs: {
+                                      placeholder: _vm.updRoom.name,
+                                      label: "Name*",
+                                      required: ""
+                                    },
+                                    model: {
+                                      value: _vm.updateRoom.name,
+                                      callback: function($$v) {
+                                        _vm.$set(_vm.updateRoom, "name", $$v)
+                                      },
+                                      expression: "updateRoom.name"
+                                    }
+                                  })
+                                ],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "v-col",
+                                { attrs: { cols: "12", sm: "12" } },
+                                [
+                                  _c("v-select", {
+                                    attrs: {
+                                      items: ["0-17", "18-29", "30-54", "54+"],
+                                      label: "Age*",
+                                      required: ""
+                                    }
+                                  })
+                                ],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "v-col",
+                                { attrs: { cols: "12", sm: "12", md: "12" } },
+                                [
+                                  _c("v-textarea", {
+                                    staticClass: "ma-0",
+                                    attrs: {
+                                      "background-color": "#282E33",
+                                      name: "message",
+                                      placeholder: _vm.updRoom.description,
+                                      outlined: "",
+                                      rows: "3",
+                                      "no-resize": ""
+                                    },
+                                    model: {
+                                      value: _vm.updateRoom.description,
+                                      callback: function($$v) {
+                                        _vm.$set(
+                                          _vm.updateRoom,
+                                          "description",
+                                          $$v
+                                        )
+                                      },
+                                      expression: "updateRoom.description"
+                                    }
+                                  })
+                                ],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "v-col",
+                                { attrs: { cols: "12" } },
+                                [
+                                  _c("v-file-input", {
+                                    attrs: {
+                                      accept: "image/jpeg",
+                                      label: "Room card image"
+                                    },
+                                    on: { change: _vm.onUpdateFileChanged }
+                                  })
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c("small", [_vm._v("*indicates required field")])
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-actions",
+                    [
+                      _c(
+                        "v-tooltip",
+                        {
+                          attrs: { bottom: "" },
+                          scopedSlots: _vm._u([
+                            {
+                              key: "activator",
+                              fn: function(ref) {
+                                var on = ref.on
+                                return [
+                                  _c(
+                                    "v-btn",
+                                    _vm._g(
+                                      {
+                                        attrs: {
+                                          icon: "",
+                                          color: "primary",
+                                          dark: ""
+                                        },
+                                        on: {
+                                          click: function($event) {
+                                            $event.stopPropagation()
+                                            _vm.delAccept = true
+                                          }
+                                        }
+                                      },
+                                      on
+                                    ),
+                                    [_c("v-icon", [_vm._v("mdi-delete")])],
+                                    1
+                                  )
+                                ]
+                              }
+                            }
+                          ])
+                        },
+                        [_vm._v(" "), _c("span", [_vm._v("Delete room")])]
+                      ),
+                      _vm._v(" "),
+                      [
+                        _c(
+                          "v-row",
+                          { attrs: { justify: "center" } },
+                          [
+                            _c(
+                              "v-dialog",
+                              {
+                                attrs: {
+                                  "max-width": "290",
+                                  "retain-focus": false
+                                },
+                                model: {
+                                  value: _vm.delAccept,
+                                  callback: function($$v) {
+                                    _vm.delAccept = $$v
+                                  },
+                                  expression: "delAccept"
+                                }
+                              },
+                              [
+                                _c(
+                                  "v-card",
+                                  [
+                                    _c(
+                                      "v-card-title",
+                                      { staticClass: "headline" },
+                                      [
+                                        _vm._v(
+                                          "Are you sure you want to delete this?"
+                                        )
+                                      ]
+                                    ),
+                                    _vm._v(" "),
+                                    _c("v-card-text", [
+                                      _vm._v(
+                                        "\n\t\t\tWhen deleting, all data will be lost!\n        "
+                                      )
+                                    ]),
+                                    _vm._v(" "),
+                                    _c(
+                                      "v-card-actions",
+                                      [
+                                        _c("v-spacer"),
+                                        _vm._v(" "),
+                                        _c(
+                                          "v-btn",
+                                          {
+                                            attrs: {
+                                              color: "green darken-1",
+                                              text: ""
+                                            },
+                                            on: {
+                                              click: function($event) {
+                                                _vm.delAccept = false
+                                              }
+                                            }
+                                          },
+                                          [
+                                            _vm._v(
+                                              "\n            Disagree\n          "
+                                            )
+                                          ]
+                                        ),
+                                        _vm._v(" "),
+                                        _c(
+                                          "v-btn",
+                                          {
+                                            attrs: {
+                                              color: "green darken-1",
+                                              text: ""
+                                            },
+                                            on: {
+                                              click: function($event) {
+                                                return _vm.delRoom(
+                                                  _vm.updRoom.id
+                                                )
+                                              }
+                                            }
+                                          },
+                                          [
+                                            _vm._v(
+                                              "\n            Agree\n          "
+                                            )
+                                          ]
+                                        )
+                                      ],
+                                      1
+                                    )
+                                  ],
+                                  1
+                                )
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        )
+                      ],
+                      _vm._v(" "),
+                      _c("v-spacer"),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: { color: "blue darken-1", text: "" },
+                          on: {
+                            click: function($event) {
+                              $event.stopPropagation()
+                              _vm.settings = false
+                            }
+                          }
+                        },
+                        [_vm._v("Close")]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: { color: "blue darken-1", text: "" },
+                          on: { click: _vm.updatRoom }
+                        },
+                        [_vm._v("Save")]
+                      )
+                    ],
+                    2
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
             "v-row",
             { attrs: { dense: "" } },
             _vm._l(_vm.rooms, function(room) {
@@ -60621,7 +60989,7 @@ var render = function() {
                                   on: {
                                     click: function($event) {
                                       $event.stopPropagation()
-                                      _vm.settings = true
+                                      return _vm.openSettings(room.id)
                                     }
                                   }
                                 },
@@ -60667,375 +61035,6 @@ var render = function() {
                                 1
                               )
                             : _vm._e(),
-                          _vm._v(" "),
-                          _c(
-                            "v-dialog",
-                            {
-                              attrs: {
-                                persistent: "",
-                                "retain-focus": false,
-                                "max-width": "600px"
-                              },
-                              model: {
-                                value: _vm.settings,
-                                callback: function($$v) {
-                                  _vm.settings = $$v
-                                },
-                                expression: "settings"
-                              }
-                            },
-                            [
-                              _c(
-                                "v-card",
-                                [
-                                  _c("v-card-title", [
-                                    _c("span", { staticClass: "headline" }, [
-                                      _vm._v("Room settings")
-                                    ])
-                                  ]),
-                                  _vm._v(" "),
-                                  _c(
-                                    "v-card-text",
-                                    [
-                                      _c(
-                                        "v-container",
-                                        [
-                                          _c(
-                                            "v-row",
-                                            [
-                                              _c(
-                                                "v-col",
-                                                {
-                                                  attrs: {
-                                                    cols: "12",
-                                                    sm: "12",
-                                                    md: "12"
-                                                  }
-                                                },
-                                                [
-                                                  _c("v-text-field", {
-                                                    attrs: {
-                                                      placeholder: room.name,
-                                                      label: "Name*",
-                                                      required: ""
-                                                    },
-                                                    model: {
-                                                      value:
-                                                        _vm.updateRoom.name,
-                                                      callback: function($$v) {
-                                                        _vm.$set(
-                                                          _vm.updateRoom,
-                                                          "name",
-                                                          $$v
-                                                        )
-                                                      },
-                                                      expression:
-                                                        "updateRoom.name"
-                                                    }
-                                                  })
-                                                ],
-                                                1
-                                              ),
-                                              _vm._v(" "),
-                                              _c(
-                                                "v-col",
-                                                {
-                                                  attrs: {
-                                                    cols: "12",
-                                                    sm: "12"
-                                                  }
-                                                },
-                                                [
-                                                  _c("v-select", {
-                                                    attrs: {
-                                                      items: [
-                                                        "0-17",
-                                                        "18-29",
-                                                        "30-54",
-                                                        "54+"
-                                                      ],
-                                                      label: "Age*",
-                                                      required: ""
-                                                    }
-                                                  })
-                                                ],
-                                                1
-                                              ),
-                                              _vm._v(" "),
-                                              _c(
-                                                "v-col",
-                                                {
-                                                  attrs: {
-                                                    cols: "12",
-                                                    sm: "12",
-                                                    md: "12"
-                                                  }
-                                                },
-                                                [
-                                                  _c("v-textarea", {
-                                                    staticClass: "ma-0",
-                                                    attrs: {
-                                                      "background-color":
-                                                        "#282E33",
-                                                      name: "message",
-                                                      placeholder:
-                                                        room.description,
-                                                      outlined: "",
-                                                      rows: "3",
-                                                      "no-resize": ""
-                                                    },
-                                                    model: {
-                                                      value:
-                                                        _vm.updateRoom
-                                                          .description,
-                                                      callback: function($$v) {
-                                                        _vm.$set(
-                                                          _vm.updateRoom,
-                                                          "description",
-                                                          $$v
-                                                        )
-                                                      },
-                                                      expression:
-                                                        "updateRoom.description"
-                                                    }
-                                                  })
-                                                ],
-                                                1
-                                              ),
-                                              _vm._v(" "),
-                                              _c(
-                                                "v-col",
-                                                { attrs: { cols: "12" } },
-                                                [
-                                                  _c("v-file-input", {
-                                                    attrs: {
-                                                      accept: "image/*",
-                                                      label: "Room card image"
-                                                    },
-                                                    on: {
-                                                      change:
-                                                        _vm.onUpdateFileChanged
-                                                    }
-                                                  })
-                                                ],
-                                                1
-                                              )
-                                            ],
-                                            1
-                                          )
-                                        ],
-                                        1
-                                      ),
-                                      _vm._v(" "),
-                                      _c("small", [
-                                        _vm._v("*indicates required field")
-                                      ])
-                                    ],
-                                    1
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "v-card-actions",
-                                    [
-                                      _c(
-                                        "v-tooltip",
-                                        {
-                                          attrs: { bottom: "" },
-                                          scopedSlots: _vm._u(
-                                            [
-                                              {
-                                                key: "activator",
-                                                fn: function(ref) {
-                                                  var on = ref.on
-                                                  return [
-                                                    _c(
-                                                      "v-btn",
-                                                      _vm._g(
-                                                        {
-                                                          attrs: {
-                                                            icon: "",
-                                                            color: "primary",
-                                                            dark: ""
-                                                          },
-                                                          on: {
-                                                            click: function(
-                                                              $event
-                                                            ) {
-                                                              $event.stopPropagation()
-                                                              _vm.delAccept = true
-                                                            }
-                                                          }
-                                                        },
-                                                        on
-                                                      ),
-                                                      [
-                                                        _c("v-icon", [
-                                                          _vm._v("mdi-delete")
-                                                        ])
-                                                      ],
-                                                      1
-                                                    )
-                                                  ]
-                                                }
-                                              }
-                                            ],
-                                            null,
-                                            true
-                                          )
-                                        },
-                                        [
-                                          _vm._v(" "),
-                                          _c("span", [_vm._v("Delete room")])
-                                        ]
-                                      ),
-                                      _vm._v(" "),
-                                      [
-                                        _c(
-                                          "v-row",
-                                          { attrs: { justify: "center" } },
-                                          [
-                                            _c(
-                                              "v-dialog",
-                                              {
-                                                attrs: {
-                                                  "max-width": "290",
-                                                  "retain-focus": false
-                                                },
-                                                model: {
-                                                  value: _vm.delAccept,
-                                                  callback: function($$v) {
-                                                    _vm.delAccept = $$v
-                                                  },
-                                                  expression: "delAccept"
-                                                }
-                                              },
-                                              [
-                                                _c(
-                                                  "v-card",
-                                                  [
-                                                    _c(
-                                                      "v-card-title",
-                                                      {
-                                                        staticClass: "headline"
-                                                      },
-                                                      [
-                                                        _vm._v(
-                                                          "Are you sure you want to delete this?"
-                                                        )
-                                                      ]
-                                                    ),
-                                                    _vm._v(" "),
-                                                    _c("v-card-text", [
-                                                      _vm._v(
-                                                        "\n\t\t\tWhen deleting, all data will be lost!\n        "
-                                                      )
-                                                    ]),
-                                                    _vm._v(" "),
-                                                    _c(
-                                                      "v-card-actions",
-                                                      [
-                                                        _c("v-spacer"),
-                                                        _vm._v(" "),
-                                                        _c(
-                                                          "v-btn",
-                                                          {
-                                                            attrs: {
-                                                              color:
-                                                                "green darken-1",
-                                                              text: ""
-                                                            },
-                                                            on: {
-                                                              click: function(
-                                                                $event
-                                                              ) {
-                                                                _vm.delAccept = false
-                                                              }
-                                                            }
-                                                          },
-                                                          [
-                                                            _vm._v(
-                                                              "\n            Disagree\n          "
-                                                            )
-                                                          ]
-                                                        ),
-                                                        _vm._v(" "),
-                                                        _c(
-                                                          "v-btn",
-                                                          {
-                                                            attrs: {
-                                                              color:
-                                                                "green darken-1",
-                                                              text: ""
-                                                            },
-                                                            on: {
-                                                              click: function(
-                                                                $event
-                                                              ) {
-                                                                return _vm.delRoom(
-                                                                  room.id
-                                                                )
-                                                              }
-                                                            }
-                                                          },
-                                                          [
-                                                            _vm._v(
-                                                              "\n            Agree\n          "
-                                                            )
-                                                          ]
-                                                        )
-                                                      ],
-                                                      1
-                                                    )
-                                                  ],
-                                                  1
-                                                )
-                                              ],
-                                              1
-                                            )
-                                          ],
-                                          1
-                                        )
-                                      ],
-                                      _vm._v(" "),
-                                      _c("v-spacer"),
-                                      _vm._v(" "),
-                                      _c(
-                                        "v-btn",
-                                        {
-                                          attrs: {
-                                            color: "blue darken-1",
-                                            text: ""
-                                          },
-                                          on: {
-                                            click: function($event) {
-                                              $event.stopPropagation()
-                                              _vm.settings = false
-                                            }
-                                          }
-                                        },
-                                        [_vm._v("Close")]
-                                      ),
-                                      _vm._v(" "),
-                                      _c(
-                                        "v-btn",
-                                        {
-                                          attrs: {
-                                            color: "blue darken-1",
-                                            text: ""
-                                          },
-                                          on: { click: _vm.updatRoom }
-                                        },
-                                        [_vm._v("Save")]
-                                      )
-                                    ],
-                                    2
-                                  )
-                                ],
-                                1
-                              )
-                            ],
-                            1
-                          ),
                           _vm._v(" "),
                           _c(
                             "v-btn",
@@ -61273,7 +61272,55 @@ var render = function() {
                 }
               }),
               _vm._v(" "),
-              _c("v-divider")
+              _c("v-divider"),
+              _vm._v(" "),
+              _c(
+                "v-list",
+                { attrs: { subheader: "" } },
+                _vm._l(_vm.joinedRooms, function(room, index) {
+                  return _c(
+                    "v-list-item",
+                    {
+                      key: index,
+                      staticClass: "pa-0",
+                      attrs: { dense: "" },
+                      on: { click: function($event) {} }
+                    },
+                    [
+                      _c(
+                        "v-list-item-avatar",
+                        { attrs: { size: "38" } },
+                        [
+                          _c("v-img", {
+                            attrs: {
+                              src:
+                                "http://localhost:8000/images/RoomImgs/" +
+                                room.photo
+                            }
+                          })
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-item-content",
+                        [
+                          _c("v-list-item-title", {
+                            domProps: { textContent: _vm._s(room.name) }
+                          }),
+                          _vm._v(" "),
+                          _c("v-list-item-subtitle", {
+                            domProps: { textContent: _vm._s(room.description) }
+                          })
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                }),
+                1
+              )
             ],
             2
           )
@@ -121282,7 +121329,9 @@ var map = {
 	"./avatar_3.jpg": "./public/images/static/avatars/avatar_3.jpg",
 	"./avatar_4.jpg": "./public/images/static/avatars/avatar_4.jpg",
 	"./avatar_5.jpg": "./public/images/static/avatars/avatar_5.jpg",
-	"./avatar_6.jpg": "./public/images/static/avatars/avatar_6.jpg"
+	"./avatar_6.jpg": "./public/images/static/avatars/avatar_6.jpg",
+	"./avatar_7.jpg": "./public/images/static/avatars/avatar_7.jpg",
+	"./avatar_8.jpg": "./public/images/static/avatars/avatar_8.jpg"
 };
 
 
@@ -121370,6 +121419,28 @@ module.exports = "/images/avatar_5.jpg?1c70815035e8d2a7f610c166260d32df";
 /***/ (function(module, exports) {
 
 module.exports = "/images/avatar_6.jpg?a2669bc68cd7ece044c3b17a7378ad71";
+
+/***/ }),
+
+/***/ "./public/images/static/avatars/avatar_7.jpg":
+/*!***************************************************!*\
+  !*** ./public/images/static/avatars/avatar_7.jpg ***!
+  \***************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "/images/avatar_7.jpg?9e40382347ab67aa9b789785b1eb8be1";
+
+/***/ }),
+
+/***/ "./public/images/static/avatars/avatar_8.jpg":
+/*!***************************************************!*\
+  !*** ./public/images/static/avatars/avatar_8.jpg ***!
+  \***************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "/images/avatar_8.jpg?eb88bdc0baee779653cc0bf7613f8bd3";
 
 /***/ }),
 
@@ -122583,11 +122654,9 @@ var actions = {
   fetchAvatars: function fetchAvatars(_ref) {
     var commit = _ref.commit,
         state = _ref.state;
-
-    if (Object.keys(state.avatars).length) {
-      return state.avatars;
-    }
-
+    //if (Object.keys(state.avatars).length) {
+    //    return state.avatars
+    //}
     var avatars = {};
 
     var files = __webpack_require__("./public/images/static/avatars sync recursive \\.jpg$/");
@@ -122646,6 +122715,11 @@ var getters = {
   },
   currentRoom: function currentRoom(state) {
     return state.currentRoom;
+  },
+  joinedRooms: function joinedRooms(state) {
+    return state.rooms.filter(function (room) {
+      return room.joined;
+    });
   }
 };
 var mutations = {
@@ -122888,6 +122962,31 @@ var actions = {
           }
         }
       }, _callee6);
+    }))();
+  },
+  setgsRoom: function setgsRoom(_ref7, roomId) {
+    return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee7() {
+      var commit, state, dispatch;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee7$(_context7) {
+        while (1) {
+          switch (_context7.prev = _context7.next) {
+            case 0:
+              commit = _ref7.commit, state = _ref7.state, dispatch = _ref7.dispatch;
+              return _context7.abrupt("return", new Promise(function (resolve, reject) {
+                var getRoom = state.rooms.filter(function (room) {
+                  return room.id == roomId;
+                });
+                resolve(getRoom);
+              }, function (error) {
+                reject(error);
+              }));
+
+            case 2:
+            case "end":
+              return _context7.stop();
+          }
+        }
+      }, _callee7);
     }))();
   }
   /* async fetchMembers ({commit, state}){

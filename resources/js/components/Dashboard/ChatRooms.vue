@@ -4,7 +4,7 @@
 		<v-row dens class="mb-5">
 			<v-col class="pa-0" cols=12 >
 		  	<v-container raised elevation=12  class="pa-1 d-flex justify-space-between "> 
-			<v-dialog v-model="dialog" persistent max-width="600px" >
+			<v-dialog v-model="dialog" :retain-focus="false" persistent max-width="600px" >
 			  <template v-slot:activator="{ on }">
 				<v-btn v-on="on" outlined tile color="indigo"><v-icon left>mdi-card-plus</v-icon> Create Room</v-btn>
 			  </template>
@@ -38,7 +38,12 @@
                             ></v-textarea>
 					  </v-col>
 					  <v-col cols=12>
-					  	<v-file-input @change="onFileChanged"  accept="image/*" label="Room card image"></v-file-input>
+					  	<v-file-input 
+						:rules="rules"
+						@change="onFileChanged"  
+						accept="image/jpeg" 
+						label="Room card image">
+						</v-file-input>
 					  </v-col>
 					</v-row>
 				  </v-container>
@@ -57,53 +62,7 @@
 			</v-container>
 		  </v-col>
 		</v-row>
-		  <v-row dense>
-			<v-col
-			  v-for="room in rooms"
-			  :key="room.name"
-			  :xs=12
-			  :sm=12
-			  :md="room.flex + 2"
-			  :lg="room.flex"
-			  :xl="room.flex"
-			>
-			
-				<v-skeleton-loader
-				  v-if="loading == true" 
-				  :loading="loading"
-				  transition="fade-transition"
-				  class="mx-auto"
-				  type="card"
-				></v-skeleton-loader>
-			
-			  <v-card  v-show="loaded" elevation=12>
-				<v-img
-				  :src="'http://localhost:8000/images/RoomImgs/' + room.photo"
-				  class="white--text align-start pt-1 pl-1"
-				  gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-				  height="200"
-				>
-				<v-rating small dense v-model="room.id"></v-rating>
-				<v-card-title class="justify-center mb-5" v-text="room.name"></v-card-title>
-				<v-card-text class="text-center" v-text="room.description"></v-card-text>
-				</v-img>
-				<v-card-actions>
-				  
-					<v-btn elevation=6 :disabled="!room.joined" color="primary" :to="'/dashBoard/room/id' + room.id">
-							Join a chat
-					</v-btn>
-					
-				<v-spacer></v-spacer>
-	
-				<v-btn @click.stop="settings = true" icon v-if="room.admin">
-					<v-tooltip bottom>
-						<template v-slot:activator="{ on }" >
-							<v-icon color="primary" dark v-on="on">mdi-cog</v-icon>
-						</template>
-						<span >Settings</span>
-					 </v-tooltip>
-				</v-btn>
-				<v-dialog v-model="settings" persistent :retain-focus="false" max-width="600px">
+		<v-dialog v-model="settings" persistent :retain-focus="false" max-width="600px">
 				  <v-card>
 					<v-card-title>
 					  <span class="headline">Room settings</span>
@@ -112,7 +71,7 @@
 					  <v-container>
 						<v-row>
 						  <v-col cols="12" sm="12" md="12">
-							<v-text-field v-model="updateRoom.name" :placeholder="room.name" label="Name*" required></v-text-field>
+							<v-text-field v-model="updateRoom.name" :placeholder="updRoom.name" label="Name*" required></v-text-field>
 						  </v-col>
 						  <v-col cols="12" sm="12">
 							<v-select
@@ -126,7 +85,7 @@
 								  background-color="#282E33"
 								  name="message"
 								  class="ma-0"
-								  :placeholder="room.description"
+								  :placeholder="updRoom.description"
 								  outlined
 								  v-model="updateRoom.description"
 								  rows="3"
@@ -134,7 +93,7 @@
 								></v-textarea>
 						  </v-col>
 						  <v-col cols=12>
-							<v-file-input @change="onUpdateFileChanged"  accept="image/*" label="Room card image"></v-file-input>
+							<v-file-input @change="onUpdateFileChanged"  accept="image/jpeg" label="Room card image"></v-file-input>
 						  </v-col>
 						</v-row>
 					  </v-container>
@@ -175,7 +134,7 @@
           <v-btn
             color="green darken-1"
             text
-            @click="delRoom(room.id)"
+            @click="delRoom(updRoom.id)"
           >
             Agree
           </v-btn>
@@ -191,6 +150,52 @@
 					</v-card-actions>
 				  </v-card>
 				</v-dialog>
+		  <v-row dense>
+			<v-col
+			  v-for="room in rooms"
+			  :key="room.name"
+			  :xs=12
+			  :sm=12
+			  :md="room.flex + 2"
+			  :lg="room.flex"
+			  :xl="room.flex"
+			>
+			
+				<v-skeleton-loader
+				  v-if="loading == true" 
+				  :loading="loading"
+				  transition="fade-transition"
+				  class="mx-auto"
+				  type="card"
+				></v-skeleton-loader>
+			
+			  <v-card  v-show="loaded" elevation=12>
+				<v-img
+				  :src="'http://localhost:8000/images/RoomImgs/' + room.photo"
+				  class="white--text align-start pt-1 pl-1"
+				  gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+				  height="200"
+				>
+				<v-rating small dense v-model="room.id"></v-rating>
+				<v-card-title class="justify-center mb-5" v-text="room.name"></v-card-title>
+				<v-card-text class="text-center" v-text="room.description"></v-card-text>
+				</v-img>
+				<v-card-actions>
+				  
+					<v-btn elevation=6 :disabled="!room.joined" color="primary" :to="'/dashBoard/room/id' + room.id">
+							Join a chat
+					</v-btn>
+					
+				<v-spacer></v-spacer>
+	
+				<v-btn @click.stop="openSettings(room.id)" icon v-if="room.admin">
+					<v-tooltip bottom>
+						<template v-slot:activator="{ on }" >
+							<v-icon color="primary" dark v-on="on">mdi-cog</v-icon>
+						</template>
+						<span >Settings</span>
+					 </v-tooltip>
+				</v-btn>
 				  <v-btn icon>
 					<v-tooltip bottom>
 						<template v-slot:activator="{ on }" v-if="room.joined">
@@ -215,6 +220,9 @@
 import {mapActions, mapGetters, mapMutations} from "vuex";
 export default{
 	data: () => ({
+		rules: [
+        	value => !value || value.size < 2000000 || 'Avatar size should be less than 2 MB!',
+      		],
 		dialog: false,
 		settings: false,
 		rating: 3,
@@ -233,6 +241,7 @@ export default{
 		},
 		creating: false,
 		checker: true,
+		updRoom: {}
 	}),
 	mounted() {
         // this.$vuetify.theme.dark = true;
@@ -273,7 +282,8 @@ export default{
 				'joinRoom',
 				'leaveRoom',
 				'addRoom',
-				'deleteRoom'
+				'deleteRoom',
+				'setgsRoom'
                 ]),
 		createRoom(){
 			this.creating = true;
@@ -282,6 +292,7 @@ export default{
 				if(response.message == "success"){
 					this.creating = false; 
 					this.dialog = false;
+					this.newRoom.photo = '';
 					this.fetchRooms().then(response => {
 						console.log(response);
 					}, error => {
@@ -303,6 +314,7 @@ export default{
 			
 		},
 		delRoom(roomId){
+			console.log("delete room " + roomId);
 			this.deleteRoom(roomId).then(response => {
 				if(response.message == "success"){
 					this.settings = false;
@@ -315,6 +327,12 @@ export default{
 				}
 			}, error => {
 				console.log(error)
+			})
+		},
+		openSettings(roomId){
+			this.settings = true;
+			this.setgsRoom(roomId).then(response => {
+				this.updRoom = response[0];
 			})
 		}
 	},

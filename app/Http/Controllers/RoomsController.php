@@ -43,10 +43,15 @@ class RoomsController extends Controller
         }
         else
         {
-			$upload_path = public_path('images/RoomImgs');
-			//$file_name = $req->photo->getClientOriginalName();
-			$generated_new_name = time() . '.' . $req->photo->getClientOriginalExtension();
-			$req->photo->move($upload_path, $generated_new_name);
+			if($req->photo){
+				$upload_path = public_path('images/RoomImgs');
+				//$file_name = $req->photo->getClientOriginalName();
+				$generated_new_name = rand() . time() . '.' . $req->photo->getClientOriginalExtension();
+				$req->photo->move($upload_path, $generated_new_name);
+			}
+			else{
+				$generated_new_name = "default.png";
+			}
             // return response()->json($user);
             $user = $this->getUser();
             // dd($user);
