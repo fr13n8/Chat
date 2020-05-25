@@ -1,7 +1,7 @@
 import Axios from "axios";
 
 const state = () => ({
-    rooms: {},
+    rooms: [],
 	currentRoom: {},
 	getRooms: {},
 })
@@ -16,7 +16,8 @@ const getters = {
 	},
 
 	joinedRooms(state){
-		return state.rooms.filter(room => room.joined);
+		console.log("asdasdsa")
+		return state.rooms.length > 0 ? state.rooms.filter(room => room.joined) : {};
 	},
 
 }

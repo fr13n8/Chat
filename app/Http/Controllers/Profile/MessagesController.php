@@ -78,7 +78,7 @@ class MessagesController extends Controller
         //     "message" => $message,
         //     "room_id" => $req->room_id
         // ];
-        broadcast(new MessageSend($message, $data))->toOthers();
+        broadcast(new MessageSend($message, $data));
 
         return response()->json([
             "status" => "success"

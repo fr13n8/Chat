@@ -108,7 +108,7 @@
                                         <v-row v-show="message.photos" class="pa-0" no-gutters>
                                             <v-col :cols="photo.col" v-for=" (photo, index) in message.photos" :key="photo.id">
                                                 <v-card class="pa-1" height=100% width=100% flat outlined>
-													<img style="height:100%; width:100%; object-fit: cover;" aspect-ratio :src="'http://localhost:8000/images/MsgAttachments/Images/' + photo.path"/>
+													<img style="height:150px; width:100%; object-fit: cover;" aspect-ratio :src="'http://localhost:8000/images/MsgAttachments/Images/' + photo.path"/>
 												</v-card>
                                             </v-col>
                                             
@@ -297,12 +297,12 @@ import {mapGetters, mapActions} from "vuex";
             }, 
             sendMessage() {
                 if(this.newMessage.trim().length > 0 || this.messageImgs.length > 0){
-                    let date = new Date();
-                    this.messages.push({
-                            user: this.user,
-                            message: this.newMessage,
-                            created_at: date.toLocaleTimeString('en-GB',).slice(0, -3)
-                    });
+                    //let date = new Date();
+                    //this.messages.push({
+                    //        user: this.user,
+                    //        message: this.newMessage,
+                    //        created_at: date.toLocaleTimeString('en-GB',).slice(0, -3)
+                    //});
                     const config = {
                         headers : {
                             'Content-type': 'multipart/form-data',
@@ -407,28 +407,39 @@ import {mapGetters, mapActions} from "vuex";
                 }
             },
         },
+        
         computed: {
             ...mapGetters([
                 "userData",
                 "currentRoom"
                 ]),
         },
+        
         mounted() {
           this.onResize()  
         },
+        
         watch:{
-            $route (to, from){
-                console.log(to)
+            'this.$route.params.id': function (to, from){
+                console.log("ddd")
             }
         },
+        
         beforeRouteLeave (to, from, next) {
             Echo.leave('chat.' + this.$route.params.id);
+            console.log("leav next")
             next();
+        },
+        
+        beforeRouteUpdate (to, from, next) {
+          Echo.leave('chat.' + this.$route.params.id);
+          console.log("update next")
+          next();
         }
     }
 </script>
 
-<style >
+<style scoped>
     .v-skeleton-loader__avatar{
         width: 40px;
         height:40px;
