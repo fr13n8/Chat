@@ -1,6 +1,6 @@
 <template>
 <v-content  style="height:100%" class="pa-0 ma-0">
-<v-container style="height:100%" fluid class="mx-0" >
+<v-container  fluid class="mx-0">
         <v-row v-resize="onResize" dense style="height:100%">
             <v-col
             cols=3
@@ -58,10 +58,10 @@
                     </v-card-actions>
                     </v-card>
                 </v-col>
-                    <v-col cols=12 style="height:70%">
-                        <v-container  fluid class="py-0 pt-1 pl-0" style="height:100%">
+                    <v-col cols=12 >
+                        <v-container  fluid class="py-0 pt-1 pl-0" >
                         <div class="vuebar-element pl-2" v-bar>
-                        <div style="max-height:470px;" class="px-1 pt-2 my-0" v-chat-scroll="{always: false, smooth: true, scrollonremoved:true, smoothonremoved: false}">
+                        <div style="max-height:650px;" class="px-1 pt-2 my-0" v-chat-scroll="{always: false, smooth: true, scrollonremoved:true, smoothonremoved: false}">
                                 <v-row v-for="(message, index) in messages"
                                                     :key="index"
                                                     @click=""
@@ -122,7 +122,7 @@
                         </v-container>
                     </v-col>
                     <v-spacer></v-spacer>
-                    <v-col cols=12 height=24%>
+                    <v-col cols=12>
                         <v-container fluid class="pa-1 px-2" style="height:100%">
                         <v-row class="px-2" dense>
                             <v-btn @click="uploadFile" class="mr-1" rounded icon >
