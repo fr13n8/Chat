@@ -19,7 +19,7 @@ class CreateRoomsTable extends Migration
             $table->integer("admin_id")->unsigned();
             $table->text('description');
             $table->char('photo', 100)->default('default');
-            $table->integer('flex')->default(2);
+            $table->integer('flex')->default(3);
             $table->timestamps();
         });
     }
